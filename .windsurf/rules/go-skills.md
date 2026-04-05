@@ -14,7 +14,8 @@ Or manually: copy `skills/*/*/` into `.windsurf/skills/`.
 ## Skills
 
 Code Quality: go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
-Architecture: go-architecture-review, go-interface-design, go-api-design, go-database, go-design-patterns
+Architecture: go-architecture-review, go-interface-design, go-api-design, go-design-patterns
+Data: go-database
 Safety: go-concurrency-review, go-security-audit, go-performance-review, go-observability
 Testing: go-test-quality, go-test-table-driven
 Workflow: go-dependency-audit, git-commit

@@ -22,7 +22,7 @@
         "./skills/(workflow)/git-commit",
         "./skills/(code-quality)/go-context",
         "./skills/(code-quality)/go-modernize",
-        "./skills/(architecture)/go-database",
+        "./skills/(data)/go-database",
         "./skills/(architecture)/go-design-patterns",
         "./skills/(safety)/go-observability"
       ]

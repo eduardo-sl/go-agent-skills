@@ -19,7 +19,8 @@ Or manually: copy the contents of `skills/*/*/` into `.cursor/skills/`.
 ## Available Skills
 
 - go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
-- go-architecture-review, go-interface-design, go-api-design, go-database, go-design-patterns
+- go-architecture-review, go-interface-design, go-api-design, go-design-patterns
+- go-database
 - go-concurrency-review, go-security-audit, go-performance-review, go-observability
 - go-test-quality, go-test-table-driven
 - go-dependency-audit, git-commit

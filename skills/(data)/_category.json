@@ -1,0 +1,5 @@
+{
+  "name": "Data",
+  "description": "Database access, query patterns, migrations, and data layer best practices for Go services.",
+  "icon": "🗄️"
+}

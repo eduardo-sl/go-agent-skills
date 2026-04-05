@@ -39,8 +39,13 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-architecture-review](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" |
 | [go-interface-design](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" |
 | [go-api-design](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" |
-| [go-database](skills/(architecture)/go-database/) | Connection pools, transactions, sqlc, migrations, repository pattern | "database access", "SQL query", "transactions" |
 | [go-design-patterns](skills/(architecture)/go-design-patterns/) | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" |
+
+### Data
+
+| Skill | What it does | Triggers |
+|---|---|---|
+| [go-database](skills/(data)/go-database/) | Connection pools, transactions, sqlc, migrations, repository pattern | "database access", "SQL query", "transactions" |
 
 ### Safety & Performance
 
@@ -140,7 +145,8 @@ npx skills remove go-performance-review
 go-agent-skills/
 ├── skills/                            # All skill definitions
 │   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
-│   ├── (architecture)/                # go-architecture-review, go-interface-design, go-api-design, go-database, go-design-patterns
+│   ├── (architecture)/                # go-architecture-review, go-interface-design, go-api-design, go-design-patterns
+│   ├── (data)/                        # go-database
 │   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
 │   └── (workflow)/                    # go-dependency-audit, git-commit

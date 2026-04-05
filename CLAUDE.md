@@ -20,8 +20,10 @@ Or use directly by invoking `/skill-name` in Claude Code.
 - `/go-architecture-review` — Package layout, dependency direction, layering
 - `/go-interface-design` — Consumer-side interfaces, composition, compliance
 - `/go-api-design` — REST/gRPC handlers, middleware, graceful shutdown
-- `/go-database` — Connection pools, transactions, sqlc, migrations
 - `/go-design-patterns` — Functional options, factory, strategy, decorator
+
+### Data
+- `/go-database` — Connection pools, transactions, sqlc, migrations
 
 ### Safety & Performance
 - `/go-concurrency-review` — Goroutines, channels, mutexes, race detection
