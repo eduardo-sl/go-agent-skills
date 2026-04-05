@@ -29,6 +29,8 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-coding-standards](skills/(code-quality)/go-coding-standards/) | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" |
 | [go-code-review](skills/(code-quality)/go-code-review/) | Structured review process with severity classification | "review this code", "check this PR" |
 | [go-error-handling](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" |
+| [go-context](skills/(code-quality)/go-context/) | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" |
+| [go-modernize](skills/(code-quality)/go-modernize/) | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" |
 
 ### Architecture & Design
 
@@ -37,6 +39,8 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-architecture-review](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" |
 | [go-interface-design](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" |
 | [go-api-design](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" |
+| [go-database](skills/(architecture)/go-database/) | Connection pools, transactions, sqlc, migrations, repository pattern | "database access", "SQL query", "transactions" |
+| [go-design-patterns](skills/(architecture)/go-design-patterns/) | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" |
 
 ### Safety & Performance
 
@@ -45,6 +49,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-concurrency-review](skills/(safety)/go-concurrency-review/) | Goroutine lifecycle, channels, mutexes, race detection | "check thread safety", "goroutine leak" |
 | [go-security-audit](skills/(safety)/go-security-audit/) | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" |
 | [go-performance-review](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" |
+| [go-observability](skills/(safety)/go-observability/) | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" |
 
 ### Testing
 
@@ -134,9 +139,9 @@ npx skills remove go-performance-review
 ```
 go-agent-skills/
 ├── skills/                            # All skill definitions
-│   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling
-│   ├── (architecture)/                # go-architecture-review, go-interface-design, go-api-design
-│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review
+│   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
+│   ├── (architecture)/                # go-architecture-review, go-interface-design, go-api-design, go-database, go-design-patterns
+│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
 │   └── (workflow)/                    # go-dependency-audit, git-commit
 │

@@ -13,16 +13,21 @@ Or use directly by invoking `/skill-name` in Claude Code.
 - `/go-coding-standards` — Style, naming, imports, struct init
 - `/go-code-review` — Structured review with severity levels
 - `/go-error-handling` — Wrapping, sentinels, custom types, errors.Is/As
+- `/go-context` — Context propagation, cancellation, timeouts, values
+- `/go-modernize` — Generics, slog, errors.Join, slices/maps, iterators
 
 ### Architecture
 - `/go-architecture-review` — Package layout, dependency direction, layering
 - `/go-interface-design` — Consumer-side interfaces, composition, compliance
 - `/go-api-design` — REST/gRPC handlers, middleware, graceful shutdown
+- `/go-database` — Connection pools, transactions, sqlc, migrations
+- `/go-design-patterns` — Functional options, factory, strategy, decorator
 
 ### Safety & Performance
 - `/go-concurrency-review` — Goroutines, channels, mutexes, race detection
 - `/go-security-audit` — OWASP, SQL injection, auth, secrets
 - `/go-performance-review` — Allocations, benchmarks, pprof
+- `/go-observability` — Structured logging, tracing, metrics, OpenTelemetry
 
 ### Testing
 - `/go-test-quality` — Subtests, httptest, golden files, fuzz, testcontainers

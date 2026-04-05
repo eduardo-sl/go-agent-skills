@@ -7,9 +7,9 @@ Install: `npx skills add eduardo-sl/go-agent-skills -a cline`
 
 Or manually: copy `skills/*/*/` into `.cline/skills/`.
 
-Skills: go-coding-standards, go-code-review, go-error-handling,
-go-architecture-review, go-interface-design, go-api-design,
-go-concurrency-review, go-security-audit, go-performance-review,
+Skills: go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize,
+go-architecture-review, go-interface-design, go-api-design, go-database, go-design-patterns,
+go-concurrency-review, go-security-audit, go-performance-review, go-observability,
 go-test-quality, go-test-table-driven, go-dependency-audit, git-commit.
 
 Each skill is in `skills/(category)/skill-name/SKILL.md`.
