@@ -92,6 +92,12 @@ update ALL of these:
 The skill list in all files MUST match. If a file lists a skill that doesn't
 exist (or omits one that does), users on that platform get confused.
 
+## Language
+
+- **All files in this repository must be written in English.** This includes
+  SKILL.md files, documentation, commit messages, comments, and any other
+  text content. No exceptions.
+
 ## Important constraints
 
 - Skills must be **agent-agnostic**. No Claude-specific, Cursor-specific, or
