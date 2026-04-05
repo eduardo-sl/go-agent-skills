@@ -48,7 +48,7 @@ func (w *Worker) Run(ctx context.Context) error {
             return ctx.Err()
         case job := <-w.jobs:
             if err := w.process(job); err != nil {
-                w.logger.Error("process job", zap.Error(err))
+                w.logger.Error("process job", slog.Any("error", err))
             }
         }
     }

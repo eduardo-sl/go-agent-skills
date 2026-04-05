@@ -227,7 +227,7 @@ func TestUserHandler_GetByID(t *testing.T) {
             return nil, ErrNotFound
         },
     }
-    handler := NewUserHandler(store, zap.NewNop())
+    handler := NewUserHandler(store, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
     t.Run("returns user as JSON", func(t *testing.T) {
         req := httptest.NewRequest(http.MethodGet, "/users/123", nil)

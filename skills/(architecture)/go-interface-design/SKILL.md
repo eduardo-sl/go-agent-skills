@@ -180,7 +180,7 @@ func NewServer(addr string, opts ...Option) *Server {
     s := &Server{
         addr:    addr,
         timeout: 30 * time.Second,  // sensible default
-        logger:  zap.NewNop(),      // default no-op logger
+        logger:  slog.Default(),    // default stdlib logger
     }
     for _, opt := range opts {
         opt(s)

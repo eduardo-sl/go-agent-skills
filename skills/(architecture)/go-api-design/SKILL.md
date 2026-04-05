@@ -25,7 +25,7 @@ you'll maintain them for a decade — because you probably will.
 // ✅ Good — method on a struct with dependencies
 type UserHandler struct {
     store  UserStore
-    logger *zap.Logger
+    logger *slog.Logger
 }
 
 func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +60,7 @@ func (h *UserHandler) handleGet(w http.ResponseWriter, r *http.Request) {
             h.respondError(w, http.StatusNotFound, "user not found")
             return
         }
-        h.logger.Error("get user", zap.Error(err))
+        h.logger.Error("get user", slog.Any("error", err))
         h.respondError(w, http.StatusInternalServerError, "internal error")
         return
     }
@@ -76,7 +76,7 @@ func (h *UserHandler) respondJSON(w http.ResponseWriter, status int, data interf
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
     if err := json.NewEncoder(w).Encode(data); err != nil {
-        h.logger.Error("encode response", zap.Error(err))
+        h.logger.Error("encode response", slog.Any("error", err))
     }
 }
 
@@ -102,14 +102,14 @@ func RequestID(next http.Handler) http.Handler {
     })
 }
 
-func Recoverer(logger *zap.Logger) func(http.Handler) http.Handler {
+func Recoverer(logger *slog.Logger) func(http.Handler) http.Handler {
     return func(next http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             defer func() {
                 if rec := recover(); rec != nil {
                     logger.Error("panic recovered",
-                        zap.Any("panic", rec),
-                        zap.String("stack", string(debug.Stack())),
+                        slog.Any("panic", rec),
+                        slog.String("stack", string(debug.Stack())),
                     )
                     http.Error(w, "internal server error", http.StatusInternalServerError)
                 }

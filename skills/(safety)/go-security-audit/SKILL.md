@@ -248,7 +248,7 @@ log.Printf("request body: %v", req) // may contain secrets
 
 // ✅ Good — redact sensitive fields
 log.Printf("user login: email=%s", email)
-logger.Info("auth completed", zap.String("user_id", userID))
+logger.Info("auth completed", slog.String("user_id", userID))
 ```
 
 ## Security Audit Checklist

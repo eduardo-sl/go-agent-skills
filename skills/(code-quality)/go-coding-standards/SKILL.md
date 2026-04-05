@@ -28,7 +28,7 @@ import (
 
     // 2. External packages
     "github.com/gorilla/mux"
-    "go.uber.org/zap"
+    "log/slog"
 
     // 3. Internal/project packages
     "github.com/myorg/myproject/internal/service"
@@ -67,7 +67,7 @@ Use `var` for top-level declarations. Do NOT specify type when it matches the ex
 ```go
 // ✅ Good
 var _defaultPort = 8080
-var _logger = zap.NewNop()
+var _logger = slog.Default()
 
 // ❌ Bad — redundant type
 var _defaultPort int = 8080

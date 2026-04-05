@@ -99,11 +99,12 @@ func (s *Store) GetByID(ctx context.Context, id string) (*domain.User, error) { 
 ```go
 func main() {
     cfg := config.Load()
-    logger := zap.Must(zap.NewProduction())
+    logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
     db, err := sql.Open("postgres", cfg.DatabaseURL)
     if err != nil {
-        logger.Fatal("connect db", zap.Error(err))
+        logger.Error("connect db", slog.Any("error", err))
+        os.Exit(1)
     }
     defer db.Close()
 
