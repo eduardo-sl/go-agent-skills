@@ -10,13 +10,13 @@ description: >
   use go-architecture-review, go-concurrency-review, or go-performance-review instead.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Go Coding Standards
 
 Idiomatic Go conventions grounded in Effective Go, Go Code Review Comments, and production-proven idioms.
-All code MUST pass `goimports`, `golint`, and `go vet` without errors.
+All code MUST pass `goimports`, `go vet`, and `staticcheck` (or `golangci-lint run`) without errors.
 
 ## 1. Import Ordering
 

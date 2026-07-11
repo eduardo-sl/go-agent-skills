@@ -9,7 +9,7 @@ description: >
   performance-specific analysis (use go-performance-review).
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Go Code Review
@@ -34,6 +34,22 @@ Execute these steps in order. For each finding, classify severity:
 - 🔴 **BLOCKER** — Must fix before merge. Correctness, data loss, security.
 - 🟡 **WARNING** — Should fix. Maintainability, idiomatic Go, clarity.
 - 🟢 **SUGGESTION** — Consider improving. Style, naming, documentation.
+
+## 0. Run the Toolchain First
+
+Before reading code manually, let the tools catch the mechanical issues
+(skip any tool that is not installed and note it in the report):
+
+```bash
+go build ./...          # it must compile
+go vet ./...            # suspicious constructs
+golangci-lint run       # if the repo has a config
+go test -race ./...     # tests pass, no data races
+```
+
+Report tool findings alongside manual findings — a failing `go vet` is
+an automatic 🔴 BLOCKER. Never report an issue a tool already proves
+absent.
 
 ## 1. Correctness & Safety
 

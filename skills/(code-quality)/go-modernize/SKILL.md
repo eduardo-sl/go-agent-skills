@@ -11,7 +11,7 @@ description: >
   logging architecture (use go-observability).
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Go Modernize
@@ -31,9 +31,18 @@ Read a reference file only when the summary below is not enough.
 ## Modernization Procedure
 
 1. Check the `go` directive in `go.mod` — it caps which features you can use.
-2. Scan the table below for applicable migrations, oldest first.
-3. Apply mechanical replacements (slices/maps helpers, range-over-int) in
-   bulk; apply judgment-based ones (generics, iterators) case by case.
+2. Run the official modernize analyzer first — it finds and fixes the
+   mechanical migrations automatically:
+
+   ```bash
+   go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
+   ```
+
+   If the command is unavailable in your environment, apply the table
+   below manually instead.
+3. Scan the table below for the judgment-based migrations the analyzer
+   does not cover (generics, iterators, logger replacement) and apply
+   them case by case.
 4. Run `go build ./...` and the test suite after each group of changes.
 
 ## Feature Table by Go Version
