@@ -121,8 +121,9 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         ok "All code fences have language tags"
     fi
 
-    # 10. Check header depth (max ###)
-    if grep -qE '^####' "$skill_file"; then
+    # 10. Check header depth (max ###), ignoring lines inside code fences
+    deep_headers=$(awk '/^```/{fence=!fence; next} !fence && /^####/{c++} END{print c+0}' "$skill_file")
+    if [[ $deep_headers -gt 0 ]]; then
         warn "Headers deeper than ### found (guidelines allow max ###)"
     fi
 
