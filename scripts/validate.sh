@@ -81,7 +81,19 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         fi
     fi
 
-    # 4. Check line count
+    # 4. Check version metadata
+    if echo "$frontmatter" | grep -qE '^  version: "[0-9]+\.[0-9]+\.[0-9]+"$'; then
+        ok "Has semver version metadata"
+    else
+        error "Missing 'metadata.version' (semver, quoted) in frontmatter"
+    fi
+
+    # 5. Check license
+    if ! echo "$frontmatter" | grep -q "^license:"; then
+        warn "Missing 'license' field in frontmatter"
+    fi
+
+    # 6. Check line count
     line_count=$(wc -l < "$skill_file")
     if [[ $line_count -gt 500 ]]; then
         error "SKILL.md is $line_count lines (max 500). Move content to references/"
@@ -91,14 +103,39 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         ok "Line count: $line_count (under 500)"
     fi
 
-    # 5. Check for trailing whitespace
+    # 7. Check for trailing whitespace
     if grep -qn '[[:space:]]$' "$skill_file" 2>/dev/null; then
         warn "Trailing whitespace detected"
     fi
 
-    # 6. Check name format (lowercase, hyphens only)
+    # 8. Check name format (lowercase, hyphens only)
     if ! echo "$skill_name" | grep -qE "^[a-z][a-z0-9-]*$"; then
         error "Skill name must be lowercase with hyphens only: '$skill_name'"
+    fi
+
+    # 9. Check code fences have language tags (odd fences open a block)
+    untagged=$(awk '/^```/{n++; if(n%2==1 && $0=="```") c++} END{print c+0}' "$skill_file")
+    if [[ $untagged -gt 0 ]]; then
+        error "$untagged code fence(s) missing a language tag"
+    else
+        ok "All code fences have language tags"
+    fi
+
+    # 10. Check header depth (max ###)
+    if grep -qE '^####' "$skill_file"; then
+        warn "Headers deeper than ### found (guidelines allow max ###)"
+    fi
+
+    # 11. Check referenced files under references/ actually exist
+    missing_refs=0
+    while IFS= read -r ref; do
+        if [[ ! -f "$skill_dir/$ref" ]]; then
+            error "Referenced file does not exist: $ref"
+            missing_refs=$((missing_refs + 1))
+        fi
+    done < <(grep -oE 'references/[a-z0-9./_-]+\.md' "$skill_file" | sort -u)
+    if [[ $missing_refs -eq 0 ]]; then
+        ok "All references/ links resolve"
     fi
 
     echo ""
