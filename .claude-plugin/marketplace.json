@@ -24,7 +24,17 @@
         "./skills/(code-quality)/go-modernize",
         "./skills/(data)/go-database",
         "./skills/(architecture)/go-design-patterns",
-        "./skills/(safety)/go-observability"
+        "./skills/(safety)/go-observability",
+        "./skills/(code-quality)/go-data-structures",
+        "./skills/(code-quality)/go-documentation",
+        "./skills/(architecture)/go-project-layout",
+        "./skills/(architecture)/go-dependency-injection",
+        "./skills/(architecture)/go-cli",
+        "./skills/(architecture)/go-grpc",
+        "./skills/(safety)/go-troubleshooting",
+        "./skills/(workflow)/go-ci",
+        "./skills/(workflow)/go-refactoring",
+        "./skills/(workflow)/go-semantic-tools"
       ]
     }
   ]

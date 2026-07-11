@@ -31,15 +31,21 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-error-handling](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" |
 | [go-context](skills/(code-quality)/go-context/) | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" |
 | [go-modernize](skills/(code-quality)/go-modernize/) | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" |
+| [go-data-structures](skills/(code-quality)/go-data-structures/) | Slices, maps, sets, aliasing, preallocation, nil vs empty | "nil slice", "map iteration", "slice aliasing" |
+| [go-documentation](skills/(code-quality)/go-documentation/) | Godoc conventions, testable examples, deprecation notices | "add godoc", "document this package" |
 
 ### Architecture & Design
 
 | Skill | What it does | Triggers |
 |---|---|---|
 | [go-architecture-review](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" |
+| [go-project-layout](skills/(architecture)/go-project-layout/) | Scaffolding new projects: cmd/internal, module naming, thin main | "new Go project", "scaffold a service" |
 | [go-interface-design](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" |
 | [go-api-design](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" |
+| [go-grpc](skills/(architecture)/go-grpc/) | Proto design, status codes, interceptors, deadlines, streaming | "gRPC service", "interceptor", "proto design" |
 | [go-design-patterns](skills/(architecture)/go-design-patterns/) | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" |
+| [go-dependency-injection](skills/(architecture)/go-dependency-injection/) | Constructor injection, composition root, wire/fx trade-offs | "dependency injection", "remove global state" |
+| [go-cli](skills/(architecture)/go-cli/) | Flags, subcommands, exit codes, signals, Cobra decision point | "build a CLI", "handle Ctrl+C", "exit codes" |
 
 ### Data
 
@@ -55,6 +61,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-security-audit](skills/(safety)/go-security-audit/) | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" |
 | [go-performance-review](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" |
 | [go-observability](skills/(safety)/go-observability/) | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" |
+| [go-troubleshooting](skills/(safety)/go-troubleshooting/) | Panics, deadlocks, memory/goroutine leaks, pprof diffing, delve | "debug this panic", "memory leak", "deadlock" |
 
 ### Testing
 
@@ -68,6 +75,9 @@ Skills load automatically based on context. You can also invoke them directly vi
 | Skill | What it does | Triggers |
 |---|---|---|
 | [go-dependency-audit](skills/(workflow)/go-dependency-audit/) | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" |
+| [go-ci](skills/(workflow)/go-ci/) | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" |
+| [go-refactoring](skills/(workflow)/go-refactoring/) | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" |
+| [go-semantic-tools](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" |
 | [git-commit](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" |
 
 ## Quick Start
@@ -144,12 +154,12 @@ npx skills remove go-performance-review
 ```
 go-agent-skills/
 ├── skills/                            # All skill definitions
-│   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
-│   ├── (architecture)/                # go-architecture-review, go-interface-design, go-api-design, go-design-patterns
+│   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation
+│   ├── (architecture)/                # go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli
 │   ├── (data)/                        # go-database
-│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability
+│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
-│   └── (workflow)/                    # go-dependency-audit, git-commit
+│   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit
 │
 ├── # Platform discovery files (how each agent finds skills in this repo)
 ├── AGENTS.md                          # Universal: Codex, Gemini CLI, Copilot, Factory
