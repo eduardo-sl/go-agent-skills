@@ -9,6 +9,9 @@ description: >
   Do NOT use for: interface design principles (use go-interface-design),
   package layout (use go-architecture-review), or
   concurrency patterns (use go-concurrency-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Design Patterns

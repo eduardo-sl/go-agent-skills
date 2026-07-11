@@ -9,6 +9,9 @@ description: >
   "prepare PR", "squash commits".
   Do NOT use for changelog generation (use changelog-generator) or
   code review (use go-code-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Git Commit Standards

@@ -11,6 +11,9 @@ description: >
   Do NOT use for performance benchmarking methodology (use go-performance-review),
   security testing (use go-security-audit), or table-driven test patterns
   specifically (use go-test-table-driven).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Test Quality

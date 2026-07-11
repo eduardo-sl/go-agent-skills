@@ -10,6 +10,9 @@ description: >
   "middleware pattern", "graceful shutdown", "gRPC service", "API versioning".
   Do NOT use for general architecture (use go-architecture-review) or
   concurrency in handlers (use go-concurrency-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go API Design

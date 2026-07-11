@@ -9,6 +9,9 @@ description: >
   "channel patterns", "sync.Mutex", "context cancellation", "goroutine leak".
   Do NOT use for general code style (use go-coding-standards) or
   HTTP handler patterns (use go-api-design).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Concurrency Review

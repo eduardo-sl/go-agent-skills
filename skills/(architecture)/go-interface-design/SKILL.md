@@ -10,6 +10,9 @@ description: >
   "interface compliance", "consumer-side interface", "interface composition".
   Do NOT use for HTTP handler patterns (use go-api-design) or
   general code review (use go-code-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Interface Design

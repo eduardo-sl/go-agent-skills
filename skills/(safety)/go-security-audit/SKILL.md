@@ -10,6 +10,9 @@ description: >
   "SQL injection", "input validation", "secrets management", "auth review".
   Do NOT use for dependency CVE scanning (use go-dependency-audit) or
   concurrency safety (use go-concurrency-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Security Audit
