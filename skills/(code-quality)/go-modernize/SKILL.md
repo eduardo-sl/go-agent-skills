@@ -9,6 +9,9 @@ description: >
   Do NOT use for: general code style (use go-coding-standards),
   error handling philosophy (use go-error-handling), or
   logging architecture (use go-observability).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Modernize

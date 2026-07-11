@@ -9,6 +9,9 @@ description: >
   "sentinel errors", "errors.Is", "errors.As".
   Do NOT use for panic/recover patterns in middleware (use go-api-design)
   or test assertion errors (use go-test-quality).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Error Handling

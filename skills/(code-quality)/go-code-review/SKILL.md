@@ -7,6 +7,9 @@ description: >
   Trigger examples: "review this code", "check this PR", "code review", "review Go file".
   Do NOT use for security-specific audits (use go-security-audit) or
   performance-specific analysis (use go-performance-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Code Review

@@ -9,6 +9,9 @@ description: >
   "dependency direction", "clean architecture Go", "module boundaries".
   Do NOT use for code-level style (use go-coding-standards) or
   API endpoint design (use go-api-design).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Architecture Review

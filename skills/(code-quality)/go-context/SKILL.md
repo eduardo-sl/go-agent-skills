@@ -8,6 +8,9 @@ description: >
   Do NOT use for: concurrency patterns beyond context (use go-concurrency-review),
   HTTP middleware context (use go-api-design), or
   error handling (use go-error-handling).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Context

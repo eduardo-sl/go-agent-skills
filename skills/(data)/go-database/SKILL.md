@@ -8,6 +8,9 @@ description: >
   Do NOT use for: in-memory data structures (use go-coding-standards),
   security aspects of SQL (use go-security-audit), or
   performance profiling of queries (use go-performance-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Database Patterns

@@ -10,6 +10,9 @@ description: >
   "benchmark this", "profile", "optimize Go code".
   Do NOT use for concurrency correctness (use go-concurrency-review) or
   general code style (use go-coding-standards).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Performance Review

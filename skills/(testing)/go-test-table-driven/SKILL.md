@@ -10,6 +10,9 @@ description: >
   "test matrix", "parametrize tests", "data-driven test", "refactor test table".
   Do NOT use for general test strategy, mocking, golden files, or fuzz testing
   (use go-test-quality). Do NOT use for benchmarks (use go-performance-review).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Go Table-Driven Tests
