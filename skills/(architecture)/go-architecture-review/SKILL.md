@@ -11,12 +11,38 @@ description: >
   API endpoint design (use go-api-design).
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Go Architecture Review
 
 Good architecture makes the next change easy. Bad architecture makes every change scary.
+
+## Operating Modes
+
+Pick the mode that matches the request before starting:
+
+- **Layout review** (default) — assess an existing codebase against the
+  sections below and report violations with severity.
+- **Refactor plan** — same assessment, but the deliverable is an ordered
+  migration plan (smallest safe steps first), not just findings.
+- **New service consultation** — asked "how should I structure X":
+  apply sections 1-3 as prescriptive guidance instead of review checks.
+
+## Auditing Large Codebases
+
+For repositories with many packages, build the dependency picture before
+judging it:
+
+1. Map the module: `go list ./...` for packages, then import statements
+   to trace dependency direction.
+2. Run independent passes: (a) layout vs section 1, (b) dependency
+   direction vs section 2, (c) wiring and config vs sections 3+5,
+   (d) package design vs section 4.
+3. If your environment supports delegating work to parallel sub-agents
+   or tasks, assign each pass to one; synthesize at the end — dependency
+   findings often explain layout findings.
+4. Cite package paths and `file.go:line` in every finding.
 
 ## 1. Standard Project Layout
 
