@@ -13,11 +13,11 @@ Or manually: copy `skills/*/*/` into `.windsurf/skills/`.
 
 ## Skills
 
-Code Quality: go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize
-Architecture: go-architecture-review, go-interface-design, go-api-design, go-design-patterns
+Code Quality: go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation
+Architecture: go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli
 Data: go-database
-Safety: go-concurrency-review, go-security-audit, go-performance-review, go-observability
+Safety: go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting
 Testing: go-test-quality, go-test-table-driven
-Workflow: go-dependency-audit, git-commit
+Workflow: go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit
 
 Each skill is a SKILL.md with YAML frontmatter (name + description) and markdown instructions.
