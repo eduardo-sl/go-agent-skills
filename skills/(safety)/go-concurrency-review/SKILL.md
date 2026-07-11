@@ -11,13 +11,44 @@ description: >
   HTTP handler patterns (use go-api-design).
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Go Concurrency Review
 
 Concurrency in Go is powerful and deceptively easy to get wrong.
 These patterns prevent goroutine leaks, data races, and deadlocks.
+
+## Operating Modes
+
+Pick the mode that matches the request before starting:
+
+- **Implementation** — writing new concurrent code. Follow the patterns
+  below as construction rules.
+- **Diff review** (default) — check changed code against every section,
+  paying extra attention to new `go` statements and shared state.
+- **Leak/race hunt** — a symptom is already observed (growing goroutine
+  count, `-race` report, deadlock). Start from "Auditing Large Codebases"
+  and the Race Detection section to localize it.
+
+## Auditing Large Codebases
+
+For a full concurrency audit, run these independent passes rather than
+one linear read:
+
+1. **Goroutine lifecycle:** find every `go` statement
+   (`grep -rn "go func\|go [a-zA-Z]" --include="*.go"`) and verify each
+   has a termination path (context, closed channel, WaitGroup).
+2. **Shared state:** find package-level vars and struct fields accessed
+   from multiple goroutines; verify mutex/atomic protection.
+3. **Channel topology:** map producers/consumers per channel; verify
+   close-exactly-once and no send-on-closed paths.
+4. **Context propagation:** verify blocking calls accept and respect
+   `context.Context`.
+
+If your environment supports delegating work to parallel sub-agents or
+tasks, assign each pass to one; otherwise run them in order. Findings
+must cite `file.go:line`. Always finish with `go test -race ./...`.
 
 ## 1. Goroutine Lifecycle Management
 
