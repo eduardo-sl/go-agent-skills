@@ -207,7 +207,7 @@ Rules:
 
 ## Audit Output Format
 
-```
+```text
 ## Dependency Audit Report
 
 **Module:** github.com/myorg/myproject

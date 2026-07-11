@@ -174,7 +174,7 @@ const apiKey = "sk-1234567890abcdef" // hardcoded secret
 
 ### Use `.gitignore`:
 
-```
+```text
 .env
 *.pem
 *.key

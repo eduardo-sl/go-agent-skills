@@ -98,7 +98,7 @@ Execute these steps in order. For each finding, classify severity:
 
 ## Review Output Format
 
-```
+```text
 ## Code Review Summary
 
 **Files reviewed:** <list>
