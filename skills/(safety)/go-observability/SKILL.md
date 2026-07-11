@@ -210,7 +210,7 @@ var (
 
 ### Metric naming conventions:
 
-```
+```text
 <namespace>_<subsystem>_<name>_<unit>
 
 http_request_duration_seconds     ✅ (unit in name)

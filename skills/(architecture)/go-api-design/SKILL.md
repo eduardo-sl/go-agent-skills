@@ -125,7 +125,7 @@ func Recoverer(logger *slog.Logger) func(http.Handler) http.Handler {
 
 ### Middleware ordering (outside → inside):
 
-```
+```text
 Recoverer → RequestID → Logger → Auth → RateLimit → Handler
 ```
 
@@ -161,7 +161,7 @@ r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 
 ## 4. URL and Naming Conventions
 
-```
+```text
 GET    /api/v1/users          → list users
 POST   /api/v1/users          → create user
 GET    /api/v1/users/{id}     → get user

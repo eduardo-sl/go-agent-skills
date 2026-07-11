@@ -20,7 +20,7 @@ Good architecture makes the next change easy. Bad architecture makes every chang
 
 ## 1. Standard Project Layout
 
-```
+```text
 myproject/
 ├── cmd/                    # Main applications (one dir per binary)
 │   ├── api-server/
@@ -63,7 +63,7 @@ myproject/
 
 Dependencies MUST flow inward. Domain core has zero external dependencies:
 
-```
+```text
 handlers → services → domain ← stores
     ↓          ↓                  ↓
   (net/http)  (pure Go)     (database/sql)

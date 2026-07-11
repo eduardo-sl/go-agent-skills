@@ -21,7 +21,7 @@ more than any amount of documentation — because it's always up to date.
 
 ## 1. Conventional Commits Format
 
-```
+```text
 <type>(<scope>): <description>
 
 [optional body]
@@ -47,7 +47,7 @@ more than any amount of documentation — because it's always up to date.
 
 Use the package name or module area:
 
-```
+```text
 feat(auth): add JWT refresh token rotation
 fix(store/postgres): handle connection pool exhaustion
 refactor(service): extract validation into dedicated package
@@ -57,7 +57,7 @@ chore(deps): bump go.uber.org/zap to v1.27.0
 
 ### Breaking changes:
 
-```
+```text
 feat(api)!: change pagination from offset to cursor-based
 
 BREAKING CHANGE: The `offset` and `limit` query parameters are replaced
@@ -88,13 +88,13 @@ by `cursor` and `page_size`. All existing clients must migrate.
 
 ### Simple change:
 
-```
+```text
 fix(handler): return 404 instead of 500 for missing user
 ```
 
 ### With body:
 
-```
+```text
 refactor(service): replace manual SQL with sqlx named queries
 
 The raw SQL string concatenation for dynamic WHERE clauses was
@@ -106,7 +106,7 @@ No behavior change — all existing tests pass.
 
 ### Breaking change:
 
-```
+```text
 feat(config)!: migrate from YAML to environment variables
 
 BREAKING CHANGE: Configuration is now loaded from environment
@@ -118,7 +118,7 @@ Closes #234
 
 ### Dependency update:
 
-```
+```text
 chore(deps): upgrade pgx to v5.5.0
 
 Picks up connection pool improvements and fixes for
@@ -135,7 +135,7 @@ Each commit should be ONE logical change that:
 
 ### Split large changes:
 
-```
+```text
 # ❌ Bad — one commit doing everything
 feat(user): add user management with CRUD, validation, auth, and tests
 
