@@ -12,7 +12,7 @@ description: >
   concurrency safety (use go-concurrency-review).
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Go Security Audit
@@ -30,6 +30,20 @@ Pick the mode that matches the request before starting:
   every concern below.
 - **Full audit** (default for "security review the service") — sweep the
   codebase using the parallel passes in "Auditing Large Codebases".
+
+## Run the Scanners First
+
+Before manual review, run the automated scanners and fold their output
+into the findings (skip any that is not installed and note it):
+
+```bash
+govulncheck ./...       # known CVEs actually reachable from your code
+gosec ./...             # static analysis for insecure patterns
+go vet ./...            # includes some security-relevant checks
+```
+
+Scanners find the known patterns; the manual passes below find the
+logic flaws they cannot.
 
 ## Auditing Large Codebases
 
