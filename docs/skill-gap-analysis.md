@@ -1,115 +1,75 @@
 # Skill Gap Analysis
 
-Skills we **don't have yet** that would be valuable additions to this repository, identified through research of the Go AI skills ecosystem.
+Tracks coverage of the Go AI skills ecosystem: what this repository
+already provides, and which candidate skills remain unimplemented.
 
-> Reference: existing skills are listed in `CLAUDE.md`.
-
----
-
-## Current Coverage Map
-
-| Our Skill | Coverage Area | Notes |
-|---|---|---|
-| `go-coding-standards` | Code style, naming, imports | Covers style and naming conventions |
-| `go-code-review` | Structured code review | Unique to our repo |
-| `go-error-handling` | Error wrapping, sentinels, custom types | Well covered |
-| `go-architecture-review` | Package layout, dependency direction | Focuses on review, not layout guidance |
-| `go-interface-design` | Consumer-side interfaces, composition | Focuses on interfaces; doesn't cover structs deeply |
-| `go-api-design` | REST/gRPC handlers, middleware | Broad scope (REST + gRPC) |
-| `go-concurrency-review` | Goroutines, channels, mutexes | Well covered |
-| `go-security-audit` | OWASP, SQL injection, auth | Well covered |
-| `go-performance-review` | Allocations, benchmarks, pprof | Well covered |
-| `go-test-quality` | Subtests, httptest, golden files, fuzz | Well covered |
-| `go-test-table-driven` | Table-driven test patterns | Unique to our repo |
-| `go-dependency-audit` | govulncheck, go.mod hygiene | Well covered |
-| `git-commit` | Conventional Commits | Unique to our repo |
+> Reference: the authoritative skill list lives in `CLAUDE.md` and the
+> README catalog.
 
 ---
 
-## Candidate Skills for Implementation
+## Current Coverage Map (28 skills)
 
-### High Priority
+| Category | Skills |
+|---|---|
+| Code Quality | go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation |
+| Architecture | go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli |
+| Data | go-database |
+| Safety & Performance | go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting |
+| Testing | go-test-quality, go-test-table-driven |
+| Workflow | go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit |
 
-These skills cover important areas where we have **zero coverage** today.
+## Implemented Candidates
 
-#### 1. `go-observability`
-- **Scope:** Structured logging (slog), distributed tracing (OpenTelemetry), metrics, health checks
-- **Why:** Observability is essential for production services and we have no skill in this area
+All previously identified high-priority candidates are done:
 
-#### 2. `go-database`
-- **Scope:** Patterns for database/sql, connection pooling, migrations, query builders, ORMs (sqlc, GORM, ent), transactions, prepared statements
-- **Why:** Database access is ubiquitous in Go services and a constant source of bugs and performance issues
+| Candidate | Delivered as |
+|---|---|
+| go-observability | `(safety)/go-observability` |
+| go-database | `(data)/go-database` |
+| go-design-patterns | `(architecture)/go-design-patterns` |
+| go-context | `(code-quality)/go-context` |
+| go-modernize | `(code-quality)/go-modernize` |
+| go-data-structures | `(code-quality)/go-data-structures` |
+| go-documentation | `(code-quality)/go-documentation` |
+| go-troubleshooting | `(safety)/go-troubleshooting` |
+| go-ci | `(workflow)/go-ci` |
+| go-dependency-injection | `(architecture)/go-dependency-injection` |
+| go-cli | `(architecture)/go-cli` |
+| go-grpc | `(architecture)/go-grpc` |
+| go-project-layout | `(architecture)/go-project-layout` (new candidate, scaffolding counterpart to architecture review) |
+| go-refactoring | `(workflow)/go-refactoring` (new candidate, safe-change process) |
+| go-semantic-tools | `(workflow)/go-semantic-tools` (new candidate, gopls/go list navigation) |
+| go-linter | Absorbed into `go-ci` (curated .golangci.yml section) |
+| go-safety | Absorbed into go-concurrency-review, go-security-audit, and go-troubleshooting |
 
-#### 3. `go-design-patterns`
-- **Scope:** Idiomatic Go patterns — functional options, builder, factory, strategy, middleware chain, pub/sub
-- **Why:** Design patterns in Go differ significantly from other languages; Go-specific guidance adds high value
+## Remaining Candidates
 
-#### 4. `go-context`
-- **Scope:** Correct usage of `context.Context` — propagation, cancellation, timeouts, values, anti-patterns
-- **Why:** Context is one of the most misunderstood areas in Go and causes subtle production bugs
+### Low Priority / Situational
 
-#### 5. `go-modernize`
-- **Scope:** Updating code to use modern Go features — generics, structured logging (slog), iterators, range-over-func, errors.Join
-- **Why:** High impact skill; helps teams adopt new language features correctly and avoid legacy patterns
+#### 1. `go-graphql`
+- **Scope:** gqlgen patterns, resolvers, dataloaders, N+1 in GraphQL
+- **Why not yet:** niche relative to REST/gRPC; revisit on demand
 
-### Medium Priority
+#### 2. `go-openapi`
+- **Scope:** OpenAPI-first workflows, oapi-codegen, contract testing
+- **Why not yet:** overlaps go-api-design; needs a codegen-tool opinion first
 
-Useful areas where we already have partial coverage or that are more situational.
+#### 3. `go-library-evaluation`
+- **Scope:** evaluating third-party libraries (maintenance, API stability, pkg.go.dev signals)
+- **Why not yet:** partially covered by go-dependency-audit's dep evaluation section
 
-#### 6. `go-data-structures`
-- **Scope:** Slices, maps, sync.Map, generics collections, when to use each structure, common pitfalls (nil slice vs empty slice, map iteration order)
-- **Why:** Complements `go-coding-standards` with specific focus on data structure selection and usage
+#### 4. `go-popular-libraries`
+- **Scope:** recommended libraries by category
+- **Why not yet:** high maintenance burden, goes stale quickly
 
-#### 7. `go-documentation`
-- **Scope:** Godoc conventions, testable examples, package docs, CHANGELOG, API docs
-- **Why:** Go documentation has specific conventions that AI agents frequently get wrong
+## Structural Improvements Shipped Alongside
 
-#### 8. `go-troubleshooting`
-- **Scope:** Debugging with delve, deadlock diagnosis, memory leaks, pprof analysis, race detector, stack trace analysis
-- **Why:** Complements `go-performance-review` with focus on investigation and problem resolution
-
-#### 9. `go-ci`
-- **Scope:** GitHub Actions for Go, Makefile patterns, linting pipeline (golangci-lint), test coverage, build matrix, caching
-- **Why:** CI is critical for Go projects but our repo doesn't cover pipeline automation at all
-
-#### 10. `go-dependency-injection`
-- **Scope:** Constructor injection, wire, uber/fx, uber/dig, when to use DI vs. global state
-- **Why:** Essential pattern for testability and maintainability in larger codebases
-
-### Low Priority
-
-More niche skills or ones that can be absorbed by existing skills.
-
-#### 11. `go-cli`
-- **Scope:** Cobra/Viper patterns, flags, subcommands, stdin/stdout, exit codes, signal handling
-- **Why:** Useful but specific to CLI projects
-
-#### 12. `go-linter`
-- **Scope:** golangci-lint configuration, custom linters, nolint directives, CI integration
-- **Why:** Could be partially absorbed by `go-ci` or `go-coding-standards`
-
-#### 13. `go-safety`
-- **Scope:** Nil pointer prevention, goroutine leaks, resource cleanup (defer), unsafe package, CGO safety
-- **Why:** High impact but overlaps with `go-concurrency-review` and `go-security-audit`
-
-#### 14. `go-grpc`
-- **Scope:** Protobuf, gRPC interceptors, streaming, health checks, reflection, error codes
-- **Why:** Our `go-api-design` already covers gRPC partially; this would be a deep dive
-
-#### 15. `go-popular-libraries`
-- **Scope:** Recommended libraries by category (HTTP, testing, logging, etc.)
-- **Why:** Useful as a reference but changes frequently
-
----
-
-## Summary
-
-| Priority | Count | Skills |
-|---|---|---|
-| High | 5 | observability, database, design-patterns, context, modernize |
-| Medium | 5 | data-structures, documentation, troubleshooting, ci, dependency-injection |
-| Low | 5 | cli, linter, safety, grpc, popular-libraries |
-
-**Total: 15 candidate skills for implementation**
-
-High priority skills should be implemented first as they cover significant gaps in our repository with proven high impact.
+- Progressive disclosure: the five largest skills split into lean
+  SKILL.md + `references/*.md` loaded on demand.
+- Operating modes + large-codebase parallel audit strategy in the four
+  review/audit skills.
+- Executable verification sections (vet, golangci-lint, govulncheck,
+  gosec, gopls modernize) in the core skills.
+- Semver `metadata.version` + `license` in every skill frontmatter,
+  enforced by `scripts/validate.sh`.

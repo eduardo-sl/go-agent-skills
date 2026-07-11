@@ -16,6 +16,9 @@ description: >
   One sentence explaining what this skill does.
   Use when: "phrase 1", "phrase 2", "phrase 3".
   Do NOT use for: X (use other-skill), Y (use another-skill).
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 ```
 
@@ -25,6 +28,13 @@ description: >
 - What it does (first sentence)
 - Trigger examples with quoted phrases the user would actually say
 - Negative triggers pointing to the correct skill
+
+**license**: `MIT` for all skills in this repository.
+
+**metadata.version**: Semver, quoted. New skills start at `1.0.0`.
+Bump MINOR when adding or restructuring content, PATCH for typo/example
+fixes, MAJOR if the skill's scope or triggers change incompatibly.
+Every commit that changes a SKILL.md body must bump its version.
 
 ### Body
 
@@ -106,6 +116,38 @@ the boilerplate IS the point.
 The agent (and the engineer using it) understands Go basics. Don't explain
 what a goroutine is — explain when to use `errgroup` vs `sync.WaitGroup`
 and why.
+
+### 7. Prefer progressive disclosure over long files
+
+Keep SKILL.md at principles + procedure + checklist (~150-200 lines).
+Move full worked examples to `references/*.md` and link them from a
+short block near the top:
+
+```markdown
+Detailed reference material, loaded on demand:
+
+- `references/patterns.md` — full worked examples for X, Y, Z.
+
+Read a reference file only when the summary below is not enough.
+```
+
+`scripts/validate.sh` verifies that every `references/` link resolves.
+
+### 8. Give review/audit skills operating modes
+
+Skills that both write and review code should open with an
+"Operating Modes" section (e.g. diff review vs full audit) and, for
+audit skills, an "Auditing Large Codebases" section describing
+independent per-concern passes that can be delegated to parallel
+sub-agents — phrased agent-agnostically ("if your environment supports
+delegating work to parallel sub-agents or tasks...").
+
+### 9. Make verification executable
+
+Where a tool can prove a rule, tell the agent to run it (`go vet`,
+`golangci-lint`, `govulncheck`, `go test -race`) and to skip-and-note
+tools that aren't installed. A checklist item the toolchain can check
+should not rely on the agent's judgment.
 
 ## Severity Classification
 
