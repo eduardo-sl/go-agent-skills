@@ -53,6 +53,29 @@ it is absent, the prompt is written to the process's stdin instead.
 - `expect_none` — the anti-pattern the skill exists to prevent.
 - Patterns are Python regexes, case-insensitive unless `case_sensitive` is set.
 
+## Routing cases
+
+`evals/cases/go-skills-router.json` measures something different from the
+other suites: not whether an answer is good, but whether the agent picks the
+right skill. That is the failure mode that grows with the catalogue — at 33
+skills the triggers overlap, and loading the wrong one costs context and
+gives a confidently off-target answer.
+
+Each case is a task phrased the way a user phrases it, and asserts the name
+of the skill that owns it. `expect_none` names the sibling that is the
+plausible wrong pick, so a case fails when the agent routes to the neighbour
+instead.
+
+Run it against the description block alone — no skill bodies loaded — since
+selection happens before any skill is read:
+
+```bash
+scripts/run-evals.py --cmd 'claude -p "{prompt}"' --skill go-skills-router
+```
+
+A drop here after adding a skill means its description overlaps an existing
+one. Fix the descriptions, not the case.
+
 ## Writing good cases
 
 - Write the prompt as a user would type it, not as a quiz.
