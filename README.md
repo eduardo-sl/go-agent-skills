@@ -176,9 +176,13 @@ go-agent-skills/
 ├── .github/copilot-instructions.md   # GitHub Copilot
 ├── .opencode/config.json             # OpenCode
 │
+├── evals/
+│   ├── README.md                      # How to measure whether a skill earns its context
+│   └── cases/                         # Prompt + assertion suites, one file per skill
 ├── scripts/
 │   ├── install.sh                     # Shell-based installer (alternative to npx)
-│   └── validate.sh                    # CI: validate SKILL.md format
+│   ├── run-evals.py                   # Run a suite against any agent CLI
+│   └── validate.sh                    # CI: validate SKILL.md format and eval cases
 ├── docs/
 │   ├── CONTRIBUTING.md
 │   └── SKILL_GUIDELINES.md

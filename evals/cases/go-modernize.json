@@ -1,0 +1,33 @@
+{
+  "skill": "go-modernize",
+  "cases": [
+    {
+      "id": "waitgroup-go",
+      "prompt": "Modernise this for the current Go release: wg.Add(1); go func(){ defer wg.Done(); process(job) }()",
+      "expect_all": [
+        "wg\\.Go\\("
+      ]
+    },
+    {
+      "id": "errors-astype",
+      "prompt": "What is the current way to check whether an error is a *fs.PathError and get at its Path field, on the newest Go?",
+      "expect_all": [
+        "errors\\.AsType|errors\\.As"
+      ]
+    },
+    {
+      "id": "tools-directive",
+      "prompt": "We keep a tools.go file with blank imports to pin our code generators. Is there a better way now?",
+      "expect_all": [
+        "tool directive|go get -tool|go tool"
+      ]
+    },
+    {
+      "id": "path-containment",
+      "prompt": "A user supplies a relative path that I join onto a base directory before reading. How should I do this safely on a current Go version?",
+      "expect_all": [
+        "os\\.OpenRoot|os\\.Root"
+      ]
+    }
+  ]
+}

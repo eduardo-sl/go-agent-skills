@@ -1,0 +1,26 @@
+{
+  "skill": "go-binary-size",
+  "cases": [
+    {
+      "id": "strip-flags",
+      "prompt": "My Go binary is 40 MB. What is the first thing to try?",
+      "expect_all": [
+        "-s -w|ldflags"
+      ]
+    },
+    {
+      "id": "measure-first",
+      "prompt": "How do I find out what is actually taking up space inside my Go binary?",
+      "expect_all": [
+        "go tool nm|gsa|go-size-analyzer"
+      ]
+    },
+    {
+      "id": "stripping-tradeoff",
+      "prompt": "If I build with -ldflags=\"-s -w\", do I still get useful panic stack traces in production?",
+      "expect_all": [
+        "yes|still|pclntab|unaffected"
+      ]
+    }
+  ]
+}

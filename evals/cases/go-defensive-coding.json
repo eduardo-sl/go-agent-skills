@@ -1,0 +1,66 @@
+{
+  "skill": "go-defensive-coding",
+  "cases": [
+    {
+      "id": "typed-nil-interface",
+      "prompt": "I have a function that returns error. Inside it I declare `var err *MyError` and return it at the end. Callers say err != nil even when nothing went wrong. Why?",
+      "expect_all": [
+        "typed nil|non-nil interface|dynamic type|interface.*two|type.*and.*value"
+      ],
+      "expect_none": [
+        "^$"
+      ]
+    },
+    {
+      "id": "nil-map-write",
+      "prompt": "This panics with 'assignment to entry in nil map': var counts map[string]int; counts[\"a\"]++. Fix it.",
+      "expect_all": [
+        "make\\(map|map\\[string\\]int\\{"
+      ]
+    },
+    {
+      "id": "append-aliasing",
+      "prompt": "b := a[:2] then b = append(b, 99) and now a[2] is 99. Why, and how do I stop it?",
+      "expect_all": [
+        "cap|capacity",
+        "a\\[:2:2\\]|full slice expression|slices\\.Clone|copy\\("
+      ]
+    },
+    {
+      "id": "narrowing-conversion",
+      "prompt": "I need to put a value of type int64 into an int32 field of a binary protocol header. Write the conversion.",
+      "expect_all": [
+        "MaxInt32|math\\.MaxInt32|range check|out of range"
+      ]
+    },
+    {
+      "id": "float-equality",
+      "prompt": "Write a helper that reports whether two float64 results are equal for a test.",
+      "expect_all": [
+        "math\\.Abs|epsilon|tolerance|eps"
+      ]
+    },
+    {
+      "id": "defer-in-loop",
+      "prompt": "I open a file for each name in a slice and defer f.Close() inside the loop. Is that fine?",
+      "expect_all": [
+        "function return|until the function|end of the (enclosing )?function|closure|anonymous function|separate function"
+      ]
+    },
+    {
+      "id": "defensive-copy",
+      "prompt": "Write a constructor NewConfig(hosts []string) that stores hosts in the struct.",
+      "expect_all": [
+        "slices\\.Clone|copy\\(|append\\(\\[\\]string"
+      ]
+    },
+    {
+      "id": "mutex-value-receiver",
+      "prompt": "My struct has a sync.Mutex field. Should Len() use a value receiver or a pointer receiver?",
+      "expect_all": [
+        "pointer receiver",
+        "copy|copylocks|vet"
+      ]
+    }
+  ]
+}

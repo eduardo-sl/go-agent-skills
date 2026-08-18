@@ -1,0 +1,53 @@
+{
+  "skill": "go-test-quality",
+  "cases": [
+    {
+      "id": "no-real-sleep",
+      "prompt": "Write a Go test for a cache whose entries expire after one hour.",
+      "expect_all": [
+        "synctest"
+      ]
+    },
+    {
+      "id": "benchmark-loop",
+      "prompt": "Write a Go benchmark for a function Encode(in []byte) []byte.",
+      "expect_all": [
+        "b\\.Loop\\(\\)"
+      ],
+      "expect_none": [
+        "for\\s+i\\s*:=\\s*0;\\s*i\\s*<\\s*b\\.N"
+      ]
+    },
+    {
+      "id": "test-context",
+      "prompt": "Write a Go test that calls client.Fetch(ctx, id).",
+      "expect_all": [
+        "t\\.Context\\(\\)"
+      ],
+      "expect_none": [
+        "context\\.Background\\(\\)"
+      ]
+    },
+    {
+      "id": "goroutine-leaks",
+      "prompt": "My package starts background goroutines. How do I make the test suite catch it when one never exits?",
+      "expect_all": [
+        "goleak"
+      ]
+    },
+    {
+      "id": "test-helper",
+      "prompt": "Write a test helper that builds a valid User for my tests.",
+      "expect_all": [
+        "t\\.Helper\\(\\)"
+      ]
+    },
+    {
+      "id": "temp-resources",
+      "prompt": "My test needs a temporary directory with two files in it.",
+      "expect_all": [
+        "t\\.TempDir\\(\\)|t\\.Cleanup"
+      ]
+    }
+  ]
+}

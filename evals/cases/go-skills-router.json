@@ -1,0 +1,48 @@
+{
+  "skill": "go-skills-router",
+  "cases": [
+    {
+      "id": "diagnose-before-optimise",
+      "prompt": "One of my HTTP endpoints got slow last week and I do not know why. Which Go skill should I use?",
+      "expect_all": [
+        "go-troubleshooting"
+      ]
+    },
+    {
+      "id": "prevention-not-diagnosis",
+      "prompt": "I want to review my code for nil pointer traps and integer overflow before they cause a panic. Which skill?",
+      "expect_all": [
+        "go-defensive-coding"
+      ]
+    },
+    {
+      "id": "binary-size",
+      "prompt": "My compiled Go CLI is 45 MB and I need to ship it. Which skill covers this?",
+      "expect_all": [
+        "go-binary-size"
+      ]
+    },
+    {
+      "id": "graphql-n-plus-one",
+      "prompt": "My gqlgen server issues one query per item in a list. Which skill?",
+      "expect_all": [
+        "go-graphql"
+      ]
+    },
+    {
+      "id": "spec-first-rest",
+      "prompt": "We have an openapi.yaml and hand-written handlers that drifted from it. Which skill?",
+      "expect_all": [
+        "go-openapi"
+      ]
+    },
+    {
+      "id": "multi-concern",
+      "prompt": "I am hardening a Go service before launch. Which skills should I load?",
+      "expect_all": [
+        "go-security-audit",
+        "go-dependency-audit"
+      ]
+    }
+  ]
+}
