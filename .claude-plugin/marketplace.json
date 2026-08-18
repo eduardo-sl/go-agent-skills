@@ -38,7 +38,8 @@
         "./skills/(safety)/go-defensive-coding",
         "./skills/(workflow)/go-binary-size",
         "./skills/(architecture)/go-openapi",
-        "./skills/(architecture)/go-graphql"
+        "./skills/(architecture)/go-graphql",
+        "./skills/(workflow)/go-skills-router"
       ]
     }
   ]

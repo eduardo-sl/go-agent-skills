@@ -58,3 +58,4 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 
 All skills are in `skills/(category)/skill-name/SKILL.md`.
 - **go-binary-size** — Linker flags, CGO, build tags, dependency weight, container image size
+- **go-skills-router** — Task-to-skill routing, overlap boundaries, multi-concern task recipes

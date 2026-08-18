@@ -107,7 +107,11 @@ exist (or omits one that does), users on that platform get confused.
 - Skills must be **agent-agnostic**. No Claude-specific, Cursor-specific, or
   Copilot-specific instructions inside SKILL.md files. Skills work everywhere.
 - Skills must be **self-contained**. No skill should reference or depend on
-  another skill being loaded. Each skill stands alone.
+  another skill being loaded. Each skill stands alone. Naming another skill as
+  a pointer is fine — negative triggers already do it — but no skill may
+  require another one to have been loaded first.
+  `go-skills-router` is the one index skill: its whole job is naming the
+  others. It still stands alone, and nothing depends on it.
 - **Do not add Go source code to this repo.** Code examples belong inside
   SKILL.md files as fenced blocks, not as separate .go files.
 - **Do not add package managers, build tools, or frameworks.** This repo is

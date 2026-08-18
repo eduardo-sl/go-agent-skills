@@ -15,6 +15,6 @@ go-database,
 go-concurrency-review, go-security-audit, go-performance-review, go-observability,
 go-troubleshooting, go-defensive-coding,
 go-test-quality, go-test-table-driven,
-go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, go-binary-size, git-commit.
+go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, go-binary-size, go-skills-router, git-commit.
 
 Each skill is in `skills/(category)/skill-name/SKILL.md`.
