@@ -35,7 +35,8 @@
         "./skills/(workflow)/go-ci",
         "./skills/(workflow)/go-refactoring",
         "./skills/(workflow)/go-semantic-tools",
-        "./skills/(safety)/go-defensive-coding"
+        "./skills/(safety)/go-defensive-coding",
+        "./skills/(workflow)/go-binary-size"
       ]
     }
   ]
