@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="go-agent-skills — curated Go skills for AI coding agents" width="100%">
+  <img src="docs/assets/hero.png" alt="go-agent-skills — curated Go skills for AI coding agents" width="100%">
 </p>
 
 <p align="center">
