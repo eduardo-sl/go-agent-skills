@@ -26,6 +26,10 @@ skills-lock.json
 # Node (if someone runs npx in the repo)
 node_modules/
 
+# Local sandbox / scratch files (not part of the repo)
+.ai-jail
+post-ln.md
+
 # Temporary
 *.tmp
 *.bak
