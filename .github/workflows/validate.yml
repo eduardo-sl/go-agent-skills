@@ -6,11 +6,16 @@ on:
     paths:
       - 'skills/**'
       - 'scripts/validate.sh'
+      - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
     paths:
       - 'skills/**'
       - 'scripts/validate.sh'
+      - '.github/workflows/validate.yml'
+
+permissions:
+  contents: read
 
 jobs:
   validate:
