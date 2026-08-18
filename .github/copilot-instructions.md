@@ -55,3 +55,4 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 - **git-commit** — Conventional Commits, atomic commits
 
 All skills are in `skills/(category)/skill-name/SKILL.md`.
+- **go-binary-size** — Linker flags, CGO, build tags, dependency weight, container image size

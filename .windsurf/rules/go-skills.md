@@ -18,6 +18,6 @@ Architecture: go-architecture-review, go-project-layout, go-interface-design, go
 Data: go-database
 Safety: go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting, go-defensive-coding
 Testing: go-test-quality, go-test-table-driven
-Workflow: go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit
+Workflow: go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit, go-binary-size
 
 Each skill is a SKILL.md with YAML frontmatter (name + description) and markdown instructions.

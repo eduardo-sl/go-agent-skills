@@ -80,6 +80,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-refactoring](skills/(workflow)/go-refactoring/) | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" |
 | [go-semantic-tools](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" |
 | [git-commit](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" |
+| [go-binary-size](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" |
 
 ## Quick Start
 
@@ -160,7 +161,7 @@ go-agent-skills/
 │   ├── (data)/                        # go-database
 │   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting, go-defensive-coding
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
-│   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit
+│   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit, go-binary-size
 │
 ├── # Platform discovery files (how each agent finds skills in this repo)
 ├── AGENTS.md                          # Universal: Codex, Gemini CLI, Copilot, Factory
