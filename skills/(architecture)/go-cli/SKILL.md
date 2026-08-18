@@ -3,19 +3,18 @@ name: go-cli
 description: >
   Build command-line tools in Go: flag handling, subcommands, stdin/stdout
   discipline, exit codes, signal handling, and when Cobra/Viper earn their
-  weight over the standard library.
-  Use when: "build a CLI", "add a subcommand", "parse flags", "exit codes",
-  "handle Ctrl+C", "cobra command", "read from stdin", "CLI UX".
-  Do NOT use for: HTTP API design (use go-api-design), project scaffolding
-  in general (use go-project-layout), or configuration of services
-  (use go-architecture-review).
+  weight over the standard library. Use when: "build a CLI", "add a
+  subcommand", "parse flags", "exit codes", "handle Ctrl+C", "cobra
+  command", "read from stdin", "CLI UX".
+  Not for: HTTP APIs (go-api-design), scaffolding (go-project-layout),
+  service configuration (go-architecture-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go CLI Design

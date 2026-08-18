@@ -1,21 +1,20 @@
 ---
 name: go-design-patterns
 description: >
-  Idiomatic Go design patterns: functional options, builder, factory, strategy,
-  middleware chain, pub/sub, and other patterns adapted for Go's type system.
-  Use when: "design pattern", "functional options", "builder pattern",
-  "factory pattern", "strategy pattern", "middleware chain", "option pattern",
-  "how to structure this".
-  Do NOT use for: interface design principles (use go-interface-design),
-  package layout (use go-architecture-review), or
-  concurrency patterns (use go-concurrency-review).
+  Idiomatic Go design patterns: functional options, builder, factory,
+  strategy, middleware chain, pub/sub, and other patterns adapted for Go's
+  type system. Use when: "design pattern", "functional options", "builder
+  pattern", "factory pattern", "strategy pattern", "middleware chain",
+  "option pattern", "how to structure this".
+  Not for: interface design (go-interface-design), package layout
+  (go-architecture-review), concurrency patterns (go-concurrency-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go Design Patterns

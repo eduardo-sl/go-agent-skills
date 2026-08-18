@@ -3,20 +3,19 @@ name: go-dependency-audit
 description: >
   Audit Go module dependencies: detect outdated packages, check for known
   vulnerabilities, review go.mod hygiene, identify unused or redundant deps,
-  and evaluate dependency quality.
-  Use when auditing dependencies, checking for CVEs, cleaning up go.mod,
-  upgrading modules, or evaluating third-party packages.
-  Trigger examples: "check dependencies", "audit deps", "go.mod review",
-  "update modules", "vulnerability scan", "govulncheck".
-  Do NOT use for code-level security issues (use go-security-audit) or
-  architecture review (use go-architecture-review).
+  and evaluate dependency quality. Use when auditing dependencies, checking
+  for CVEs, cleaning up go.mod, upgrading modules, or evaluating third-party
+  packages. Trigger examples: "check dependencies", "audit deps", "go.mod
+  review", "update modules", "vulnerability scan", "govulncheck".
+  Not for: code-level security (go-security-audit), architecture review
+  (go-architecture-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires network access to proxy.golang.org. Read-only: this skill reports findings, it does not edit code.
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Dependency Audit

@@ -1,22 +1,20 @@
 ---
 name: go-grpc
 description: >
-  gRPC services in Go beyond the basics: proto design, status codes and error
-  details, interceptors, deadlines, streaming, health checks, and graceful
-  shutdown.
-  Use when: "gRPC service", "proto design", "gRPC error handling",
-  "interceptor", "gRPC streaming", "gRPC deadline", "grpc health check",
-  "gRPC status codes".
-  Do NOT use for: REST/HTTP handler design (use go-api-design), protobuf-agnostic
-  API layering (use go-architecture-review), or TLS hardening details
-  (use go-security-audit).
+  gRPC services in Go beyond the basics: proto design, status codes and
+  error details, interceptors, deadlines, streaming, health checks, and
+  graceful shutdown. Use when: "gRPC service", "proto design", "gRPC error
+  handling", "interceptor", "gRPC streaming", "gRPC deadline", "grpc health
+  check", "gRPC status codes".
+  Not for: REST handlers (go-api-design), protobuf-agnostic layering
+  (go-architecture-review), TLS hardening (go-security-audit).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires protoc or buf for code generation.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(protoc:*) Bash(buf:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go gRPC Services

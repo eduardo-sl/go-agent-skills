@@ -1,21 +1,20 @@
 ---
 name: git-commit
 description: >
-  Structured git commit messages following Conventional Commits format
-  for Go projects. Generates well-scoped, atomic commits with clear descriptions.
-  Use when committing changes, writing commit messages, preparing PRs,
-  or reviewing commit history quality.
-  Trigger examples: "commit these changes", "create commit", "commit message",
-  "prepare PR", "squash commits".
-  Do NOT use for changelog generation (use changelog-generator) or
-  code review (use go-code-review).
+  Structured git commit messages following Conventional Commits format for
+  Go projects. Generates well-scoped, atomic commits with clear
+  descriptions. Use when committing changes, writing commit messages,
+  preparing PRs, or reviewing commit history quality. Trigger examples:
+  "commit these changes", "create commit", "commit message", "prepare PR",
+  "squash commits".
+  Not for: code review (go-code-review), changelog generation.
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents. Requires git.
 allowed-tools: Read Glob Grep Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Git Commit Standards

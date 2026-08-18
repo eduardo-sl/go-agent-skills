@@ -3,21 +3,20 @@ name: go-graphql
 description: >
   Build GraphQL servers in Go with gqlgen: schema-first generation, resolver
   structure, the N+1 problem and dataloaders, complexity and depth limits,
-  error presentation, field-level authorization, and testing resolvers.
-  Use when implementing or reviewing a GraphQL API, when a query fans out
-  into hundreds of database calls, or when deciding what a resolver may
-  expose.
+  error presentation, field-level authorization, and testing resolvers. Use
+  when implementing or reviewing a GraphQL API, when a query fans out into
+  hundreds of database calls, or when deciding what a resolver may expose.
   Trigger examples: "GraphQL", "gqlgen", "resolver", "N+1 queries",
   "dataloader", "query complexity limit", "GraphQL schema".
-  Do NOT use for REST endpoints and OpenAPI (use go-openapi), gRPC services
-  (use go-grpc), or general HTTP middleware and shutdown (use go-api-design).
+  Not for: REST and OpenAPI (go-openapi), gRPC (go-grpc), general HTTP
+  middleware and shutdown (go-api-design).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. gqlgen is installed as a module tool.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(gqlgen:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Go GraphQL

@@ -4,18 +4,18 @@ description: >
   Review Go project architecture: package structure, dependency direction,
   layering, separation of concerns, domain modeling, and module boundaries.
   Use when reviewing architecture, designing package layout, evaluating
-  dependency graphs, or refactoring monoliths into modules.
-  Trigger examples: "review architecture", "package structure", "project layout",
+  dependency graphs, or refactoring monoliths into modules. Trigger
+  examples: "review architecture", "package structure", "project layout",
   "dependency direction", "clean architecture Go", "module boundaries".
-  Do NOT use for code-level style (use go-coding-standards) or
-  API endpoint design (use go-api-design).
+  Not for: code-level style (go-coding-standards), endpoint design
+  (go-api-design).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Read-only: this skill reports findings, it does not edit code.
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go Architecture Review

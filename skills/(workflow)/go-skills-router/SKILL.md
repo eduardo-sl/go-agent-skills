@@ -1,24 +1,23 @@
 ---
 name: go-skills-router
 description: >
-  Index and routing table for this repository's Go skills: maps a task to the
-  skill that owns it, names the secondary skills worth loading alongside, and
-  draws the boundary between skills whose triggers overlap.
+  Index and routing table for this repository's Go skills: maps a task to
+  the skill that owns it, names the secondary skills worth loading
+  alongside, and draws the boundary between skills whose triggers overlap.
   Use when it is unclear which Go skill applies, when a task spans several
   concerns at once, when two skills seem to cover the same ground, or when
-  the user asks what Go skills are available.
-  Trigger examples: "which skill should I use", "what Go skills do you have",
-  "is this concurrency or performance", "go-performance-review or
-  go-troubleshooting".
-  Do NOT use when the task already maps cleanly to one skill — load that skill
-  directly instead of routing through this one.
+  the user asks what Go skills are available. Trigger examples: "which skill
+  should I use", "what Go skills do you have", "is this concurrency or
+  performance", "go-performance-review or go-troubleshooting".
+  Not for: a task that already maps cleanly to one skill — load that skill
+  directly.
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Indexes the skills published in eduardo-sl/go-agent-skills; it names them, it does not require them.
 allowed-tools: Read Glob Grep
 metadata:
   author: eduardo-sl
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Go Skills Router
