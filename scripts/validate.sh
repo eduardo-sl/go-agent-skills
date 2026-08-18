@@ -210,6 +210,32 @@ assert 'description' in d, 'missing description'
     echo ""
 done
 
+# Validate that every skill appears in every platform discovery file
+echo "Validating platform discovery files..."
+echo ""
+if python3 - "$REPO_DIR" <<'PYEOF'
+import pathlib, re, sys
+root = pathlib.Path(sys.argv[1])
+skills = sorted(p.parent.name for p in (root / "skills").glob("*/*/SKILL.md"))
+files = ["CLAUDE.md", "README.md", ".github/copilot-instructions.md",
+         ".cursor/rules/go-skills.mdc", ".windsurf/rules/go-skills.md",
+         ".clinerules/.clinerules"]
+bad = False
+for f in files:
+    text = (root / f).read_text()
+    missing = [s for s in skills if not re.search(rf"\b{re.escape(s)}\b", text)]
+    if missing:
+        print(f"  {f}: missing {', '.join(missing)}")
+        bad = True
+raise SystemExit(1 if bad else 0)
+PYEOF
+then
+    ok "All ${CHECKED} skills listed in every discovery file"
+else
+    error "Discovery files are out of sync (see AGENTS.md)"
+fi
+echo ""
+
 # Validate evaluation case files
 if [[ -d "$REPO_DIR/evals/cases" ]]; then
     echo "Validating evaluation cases..."
