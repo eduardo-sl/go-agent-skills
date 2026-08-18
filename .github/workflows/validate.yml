@@ -8,6 +8,13 @@ on:
       - 'evals/**'
       - 'scripts/validate.sh'
       - '.github/workflows/validate.yml'
+      # discovery files — validate.sh checks they list every skill
+      - 'README.md'
+      - 'CLAUDE.md'
+      - '.github/copilot-instructions.md'
+      - '.cursor/rules/**'
+      - '.windsurf/rules/**'
+      - '.clinerules/**'
   pull_request:
     branches: [main]
     paths:
@@ -15,6 +22,13 @@ on:
       - 'evals/**'
       - 'scripts/validate.sh'
       - '.github/workflows/validate.yml'
+      # discovery files — validate.sh checks they list every skill
+      - 'README.md'
+      - 'CLAUDE.md'
+      - '.github/copilot-instructions.md'
+      - '.cursor/rules/**'
+      - '.windsurf/rules/**'
+      - '.clinerules/**'
 
 permissions:
   contents: read
