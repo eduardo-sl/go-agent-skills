@@ -43,6 +43,167 @@
         "go-security-audit",
         "go-dependency-audit"
       ]
+    },
+    {
+      "id": "data-race-not-nil-safety",
+      "prompt": "Two goroutines write to the same map in my service and it crashes at random. Which Go skill covers this?",
+      "expect_all": [
+        "go-concurrency-review"
+      ],
+      "expect_none": [
+        "go-defensive-coding"
+      ]
+    },
+    {
+      "id": "panic-after-the-fact",
+      "prompt": "Production panicked overnight and I have the stack trace in the logs. Which skill helps me work through it?",
+      "expect_all": [
+        "go-troubleshooting"
+      ]
+    },
+    {
+      "id": "cve-in-dependency",
+      "prompt": "govulncheck reports a CVE in a module we depend on. Which skill?",
+      "expect_all": [
+        "go-dependency-audit"
+      ]
+    },
+    {
+      "id": "sql-injection-is-security",
+      "prompt": "A handler builds its SQL by concatenating a query string with user input. Which skill?",
+      "expect_all": [
+        "go-security-audit"
+      ]
+    },
+    {
+      "id": "slice-aliasing-is-data-structures",
+      "prompt": "I appended to a slice I got from another function and the caller's data changed underneath it. Which skill?",
+      "expect_all": [
+        "go-data-structures|go-defensive-coding"
+      ]
+    },
+    {
+      "id": "repeated-assertions-are-table-driven",
+      "prompt": "My test file has twelve near-identical test functions that differ only in input and expected output. Which skill?",
+      "expect_all": [
+        "go-test-table-driven"
+      ]
+    },
+    {
+      "id": "benchmark-methodology-is-performance",
+      "prompt": "I need to write benchmarks that actually measure allocation per operation. Which skill?",
+      "expect_all": [
+        "go-performance-review"
+      ]
+    },
+    {
+      "id": "proto-status-codes",
+      "prompt": "What status code should my gRPC service return when the caller sends a malformed field? Which skill covers this?",
+      "expect_all": [
+        "go-grpc"
+      ]
+    },
+    {
+      "id": "allocations-not-binary-size",
+      "prompt": "My hot path allocates on every request and the GC is busy. Which skill?",
+      "expect_all": [
+        "go-performance-review"
+      ],
+      "expect_none": [
+        "go-binary-size"
+      ]
+    },
+    {
+      "id": "generics-are-modernize",
+      "prompt": "We have a dozen helpers taking interface{} that could be generic now. Which skill?",
+      "expect_all": [
+        "go-modernize"
+      ]
+    },
+    {
+      "id": "rename-across-packages",
+      "prompt": "I want to rename a method that several packages implement, without breaking the implicit interfaces. Which skill?",
+      "expect_all": [
+        "go-semantic-tools"
+      ]
+    },
+    {
+      "id": "new-project-scaffolding",
+      "prompt": "Starting a new Go service from scratch — where do cmd/ and internal/ go? Which skill?",
+      "expect_all": [
+        "go-project-layout"
+      ]
+    },
+    {
+      "id": "where-to-define-the-interface",
+      "prompt": "Should the interface live in the package that implements it or the one that uses it? Which skill?",
+      "expect_all": [
+        "go-interface-design"
+      ]
+    },
+    {
+      "id": "pipeline-setup-is-ci",
+      "prompt": "I need a GitHub Actions workflow running lint, tests with -race and a coverage gate. Which skill?",
+      "expect_all": [
+        "go-ci"
+      ]
+    },
+    {
+      "id": "select-on-ctx-done",
+      "prompt": "My worker blocks on a channel receive and ignores cancellation. Which skill covers doing this right?",
+      "expect_all": [
+        "go-context|go-concurrency-review"
+      ]
+    },
+    {
+      "id": "structured-logging-is-observability",
+      "prompt": "We log with fmt.Printf and cannot correlate anything. Which skill?",
+      "expect_all": [
+        "go-observability"
+      ]
+    },
+    {
+      "id": "godoc-comments",
+      "prompt": "How should I write doc comments for an exported package API? Which skill?",
+      "expect_all": [
+        "go-documentation"
+      ]
+    },
+    {
+      "id": "error-wrapping",
+      "prompt": "Callers cannot tell my not-found error from any other failure. Which skill?",
+      "expect_all": [
+        "go-error-handling"
+      ]
+    },
+    {
+      "id": "connection-pool-sizing",
+      "prompt": "Our database connection pool exhausts under load and transactions leak. Which skill?",
+      "expect_all": [
+        "go-database"
+      ]
+    },
+    {
+      "id": "flags-and-subcommands",
+      "prompt": "Building a CLI with subcommands, flags and proper exit codes. Which skill?",
+      "expect_all": [
+        "go-cli"
+      ]
+    },
+    {
+      "id": "functional-options",
+      "prompt": "My constructor takes nine parameters and most callers want the defaults. Which skill?",
+      "expect_all": [
+        "go-design-patterns"
+      ]
+    },
+    {
+      "id": "review-then-fix",
+      "prompt": "I want to review a PR that adds a goroutine pool to an HTTP handler. Which skills should I load?",
+      "expect_all": [
+        "go-code-review",
+        "go-concurrency-review"
+      ]
     }
   ]
 }
