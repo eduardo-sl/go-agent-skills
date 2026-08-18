@@ -1,21 +1,20 @@
 ---
 name: go-dependency-injection
 description: >
-  Dependency injection in Go: constructor injection, wiring in main, avoiding
-  global state, and when frameworks (wire, fx, dig) earn their complexity.
-  Use when: "dependency injection", "wire up dependencies", "inject this",
-  "remove global state", "singleton in Go", "use google/wire", "uber fx",
-  "make this testable".
-  Do NOT use for: interface design principles (use go-interface-design),
-  project directory structure (use go-project-layout), or
-  test doubles and mocks (use go-test-quality).
+  Dependency injection in Go: constructor injection, wiring in main,
+  avoiding global state, and when frameworks (wire, fx, dig) earn their
+  complexity. Use when: "dependency injection", "wire up dependencies",
+  "inject this", "remove global state", "singleton in Go", "use
+  google/wire", "uber fx", "make this testable".
+  Not for: interface design (go-interface-design), directory structure
+  (go-project-layout), test doubles and mocks (go-test-quality).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. wire and fx are optional.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Dependency Injection

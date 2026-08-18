@@ -1,22 +1,21 @@
 ---
 name: go-troubleshooting
 description: >
-  Diagnose runtime problems in Go programs: panics and stack traces, deadlocks,
-  goroutine leaks, memory leaks, OOM kills, race reports, and debugging with
-  delve and pprof.
-  Use when: "debug this panic", "read this stack trace", "deadlock", "memory
-  leak", "goroutine count growing", "OOM", "program hangs", "race detector
-  output", "use delve".
-  Do NOT use for: optimizing code that works (use go-performance-review),
-  writing new concurrent code (use go-concurrency-review), or
-  failing test design (use go-test-quality).
+  Diagnose runtime problems in Go programs: panics and stack traces,
+  deadlocks, goroutine leaks, memory leaks, OOM kills, race reports, and
+  debugging with delve and pprof. Use when: "debug this panic", "read this
+  stack trace", "deadlock", "memory leak", "goroutine count growing", "OOM",
+  "program hangs", "race detector output", "use delve".
+  Not for: optimizing code that works (go-performance-review), writing new
+  concurrent code (go-concurrency-review), failing test design
+  (go-test-quality).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. delve is optional, for interactive debugging.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(dlv:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Troubleshooting

@@ -1,22 +1,22 @@
 ---
 name: go-interface-design
 description: >
-  Go interface design patterns: implicit interfaces, consumer-side definition,
-  interface compliance verification, composition, the accept-interfaces-return-structs
-  principle, and common pitfalls.
-  Use when designing interfaces, decoupling packages, defining contracts,
-  reviewing interface usage, or refactoring for testability.
-  Trigger examples: "design interface", "accept interfaces return structs",
-  "interface compliance", "consumer-side interface", "interface composition".
-  Do NOT use for HTTP handler patterns (use go-api-design) or
-  general code review (use go-code-review).
+  Go interface design patterns: implicit interfaces, consumer-side
+  definition, interface compliance verification, composition, the
+  accept-interfaces-return-structs principle, and common pitfalls. Use when
+  designing interfaces, decoupling packages, defining contracts, reviewing
+  interface usage, or refactoring for testability. Trigger examples: "design
+  interface", "accept interfaces return structs", "interface compliance",
+  "consumer-side interface", "interface composition".
+  Not for: HTTP handler patterns (go-api-design), general review
+  (go-code-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Interface Design

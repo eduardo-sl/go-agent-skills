@@ -1,21 +1,21 @@
 ---
 name: go-modernize
 description: >
-  Modernize Go code to use current language features and standard library additions.
-  Covers generics, log/slog, errors.Join, slices/maps packages, range-over-func,
-  and iterators introduced in Go 1.21-1.23+.
-  Use when: "modernize", "update to modern Go", "use generics", "replace interface{}",
-  "upgrade Go version", "slog", "errors.Join", "range over func", "iterators".
-  Do NOT use for: general code style (use go-coding-standards),
-  error handling philosophy (use go-error-handling), or
-  logging architecture (use go-observability).
+  Modernize Go code to use current language features and standard library
+  additions. Covers generics, log/slog, errors.Join, slices/maps packages,
+  range-over-func, and iterators introduced in Go 1.21-1.23+. Use when:
+  "modernize", "update to modern Go", "use generics", "replace interface{}",
+  "upgrade Go version", "slog", "errors.Join", "range over func",
+  "iterators".
+  Not for: general style (go-coding-standards), error philosophy
+  (go-error-handling), logging architecture (go-observability).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. gopls is optional, for the modernize analyzer.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gopls:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # Go Modernize

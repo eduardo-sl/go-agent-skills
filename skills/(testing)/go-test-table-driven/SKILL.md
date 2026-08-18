@@ -1,22 +1,22 @@
 ---
 name: go-test-table-driven
 description: >
-  Deep dive on table-driven tests in Go: when to use them, when to avoid them,
-  struct design, subtest naming, advanced patterns like test matrices and
-  shared setup, and refactoring bloated tables into clean ones.
-  Use when writing table-driven tests, refactoring test tables, reviewing
-  table test structure, or deciding whether table-driven is the right approach.
-  Trigger examples: "table-driven test", "table test", "test cases struct",
-  "test matrix", "parametrize tests", "data-driven test", "refactor test table".
-  Do NOT use for general test strategy, mocking, golden files, or fuzz testing
-  (use go-test-quality). Do NOT use for benchmarks (use go-performance-review).
+  Deep dive on table-driven tests in Go: when to use them, when to avoid
+  them, struct design, subtest naming, advanced patterns like test matrices
+  and shared setup, and refactoring bloated tables into clean ones. Use when
+  writing table-driven tests, refactoring test tables, reviewing table test
+  structure, or deciding whether table-driven is the right approach. Trigger
+  examples: "table-driven test", "table test", "test cases struct", "test
+  matrix", "parametrize tests", "data-driven test", "refactor test table".
+  Not for: general test strategy, mocks, golden files, fuzzing
+  (go-test-quality), benchmarks (go-performance-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go Table-Driven Tests

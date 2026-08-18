@@ -2,19 +2,19 @@
 name: go-documentation
 description: >
   Go documentation conventions: godoc comments, package docs, testable
-  Example functions, deprecation notices, and doc links.
-  Use when: "add godoc", "document this package", "write doc comments",
-  "add examples to docs", "deprecate a function", "package documentation",
-  "improve the docs".
-  Do NOT use for: commit messages (use git-commit), README-level project
-  guides (plain writing task), or code style rules (use go-coding-standards).
+  Example functions, deprecation notices, and doc links. Use when: "add
+  godoc", "document this package", "write doc comments", "add examples to
+  docs", "deprecate a function", "package documentation", "improve the
+  docs".
+  Not for: commit messages (git-commit), README-level guides (plain writing
+  task), code style (go-coding-standards).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Documentation

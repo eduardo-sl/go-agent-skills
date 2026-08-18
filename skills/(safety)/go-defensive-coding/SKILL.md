@@ -1,24 +1,24 @@
 ---
 name: go-defensive-coding
 description: >
-  Prevent panics, silent corruption, and subtle runtime bugs in Go: typed-nil
-  interfaces, slice aliasing, integer overflow on conversion, float comparison,
-  defer in loops, defensive copying at API boundaries, and zero-value design.
-  Use when hardening code against crashes, reviewing for nil-safety, converting
-  between numeric types, or deciding what to copy at a package boundary.
-  Trigger examples: "nil pointer panic", "why is my error not nil", "slice
-  aliasing", "integer overflow", "compare floats", "defer in a loop",
-  "defensive copy", "make this crash-proof".
-  Do NOT use for data races and goroutine lifecycle (use go-concurrency-review),
-  external threats like injection and auth (use go-security-audit), or
-  diagnosing a panic that already happened (use go-troubleshooting).
+  Prevent panics, silent corruption, and subtle runtime bugs in Go:
+  typed-nil interfaces, slice aliasing, integer overflow on conversion,
+  float comparison, defer in loops, defensive copying at API boundaries, and
+  zero-value design. Use when hardening code against crashes, reviewing for
+  nil-safety, converting between numeric types, or deciding what to copy at
+  a package boundary. Trigger examples: "nil pointer panic", "why is my
+  error not nil", "slice aliasing", "integer overflow", "compare floats",
+  "defer in a loop", "defensive copy", "make this crash-proof".
+  Not for: data races and goroutine lifecycle (go-concurrency-review),
+  injection and auth (go-security-audit), a panic that already happened
+  (go-troubleshooting).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. golangci-lint and gosec are optional, for enforcing the rules below.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gosec:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go Defensive Coding

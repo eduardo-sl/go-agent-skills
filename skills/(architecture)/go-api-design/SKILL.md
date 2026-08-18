@@ -3,20 +3,20 @@ name: go-api-design
 description: >
   REST and gRPC API design patterns for Go services. Covers HTTP handlers,
   middleware, routing, request/response patterns, versioning, pagination,
-  graceful shutdown, and OpenAPI documentation.
-  Use when designing APIs, writing HTTP handlers, implementing middleware,
-  structuring REST endpoints, or setting up gRPC services.
-  Trigger examples: "design API", "REST endpoints", "HTTP handler",
-  "middleware pattern", "graceful shutdown", "gRPC service", "API versioning".
-  Do NOT use for general architecture (use go-architecture-review) or
-  concurrency in handlers (use go-concurrency-review).
+  graceful shutdown, and OpenAPI documentation. Use when designing APIs,
+  writing HTTP handlers, implementing middleware, structuring REST
+  endpoints, or setting up gRPC services. Trigger examples: "design API",
+  "REST endpoints", "HTTP handler", "middleware pattern", "graceful
+  shutdown", "gRPC service", "API versioning".
+  Not for: general architecture (go-architecture-review), concurrency in
+  handlers (go-concurrency-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Go API Design

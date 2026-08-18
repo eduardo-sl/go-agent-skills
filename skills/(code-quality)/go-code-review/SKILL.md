@@ -1,19 +1,20 @@
 ---
 name: go-code-review
 description: >
-  Comprehensive code review checklist for Go projects. Evaluates code quality,
-  idiomatic patterns, error handling, naming, package structure, and test coverage.
-  Use when reviewing Go code, PRs, or before merging changes.
-  Trigger examples: "review this code", "check this PR", "code review", "review Go file".
-  Do NOT use for security-specific audits (use go-security-audit) or
-  performance-specific analysis (use go-performance-review).
+  Comprehensive code review checklist for Go projects. Evaluates code
+  quality, idiomatic patterns, error handling, naming, package structure,
+  and test coverage. Use when reviewing Go code, PRs, or before merging
+  changes. Trigger examples: "review this code", "check this PR", "code
+  review", "review Go file".
+  Not for: security audits (go-security-audit), performance analysis
+  (go-performance-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Read-only: this skill reports findings, it does not edit code.
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.0"
+  version: "1.3.1"
 ---
 
 # Go Code Review

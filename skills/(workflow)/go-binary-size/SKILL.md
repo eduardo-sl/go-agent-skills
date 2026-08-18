@@ -1,23 +1,22 @@
 ---
 name: go-binary-size
 description: >
-  Reduce the size of compiled Go binaries and container images: linker flags,
-  inlining budget, CGO and build tags, embedded assets, dependency weight, and
-  measuring what actually costs bytes.
-  Use when a binary or image is too large, when shrinking a CLI for
-  distribution, or when auditing what a dependency adds to the build.
-  Trigger examples: "binary is too big", "shrink the binary", "reduce image
-  size", "strip symbols", "what is making my binary large", "ldflags -s -w".
-  Do NOT use for runtime speed or allocations (use go-performance-review),
-  CI pipeline setup (use go-ci), or dependency CVEs and hygiene
-  (use go-dependency-audit).
+  Reduce the size of compiled Go binaries and container images: linker
+  flags, inlining budget, CGO and build tags, embedded assets, dependency
+  weight, and measuring what actually costs bytes. Use when a binary or
+  image is too large, when shrinking a CLI for distribution, or when
+  auditing what a dependency adds to the build. Trigger examples: "binary is
+  too big", "shrink the binary", "reduce image size", "strip symbols", "what
+  is making my binary large", "ldflags -s -w".
+  Not for: runtime speed and allocations (go-performance-review), CI setup
+  (go-ci), dependency CVEs (go-dependency-audit).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. upx and go-size-analyzer are optional.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(strip:*) Bash(upx:*) Bash(gsa:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Go Binary Size

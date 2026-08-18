@@ -1,25 +1,23 @@
 ---
 name: go-openapi
 description: >
-  Spec-first REST development in Go with OpenAPI: generating server interfaces
-  and clients with oapi-codegen, request validation middleware, RFC 9457 error
-  bodies, contract testing, and detecting breaking API changes.
-  Use when the API has or should have an OpenAPI document, when wiring
-  code generation into the build, or when a hand-written handler has drifted
-  from its published contract.
-  Trigger examples: "OpenAPI", "swagger spec", "oapi-codegen", "generate a
-  client from the spec", "validate requests against the schema",
-  "breaking API change".
-  Do NOT use for handler structure, middleware and shutdown in general
-  (use go-api-design), for gRPC and protobuf (use go-grpc), or for GraphQL
-  schemas and resolvers (use go-graphql).
+  Spec-first REST development in Go with OpenAPI: generating server
+  interfaces and clients with oapi-codegen, request validation middleware,
+  RFC 9457 error bodies, contract testing, and detecting breaking API
+  changes. Use when the API has or should have an OpenAPI document, when
+  wiring code generation into the build, or when a hand-written handler has
+  drifted from its published contract. Trigger examples: "OpenAPI", "swagger
+  spec", "oapi-codegen", "generate a client from the spec", "validate
+  requests against the schema", "breaking API change".
+  Not for: handler structure and shutdown (go-api-design), gRPC and protobuf
+  (go-grpc), GraphQL schemas and resolvers (go-graphql).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. oapi-codegen, oasdiff and a spec linter (vacuum or spectral) are installed on demand.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(oapi-codegen:*) Bash(oasdiff:*) Bash(vacuum:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Go OpenAPI

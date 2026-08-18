@@ -1,24 +1,24 @@
 ---
 name: go-test-quality
 description: >
-  Go testing patterns for production-grade code: subtests, test helpers, fixtures,
-  golden files, httptest, testcontainers, fuzz testing, and testing/synctest.
-  Covers mocking strategies, test isolation, coverage analysis, and test design philosophy.
-  Use when writing tests, improving coverage, reviewing test quality,
-  setting up test infrastructure, or choosing a testing approach.
-  Trigger examples: "add tests", "improve coverage", "write tests for this",
-  "test helpers", "mock this dependency", "integration test", "fuzz test",
-  "flaky test", "synctest", "goroutine leak in tests".
-  Do NOT use for performance benchmarking methodology (use go-performance-review),
-  security testing (use go-security-audit), or table-driven test patterns
-  specifically (use go-test-table-driven).
+  Go testing patterns for production-grade code: subtests, test helpers,
+  fixtures, golden files, httptest, testcontainers, fuzz testing, and
+  testing/synctest. Covers mocking strategies, test isolation, coverage
+  analysis, and test design philosophy. Use when writing tests, improving
+  coverage, reviewing test quality, setting up test infrastructure, or
+  choosing a testing approach. Trigger examples: "add tests", "improve
+  coverage", "write tests for this", "test helpers", "mock this dependency",
+  "integration test", "fuzz test", "flaky test", "synctest", "goroutine leak
+  in tests".
+  Not for: benchmarking methodology (go-performance-review), security
+  testing (go-security-audit), table-driven patterns (go-test-table-driven).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Container-based integration tests require Docker.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # Go Test Quality
