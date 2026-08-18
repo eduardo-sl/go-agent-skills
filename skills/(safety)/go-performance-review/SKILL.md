@@ -12,7 +12,7 @@ description: >
   general code style (use go-coding-standards).
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Go Performance Review
@@ -193,9 +193,15 @@ import _ "net/http/pprof"
 
 // Access at http://localhost:6060/debug/pprof/
 go func() {
+    // Bind to loopback only — never the public listener.
     log.Println(http.ListenAndServe("localhost:6060", nil))
 }()
 ```
+
+Importing `net/http/pprof` registers its handlers on `http.DefaultServeMux`.
+If the service also serves public traffic from `DefaultServeMux`, profiles,
+command line and goroutine stacks become world-readable. Always give pprof
+its own loopback or internal-network listener.
 
 ## 6. High-Throughput Logging
 
