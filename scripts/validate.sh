@@ -210,6 +210,43 @@ assert 'description' in d, 'missing description'
     echo ""
 done
 
+# Validate evaluation case files
+if [[ -d "$REPO_DIR/evals/cases" ]]; then
+    echo "Validating evaluation cases..."
+    echo ""
+    for eval_file in $(find "$REPO_DIR/evals/cases" -name "*.json" | sort); do
+        echo "[$(basename "$eval_file" .json)] evals/cases/$(basename "$eval_file")"
+        if python3 - "$eval_file" "$SKILLS_DIR" <<'PYEOF'
+import json, pathlib, re, sys
+path, skills_dir = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+data = json.loads(path.read_text())
+skill = data["skill"]
+if path.stem != skill:
+    raise SystemExit(f"filename does not match skill {skill!r}")
+if not list(skills_dir.glob(f"*/{skill}/SKILL.md")):
+    raise SystemExit(f"no such skill: {skill}")
+ids = set()
+for c in data["cases"]:
+    for field in ("id", "prompt", "expect_all"):
+        if not c.get(field):
+            raise SystemExit(f"case {c.get('id', '?')}: missing {field}")
+    if c["id"] in ids:
+        raise SystemExit(f"duplicate case id: {c['id']}")
+    ids.add(c["id"])
+    for pattern in c.get("expect_all", []) + c.get("expect_none", []):
+        re.compile(pattern)
+if not ids:
+    raise SystemExit("no cases")
+PYEOF
+        then
+            ok "Valid ($(python3 -c "import json,sys;print(len(json.load(open(sys.argv[1]))['cases']))" "$eval_file") cases)"
+        else
+            error "Invalid evaluation file: $eval_file"
+        fi
+        echo ""
+    done
+fi
+
 # Summary
 echo "========================================"
 echo -e "Skills checked: ${CHECKED}"

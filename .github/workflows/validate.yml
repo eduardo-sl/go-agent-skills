@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - 'skills/**'
+      - 'evals/**'
       - 'scripts/validate.sh'
       - '.github/workflows/validate.yml'
   pull_request:
     branches: [main]
     paths:
       - 'skills/**'
+      - 'evals/**'
       - 'scripts/validate.sh'
       - '.github/workflows/validate.yml'
 

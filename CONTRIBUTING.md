@@ -77,11 +77,22 @@ Brief intro — what problem this solves and why it matters.
 ./scripts/validate.sh
 ```
 
-### 5. Update the README
+### 5. Update the README and the other discovery files
 
-Add your skill to the appropriate table in `README.md`.
+Add your skill to the appropriate table in `README.md`, and to every other
+platform discovery file listed in `AGENTS.md`. All of them must agree.
 
-### 6. Open a PR
+### 6. Add evaluation cases
+
+```bash
+# evals/cases/<your-skill>.json — see evals/README.md for the format
+scripts/run-evals.py --skill <your-skill> --dry-run
+```
+
+At least one case must fail without the skill installed. A case the base
+model already passes proves nothing about the skill.
+
+### 7. Open a PR
 
 Use a conventional commit message:
 
@@ -101,11 +112,12 @@ feat(skill): add go-grpc-patterns skill
 A skill is ready to merge when:
 
 1. `./scripts/validate.sh` passes with zero errors
-2. Every code example compiles (mentally or actually)
-3. ✅/❌ examples show contrast, not just the right way
-4. Description has trigger phrases AND negative triggers
-5. The skill teaches something an agent wouldn't know from training data alone
-6. Another Go engineer would agree with the guidance (no hot takes without justification)
+2. `evals/cases/<skill>.json` exists and at least one case fails without the skill
+3. Every code example compiles (mentally or actually)
+4. ✅/❌ examples show contrast, not just the right way
+5. Description has trigger phrases AND negative triggers
+6. The skill teaches something an agent wouldn't know from training data alone
+7. Another Go engineer would agree with the guidance (no hot takes without justification)
 
 ## What We Don't Accept
 
