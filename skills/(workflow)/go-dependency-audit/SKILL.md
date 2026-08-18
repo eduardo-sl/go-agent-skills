@@ -10,9 +10,13 @@ description: >
   "update modules", "vulnerability scan", "govulncheck".
   Do NOT use for code-level security issues (use go-security-audit) or
   architecture review (use go-architecture-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires network access to proxy.golang.org. Read-only: this skill reports findings, it does not edit code.
+allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Dependency Audit

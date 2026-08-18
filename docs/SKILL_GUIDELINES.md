@@ -16,11 +16,18 @@ description: >
   One sentence explaining what this skill does.
   Use when: "phrase 1", "phrase 2", "phrase 3".
   Do NOT use for: X (use other-skill), Y (use another-skill).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
+  author: eduardo-sl
   version: "1.0.0"
 ---
 ```
+
+All seven fields are required in this repository and enforced by
+`scripts/validate.sh`.
 
 **name**: Lowercase, hyphens only, matches directory name exactly.
 
@@ -29,7 +36,27 @@ metadata:
 - Trigger examples with quoted phrases the user would actually say
 - Negative triggers pointing to the correct skill
 
+**user-invocable**: `true` for every skill here — the README documents
+`/skill-name` invocation for all of them.
+
 **license**: `MIT` for all skills in this repository.
+
+**compatibility**: Under 500 characters. State the real requirements: the Go
+toolchain plus any extra binary the skill drives (`gopls`, `protoc`, `dlv`).
+Mark optional tools as optional. Review and audit skills end this field with
+`Read-only: this skill reports findings, it does not edit code.`
+
+**allowed-tools**: Space-delimited, least privilege. A skill gets `Edit` and
+`Write` only if it changes code. `Bash(...)` must always be scoped to a
+specific binary — unscoped `Bash` is rejected by the validator, because a
+skill that can run anything can undo every other guarantee in this file.
+
+| Skill kind | Tools |
+|---|---|
+| Writes code | `Read Edit Write Glob Grep` + scoped `Bash` |
+| Reviews / audits only | `Read Glob Grep` + scoped `Bash` |
+
+**metadata.author**: `eduardo-sl`, or the contributor's handle.
 
 **metadata.version**: Semver, quoted. New skills start at `1.0.0`.
 Bump MINOR when adding or restructuring content, PATCH for typo/example

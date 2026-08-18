@@ -10,9 +10,13 @@ description: >
   "interface compliance", "consumer-side interface", "interface composition".
   Do NOT use for HTTP handler patterns (use go-api-design) or
   general code review (use go-code-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Interface Design

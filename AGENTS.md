@@ -24,7 +24,11 @@ skills/(category-name)/skill-name/SKILL.md
 
 1. **Read `docs/SKILL_GUIDELINES.md` first.** It defines the quality standards.
 2. **Keep SKILL.md under 500 lines.** Move detailed content to `references/`.
-3. **YAML frontmatter is mandatory.** Every SKILL.md must have `name` and `description`.
+3. **YAML frontmatter is mandatory.** Every SKILL.md must have `name`,
+   `description`, `user-invocable`, `license`, `compatibility`, `allowed-tools`,
+   `metadata.author` and `metadata.version`. `allowed-tools` is least-privilege:
+   no `Edit`/`Write` for review-only skills, and every `Bash(...)` entry scoped
+   to one binary.
 4. **Name must match directory name.** `go-code-review/SKILL.md` → `name: go-code-review`.
 5. **Description must include trigger phrases AND negative triggers.** Example:
    ```

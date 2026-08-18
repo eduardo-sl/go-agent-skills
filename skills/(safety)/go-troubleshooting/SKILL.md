@@ -10,9 +10,13 @@ description: >
   Do NOT use for: optimizing code that works (use go-performance-review),
   writing new concurrent code (use go-concurrency-review), or
   failing test design (use go-test-quality).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. delve is optional, for interactive debugging.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(dlv:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Troubleshooting

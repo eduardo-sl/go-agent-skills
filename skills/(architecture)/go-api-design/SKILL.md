@@ -10,9 +10,13 @@ description: >
   "middleware pattern", "graceful shutdown", "gRPC service", "API versioning".
   Do NOT use for general architecture (use go-architecture-review) or
   concurrency in handlers (use go-concurrency-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go API Design
