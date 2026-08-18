@@ -69,8 +69,10 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         if [[ $desc_len -gt 1024 ]]; then
             error "Description is $desc_len chars (max 1024)"
         fi
-        # Check description has trigger phrases
-        desc=$(sed -n '/^description:/,/^---$/p' "$skill_file" | head -20)
+        # Check description has trigger phrases. The description is a folded
+        # YAML scalar, so flatten it before matching — a phrase may be split
+        # across two wrapped lines.
+        desc=$(sed -n '/^description: >/,/^user-invocable:/p' "$skill_file" | sed '1d;$d' | tr '\n' ' ' | tr -s ' ')
         if echo "$desc" | grep -qi "trigger\|use when\|trigger examples"; then
             ok "Description has trigger phrases"
         else
@@ -131,14 +133,16 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         ok "Has allowed-tools"
     fi
 
-    # 6. Check line count
+    # 6. Check line count: 250 is the soft budget, 500 the hard limit.
+    # Every line of SKILL.md is loaded whole once the skill fires; detail
+    # belongs in references/, which loads only when the agent asks for it.
     line_count=$(wc -l < "$skill_file")
     if [[ $line_count -gt 500 ]]; then
         error "SKILL.md is $line_count lines (max 500). Move content to references/"
-    elif [[ $line_count -gt 400 ]]; then
-        warn "SKILL.md is $line_count lines (approaching 500 limit)"
+    elif [[ $line_count -gt 250 ]]; then
+        warn "SKILL.md is $line_count lines (over the 250-line budget). Move detail to references/"
     else
-        ok "Line count: $line_count (under 500)"
+        ok "Line count: $line_count (within the 250-line budget)"
     fi
 
     # 7. Check for trailing whitespace

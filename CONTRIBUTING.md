@@ -104,7 +104,7 @@ feat(skill): add go-grpc-patterns skill
 
 - Fix factual errors without hesitation.
 - For style/opinion changes, explain the reasoning in the PR.
-- If adding content pushes past 500 lines, move detail to `references/`.
+- If adding content pushes past 250 lines, move detail to `references/`.
 - Run `./scripts/validate.sh` before pushing.
 
 ## Quality Bar
@@ -125,7 +125,7 @@ A skill is ready to merge when:
 - Skills with brand-specific advice (e.g., "use this specific SaaS product")
 - Skills that require external services or API keys to function
 - Generated/padded content — every line should earn its place
-- Skills over 500 lines without references/ offloading
+- Skills over 250 lines that could offload detail to references/
 
 ## Code of Conduct
 
