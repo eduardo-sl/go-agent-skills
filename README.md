@@ -46,6 +46,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-design-patterns](skills/(architecture)/go-design-patterns/) | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" |
 | [go-dependency-injection](skills/(architecture)/go-dependency-injection/) | Constructor injection, composition root, wire/fx trade-offs | "dependency injection", "remove global state" |
 | [go-cli](skills/(architecture)/go-cli/) | Flags, subcommands, exit codes, signals, Cobra decision point | "build a CLI", "handle Ctrl+C", "exit codes" |
+| [go-openapi](skills/(architecture)/go-openapi/) | Spec-first REST with oapi-codegen, validation middleware, oasdiff, contract tests | "OpenAPI", "oapi-codegen", "generate a client from the spec" |
 
 ### Data
 
@@ -157,7 +158,7 @@ npx skills remove go-performance-review
 go-agent-skills/
 ├── skills/                            # All skill definitions
 │   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation
-│   ├── (architecture)/                # go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli
+│   ├── (architecture)/                # go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli, go-openapi
 │   ├── (data)/                        # go-database
 │   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting, go-defensive-coding
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
