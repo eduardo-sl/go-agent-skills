@@ -62,6 +62,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-performance-review](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" |
 | [go-observability](skills/(safety)/go-observability/) | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" |
 | [go-troubleshooting](skills/(safety)/go-troubleshooting/) | Panics, deadlocks, memory/goroutine leaks, pprof diffing, delve | "debug this panic", "memory leak", "deadlock" |
+| [go-defensive-coding](skills/(safety)/go-defensive-coding/) | Typed-nil interfaces, slice aliasing, integer overflow, defensive copying | "nil pointer panic", "integer overflow", "defensive copy" |
 
 ### Testing
 
@@ -157,7 +158,7 @@ go-agent-skills/
 │   ├── (code-quality)/                # go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation
 │   ├── (architecture)/                # go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-grpc, go-design-patterns, go-dependency-injection, go-cli
 │   ├── (data)/                        # go-database
-│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting
+│   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting, go-defensive-coding
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
 │   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit
 │
