@@ -32,6 +32,7 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 - **go-dependency-injection** — Constructor injection, composition root, wire/fx
 - **go-cli** — Flags, subcommands, exit codes, signals, Cobra
 - **go-openapi** — Spec-first REST, oapi-codegen, request validation, breaking-change detection
+- **go-graphql** — gqlgen resolvers, dataloaders, N+1, complexity limits, field-level auth
 
 ### Data
 - **go-database** — Connection pools, transactions, sqlc, migrations
