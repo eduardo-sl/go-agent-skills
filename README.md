@@ -194,69 +194,69 @@ All figures are approximate tokens (bytes ÷ 4).
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-code-review`](skills/(code-quality)/go-code-review/) | Structured review process with severity classification | "review this code", "check this PR" | 111 | 1,608 | 1,621 |
-| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" | 137 | 2,124 | 2,139 |
-| [`go-context`](skills/(code-quality)/go-context/) | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" | 118 | 2,283 | 2,302 |
-| [`go-data-structures`](skills/(code-quality)/go-data-structures/) | Slices, maps, sets, aliasing, preallocation, nil vs empty | "nil slice", "map iteration", "slice aliasing" | 145 | 1,497 | 1,508 |
-| [`go-documentation`](skills/(code-quality)/go-documentation/) | Godoc conventions, testable examples, deprecation notices | "add godoc", "document this package" | 112 | 1,422 | 1,428 |
-| [`go-error-handling`](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" | 139 | 1,573 | 1,583 |
-| [`go-modernize`](skills/(code-quality)/go-modernize/) 📚 | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" | 136 | 2,256 | 4,467 |
+| [`go-code-review`](skills/(code-quality)/go-code-review/) | Structured review process with severity classification | "review this code", "check this PR" | 103 | 1,613 | 1,613 |
+| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" | 127 | 2,128 | 2,128 |
+| [`go-context`](skills/(code-quality)/go-context/) 📚 | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" | 108 | 1,798 | 2,868 |
+| [`go-data-structures`](skills/(code-quality)/go-data-structures/) | Slices, maps, sets, aliasing, preallocation, nil vs empty | "nil slice", "map iteration", "slice aliasing" | 135 | 1,498 | 1,498 |
+| [`go-documentation`](skills/(code-quality)/go-documentation/) | Godoc conventions, testable examples, deprecation notices | "add godoc", "document this package" | 104 | 1,420 | 1,420 |
+| [`go-error-handling`](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" | 131 | 1,575 | 1,575 |
+| [`go-modernize`](skills/(code-quality)/go-modernize/) 📚 | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" | 127 | 2,262 | 4,458 |
 
 ### Architecture & Design
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-api-design`](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" | 150 | 1,959 | 1,968 |
-| [`go-architecture-review`](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" | 135 | 2,038 | 2,121 |
-| [`go-cli`](skills/(architecture)/go-cli/) | Flags, subcommands, exit codes, signals, Cobra decision point | "build a CLI", "handle Ctrl+C", "exit codes" | 125 | 1,372 | 1,378 |
-| [`go-dependency-injection`](skills/(architecture)/go-dependency-injection/) | Constructor injection, composition root, wire/fx trade-offs | "dependency injection", "remove global state" | 126 | 1,529 | 1,537 |
-| [`go-design-patterns`](skills/(architecture)/go-design-patterns/) 📚 | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" | 127 | 1,551 | 3,465 |
-| [`go-graphql`](skills/(architecture)/go-graphql/) | gqlgen schema-first, resolvers, dataloaders, complexity limits, field auth | "GraphQL", "gqlgen", "N+1 queries", "dataloader" | 165 | 2,219 | 2,224 |
-| [`go-grpc`](skills/(architecture)/go-grpc/) | Proto design, status codes, interceptors, deadlines, streaming | "gRPC service", "interceptor", "proto design" | 126 | 1,714 | 1,718 |
-| [`go-interface-design`](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" | 148 | 1,952 | 1,973 |
-| [`go-openapi`](skills/(architecture)/go-openapi/) | Spec-first REST with oapi-codegen, validation middleware, oasdiff, contract tests | "OpenAPI", "oapi-codegen", "generate a client from the spec" | 188 | 2,060 | 2,065 |
-| [`go-project-layout`](skills/(architecture)/go-project-layout/) | Scaffolding new projects: cmd/internal, module naming, thin main | "new Go project", "scaffold a service" | 129 | 1,506 | 1,547 |
+| [`go-api-design`](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" | 146 | 1,964 | 1,964 |
+| [`go-architecture-review`](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" | 130 | 2,116 | 2,116 |
+| [`go-cli`](skills/(architecture)/go-cli/) | Flags, subcommands, exit codes, signals, Cobra decision point | "build a CLI", "handle Ctrl+C", "exit codes" | 112 | 1,365 | 1,365 |
+| [`go-dependency-injection`](skills/(architecture)/go-dependency-injection/) | Constructor injection, composition root, wire/fx trade-offs | "dependency injection", "remove global state" | 115 | 1,526 | 1,526 |
+| [`go-design-patterns`](skills/(architecture)/go-design-patterns/) 📚 | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" | 118 | 1,553 | 3,456 |
+| [`go-graphql`](skills/(architecture)/go-graphql/) | gqlgen schema-first, resolvers, dataloaders, complexity limits, field auth | "GraphQL", "gqlgen", "N+1 queries", "dataloader" | 155 | 2,213 | 2,213 |
+| [`go-grpc`](skills/(architecture)/go-grpc/) | Proto design, status codes, interceptors, deadlines, streaming | "gRPC service", "interceptor", "proto design" | 114 | 1,705 | 1,705 |
+| [`go-interface-design`](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" | 143 | 1,968 | 1,968 |
+| [`go-openapi`](skills/(architecture)/go-openapi/) | Spec-first REST with oapi-codegen, validation middleware, oasdiff, contract tests | "OpenAPI", "oapi-codegen", "generate a client from the spec" | 174 | 2,051 | 2,051 |
+| [`go-project-layout`](skills/(architecture)/go-project-layout/) | Scaffolding new projects: cmd/internal, module naming, thin main | "new Go project", "scaffold a service" | 114 | 1,533 | 1,533 |
 
 ### Data
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-database`](skills/(data)/go-database/) 📚 | Connection pools, transactions, sqlc, migrations, repository pattern | "database access", "SQL query", "transactions" | 127 | 1,400 | 2,891 |
+| [`go-database`](skills/(data)/go-database/) 📚 | Connection pools, transactions, sqlc, migrations, repository pattern | "database access", "SQL query", "transactions" | 113 | 1,390 | 2,877 |
 
 ### Safety & Performance
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-concurrency-review`](skills/(safety)/go-concurrency-review/) | Goroutine lifecycle, channels, mutexes, race detection | "check thread safety", "goroutine leak" | 145 | 1,974 | 1,996 |
-| [`go-defensive-coding`](skills/(safety)/go-defensive-coding/) 📚 | Typed-nil interfaces, slice aliasing, integer overflow, defensive copying | "nil pointer panic", "integer overflow", "defensive copy" | 200 | 2,568 | 5,220 |
-| [`go-observability`](skills/(safety)/go-observability/) | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" | 122 | 2,399 | 2,415 |
-| [`go-performance-review`](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" | 139 | 1,967 | 1,986 |
-| [`go-security-audit`](skills/(safety)/go-security-audit/) | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" | 143 | 2,287 | 2,307 |
-| [`go-troubleshooting`](skills/(safety)/go-troubleshooting/) | Panics, deadlocks, memory/goroutine leaks, pprof diffing, delve | "debug this panic", "memory leak", "deadlock" | 133 | 1,630 | 1,639 |
+| [`go-concurrency-review`](skills/(safety)/go-concurrency-review/) 📚 | Goroutine lifecycle, channels, mutexes, race detection | "check thread safety", "goroutine leak" | 140 | 1,668 | 2,380 |
+| [`go-defensive-coding`](skills/(safety)/go-defensive-coding/) 📚 | Typed-nil interfaces, slice aliasing, integer overflow, defensive copying | "nil pointer panic", "integer overflow", "defensive copy" | 186 | 2,576 | 5,207 |
+| [`go-observability`](skills/(safety)/go-observability/) 📚 | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" | 109 | 1,422 | 3,033 |
+| [`go-performance-review`](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" | 133 | 1,980 | 1,980 |
+| [`go-security-audit`](skills/(safety)/go-security-audit/) 📚 | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" | 136 | 1,807 | 3,110 |
+| [`go-troubleshooting`](skills/(safety)/go-troubleshooting/) | Panics, deadlocks, memory/goroutine leaks, pprof diffing, delve | "debug this panic", "memory leak", "deadlock" | 127 | 1,633 | 1,633 |
 
 ### Testing
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-test-quality`](skills/(testing)/go-test-quality/) 📚 | Test philosophy, subtests, httptest, golden files, fuzz, testcontainers | "add tests", "improve coverage" | 199 | 2,616 | 4,637 |
-| [`go-test-table-driven`](skills/(testing)/go-test-table-driven/) 📚 | Deep dive on table-driven tests: when to use, struct design, refactoring | "table-driven test", "test matrix" | 171 | 1,608 | 4,255 |
+| [`go-test-quality`](skills/(testing)/go-test-quality/) 📚 | Test philosophy, subtests, httptest, golden files, fuzz, testcontainers | "add tests", "improve coverage" | 186 | 2,628 | 4,624 |
+| [`go-test-table-driven`](skills/(testing)/go-test-table-driven/) 📚 | Deep dive on table-driven tests: when to use, struct design, refactoring | "table-driven test", "test matrix" | 162 | 1,611 | 4,245 |
 
 ### Workflow
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`git-commit`](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" | 119 | 1,438 | 1,443 |
-| [`go-binary-size`](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" | 163 | 1,903 | 1,910 |
-| [`go-ci`](skills/(workflow)/go-ci/) | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 135 | 1,401 | 1,405 |
-| [`go-dependency-audit`](skills/(workflow)/go-dependency-audit/) | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" | 142 | 1,533 | 1,544 |
-| [`go-refactoring`](skills/(workflow)/go-refactoring/) | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" | 147 | 1,454 | 1,461 |
-| [`go-semantic-tools`](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" | 148 | 1,295 | 1,299 |
-| [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 176 | 2,112 | 2,125 |
+| [`git-commit`](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" | 109 | 1,433 | 1,433 |
+| [`go-binary-size`](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" | 153 | 1,899 | 1,899 |
+| [`go-ci`](skills/(workflow)/go-ci/) | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 127 | 1,397 | 1,397 |
+| [`go-dependency-audit`](skills/(workflow)/go-dependency-audit/) | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" | 136 | 1,538 | 1,538 |
+| [`go-refactoring`](skills/(workflow)/go-refactoring/) | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" | 142 | 1,455 | 1,455 |
+| [`go-semantic-tools`](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" | 139 | 1,290 | 1,290 |
+| [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 166 | 2,115 | 2,115 |
 
-**Budget.** All 33 descriptions together are ~4,726 tokens at startup. A typical
-session fires 2–4 skills, so ~5,475 tokens of body. The full tree is
-~73,577 tokens and is never loaded at once — that is the point of progressive
-disclosure.
+**Budget.** All 33 descriptions together are ~4,420 tokens at startup — the only
+figure paid on every request, Go work or not. A typical session fires 2–4
+skills, so ~5,300 tokens of body. The full tree is ~75,700 tokens and is never
+loaded at once; that gap is the point of progressive disclosure.
 
 ---
 
@@ -271,7 +271,12 @@ scripts/run-evals.py --cmd 'claude -p "{prompt}"' --label baseline
 ```
 
 Same suite, run in a project with the skills and in one without. The delta is
-the measurement. Case format and guidance: [`evals/README.md`](evals/README.md).
+the measurement.
+
+One suite measures something else: `go-skills-router` asserts which skill a
+task should route to. With 33 overlapping triggers, picking the wrong skill
+costs more than any description does. Case format and guidance:
+[`evals/README.md`](evals/README.md).
 
 > [!NOTE]
 > No scores are published here. They depend on the model, its version, and the
@@ -303,7 +308,7 @@ Threat model and private disclosure: [SECURITY.md](SECURITY.md).
 ```text
 go-agent-skills/
 ├── skills/(category)/skill-name/
-│   ├── SKILL.md                    # ≤500 lines: procedure, patterns, checklist
+│   ├── SKILL.md                    # ≤250 lines: procedure, patterns, checklist
 │   └── references/                 # depth, loaded only when SKILL.md says so
 ├── evals/
 │   ├── README.md                   # how to measure a skill's worth
@@ -338,8 +343,8 @@ expensive than no activation.
 `golangci-lint`, `govulncheck`, `go test -race` — the skill runs it instead of
 asking the agent to judge.
 
-**Progressive disclosure.** SKILL.md stays under 500 lines. Depth lives in
-`references/` and loads only on demand.
+**Progressive disclosure.** SKILL.md stays under 250 lines — CI warns above it,
+fails at 500. Depth lives in `references/` and loads only on demand.
 
 **Self-contained.** No skill requires another to have been loaded. They name
 each other as pointers only. `go-skills-router` is the one index, and it is
@@ -369,7 +374,7 @@ Budget, per skill:
 | | Target |
 |---|---|
 | `description` | ~100–200 tokens. What it does, when to fire, when *not* to |
-| `SKILL.md` | 1,500–2,500 tokens. Procedure and patterns, nothing else |
+| `SKILL.md` | ≤250 lines, ~1,000–2,000 tokens. Procedure and patterns, nothing else |
 | `references/*.md` | Whatever depth needs, loaded on demand |
 | Full tree | Under ~10,000 tokens |
 
