@@ -71,7 +71,7 @@ Markdown content with instructions for the AI agent.
 
 | Rule | Limit |
 |---|---|
-| Total lines | ≤ 500 |
+| Total lines | ≤ 250 (budget, CI warns) / ≤ 500 (hard, CI fails) |
 | Description | ≤ 1024 characters |
 | Skill name | 1-64 characters, `[a-z0-9-]` |
 | Code examples | Must specify language tag |
@@ -146,9 +146,11 @@ and why.
 
 ### 7. Prefer progressive disclosure over long files
 
-Keep SKILL.md at principles + procedure + checklist (~150-200 lines).
-Move full worked examples to `references/*.md` and link them from a
-short block near the top:
+Keep SKILL.md at principles + procedure + checklist (~150-200 lines, 250
+maximum). SKILL.md is loaded in full the moment the skill fires; a
+`references/*.md` file costs nothing until the agent decides it needs it.
+That is the whole trade: rules in the body, worked examples in references,
+linked from a short block near the top:
 
 ```markdown
 Detailed reference material, loaded on demand:
@@ -190,7 +192,7 @@ When skills produce findings (reviews, audits), use consistent severity:
 
 ```
 skill-name/
-├── SKILL.md              # Required: main instructions (≤500 lines)
+├── SKILL.md              # Required: main instructions (≤250 lines)
 ├── references/            # Optional: detailed docs loaded on demand
 │   ├── error-patterns.md
 │   └── migration-guide.md
