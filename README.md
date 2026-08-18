@@ -83,6 +83,7 @@ Skills load automatically based on context. You can also invoke them directly vi
 | [go-semantic-tools](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" |
 | [git-commit](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" |
 | [go-binary-size](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" |
+| [go-skills-router](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" |
 
 ## Quick Start
 
@@ -163,7 +164,7 @@ go-agent-skills/
 │   ├── (data)/                        # go-database
 │   ├── (safety)/                      # go-concurrency-review, go-security-audit, go-performance-review, go-observability, go-troubleshooting, go-defensive-coding
 │   ├── (testing)/                     # go-test-quality, go-test-table-driven
-│   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit, go-binary-size
+│   └── (workflow)/                    # go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit, go-binary-size, go-skills-router
 │
 ├── # Platform discovery files (how each agent finds skills in this repo)
 ├── AGENTS.md                          # Universal: Codex, Gemini CLI, Copilot, Factory
@@ -188,7 +189,7 @@ go-agent-skills/
 
 ## Design Principles
 
-**Each skill is self-contained.** No cross-references or imports between skills. The agent loads only what's relevant, consuming minimal tokens.
+**Each skill is self-contained.** No skill requires another to have been loaded. Skills name each other only as pointers, so the agent loads only what's relevant, consuming minimal tokens. `go-skills-router` is the single index skill — it maps a task to the skill that owns it, and is itself optional.
 
 **Instructions are for agents, not humans.** Step-by-step, imperative, with concrete ✅/❌ code examples. Agents learn better from contrast than from prose.
 

@@ -52,3 +52,4 @@ Or use directly by invoking `/skill-name` in Claude Code.
 - `/go-semantic-tools` — gopls navigation, go list graphs, semantic rename
 - `/git-commit` — Conventional Commits, atomic commits
 - `/go-binary-size` — Linker flags, CGO, build tags, dependency weight, image size
+- `/go-skills-router` — Task-to-skill routing table and boundaries between overlapping skills
