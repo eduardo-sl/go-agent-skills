@@ -9,9 +9,13 @@ description: >
   "prepare PR", "squash commits".
   Do NOT use for changelog generation (use changelog-generator) or
   code review (use go-code-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents. Requires git.
+allowed-tools: Read Glob Grep Bash(git:*)
 metadata:
-  version: "1.1.0"
+  author: eduardo-sl
+  version: "1.2.0"
 ---
 
 # Git Commit Standards

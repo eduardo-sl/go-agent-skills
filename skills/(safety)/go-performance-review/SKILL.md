@@ -10,9 +10,13 @@ description: >
   "benchmark this", "profile", "optimize Go code".
   Do NOT use for concurrency correctness (use go-concurrency-review) or
   general code style (use go-coding-standards).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. benchstat is optional, for comparing benchmark runs.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(benchstat:*)
 metadata:
-  version: "1.1.0"
+  author: eduardo-sl
+  version: "1.2.0"
 ---
 
 # Go Performance Review

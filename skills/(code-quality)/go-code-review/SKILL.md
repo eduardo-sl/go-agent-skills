@@ -7,9 +7,13 @@ description: >
   Trigger examples: "review this code", "check this PR", "code review", "review Go file".
   Do NOT use for security-specific audits (use go-security-audit) or
   performance-specific analysis (use go-performance-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Read-only: this skill reports findings, it does not edit code.
+allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
-  version: "1.2.0"
+  author: eduardo-sl
+  version: "1.3.0"
 ---
 
 # Go Code Review

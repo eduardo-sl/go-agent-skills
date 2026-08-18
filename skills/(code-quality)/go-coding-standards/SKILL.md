@@ -8,9 +8,13 @@ description: >
   Trigger examples: "check Go style", "fix formatting", "review naming", "Go conventions".
   Do NOT use for architecture decisions, concurrency patterns, or performance tuning —
   use go-architecture-review, go-concurrency-review, or go-performance-review instead.
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. golangci-lint is optional.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
-  version: "1.1.0"
+  author: eduardo-sl
+  version: "1.2.0"
 ---
 
 # Go Coding Standards

@@ -8,9 +8,13 @@ description: >
   Do NOT use for: reviewing an existing architecture (use go-architecture-review),
   dependency injection wiring details (use go-dependency-injection), or
   CI pipeline setup (use go-ci).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires git for repository initialisation.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(git:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Project Layout

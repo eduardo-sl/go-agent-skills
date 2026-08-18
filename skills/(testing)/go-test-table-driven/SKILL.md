@@ -10,9 +10,13 @@ description: >
   "test matrix", "parametrize tests", "data-driven test", "refactor test table".
   Do NOT use for general test strategy, mocking, golden files, or fuzz testing
   (use go-test-quality). Do NOT use for benchmarks (use go-performance-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.1.0"
+  author: eduardo-sl
+  version: "1.2.0"
 ---
 
 # Go Table-Driven Tests

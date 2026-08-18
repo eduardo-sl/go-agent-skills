@@ -10,9 +10,13 @@ description: >
   Do NOT use for: deciding the target architecture (use go-architecture-review),
   adopting new language features (use go-modernize), or performance rewrites
   (use go-performance-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires git. gopls is optional, for semantic rename.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(git:*) Bash(gopls:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Refactoring Workflow

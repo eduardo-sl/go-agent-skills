@@ -8,9 +8,13 @@ description: >
   "improve the docs".
   Do NOT use for: commit messages (use git-commit), README-level project
   guides (plain writing task), or code style rules (use go-coding-standards).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Documentation

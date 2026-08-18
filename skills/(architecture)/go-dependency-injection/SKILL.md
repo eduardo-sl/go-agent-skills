@@ -9,9 +9,13 @@ description: >
   Do NOT use for: interface design principles (use go-interface-design),
   project directory structure (use go-project-layout), or
   test doubles and mocks (use go-test-quality).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. wire and fx are optional.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Dependency Injection

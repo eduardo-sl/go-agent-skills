@@ -65,6 +65,10 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
     if ! echo "$frontmatter" | grep -q "description:"; then
         error "Missing 'description' field in frontmatter"
     else
+        desc_len=$(sed -n '/^description:/,/^user-invocable:/p' "$skill_file" | sed '$d' | wc -c)
+        if [[ $desc_len -gt 1024 ]]; then
+            error "Description is $desc_len chars (max 1024)"
+        fi
         # Check description has trigger phrases
         desc=$(sed -n '/^description:/,/^---$/p' "$skill_file" | head -20)
         if echo "$desc" | grep -qi "trigger\|use when\|trigger examples"; then
@@ -88,9 +92,43 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
         error "Missing 'metadata.version' (semver, quoted) in frontmatter"
     fi
 
+    # 4b. Check author metadata
+    if ! echo "$frontmatter" | grep -qE '^  author: .+'; then
+        error "Missing 'metadata.author' in frontmatter"
+    fi
+
     # 5. Check license
     if ! echo "$frontmatter" | grep -q "^license:"; then
         warn "Missing 'license' field in frontmatter"
+    fi
+
+    # 5b. Check user-invocable (boolean)
+    if ! echo "$frontmatter" | grep -qE '^user-invocable: (true|false)$'; then
+        error "Missing 'user-invocable' (true|false) in frontmatter"
+    fi
+
+    # 5c. Check compatibility (present, <= 500 chars per Agent Skills spec)
+    compat=$(echo "$frontmatter" | grep "^compatibility:" | head -1 | sed 's/^compatibility:[[:space:]]*//')
+    if [[ -z "$compat" ]]; then
+        error "Missing 'compatibility' field in frontmatter"
+    elif [[ ${#compat} -gt 500 ]]; then
+        error "compatibility is ${#compat} chars (max 500)"
+    else
+        ok "Has compatibility (${#compat} chars)"
+    fi
+
+    # 5d. Check allowed-tools, and that review/audit skills stay read-only
+    tools=$(echo "$frontmatter" | grep "^allowed-tools:" | head -1 | sed 's/^allowed-tools:[[:space:]]*//')
+    if [[ -z "$tools" ]]; then
+        error "Missing 'allowed-tools' field in frontmatter"
+    else
+        if [[ "$tools" == *"Bash(*"* || "$tools" == *"Bash)"* || "$tools" == "*" ]]; then
+            error "allowed-tools grants unscoped Bash access"
+        fi
+        if [[ "$compat" == *"Read-only:"* ]] && [[ "$tools" == *"Write"* || "$tools" == *"Edit"* ]]; then
+            error "Skill declares itself read-only but requests Write/Edit"
+        fi
+        ok "Has allowed-tools"
     fi
 
     # 6. Check line count

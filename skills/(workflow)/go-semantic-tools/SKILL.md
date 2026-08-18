@@ -10,9 +10,13 @@ description: >
   Do NOT use for: performing the refactor itself (use go-refactoring),
   judging the architecture found (use go-architecture-review), or
   documentation writing (use go-documentation).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires gopls (go install golang.org/x/tools/gopls@latest).
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(gopls:*)
 metadata:
-  version: "1.0.0"
+  author: eduardo-sl
+  version: "1.1.0"
 ---
 
 # Go Semantic Tools

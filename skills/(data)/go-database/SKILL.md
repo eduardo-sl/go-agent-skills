@@ -8,9 +8,13 @@ description: >
   Do NOT use for: in-memory data structures (use go-coding-standards),
   security aspects of SQL (use go-security-audit), or
   performance profiling of queries (use go-performance-review).
+user-invocable: true
 license: MIT
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. sqlc, golang-migrate and Docker are optional.
+allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
-  version: "1.1.0"
+  author: eduardo-sl
+  version: "1.2.0"
 ---
 
 # Go Database Patterns
