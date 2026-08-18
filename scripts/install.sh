@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # go-agent-skills installer
-# Usage: ./scripts/install.sh [PROJECT_DIR] [--agent AGENT] [--global] [--symlink]
+# Usage: ./scripts/install.sh [PROJECT_DIR] [--agent AGENT] [--global] [--symlink] [--dry-run] [--yes]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
@@ -13,6 +13,8 @@ PROJECT_DIR=""
 AGENT=""
 GLOBAL=false
 USE_SYMLINK=false
+DRY_RUN=false
+ASSUME_YES=false
 
 # Colors
 RED='\033[0;31m'
@@ -34,12 +36,15 @@ Options:
   --agent AGENT        Target agent: claude, cursor, copilot, codex, windsurf
   --global             Install to user home (global, all projects)
   --symlink            Use symlinks instead of copy (stays in sync with repo)
+  --dry-run            Print what would be installed, change nothing
+  -y, --yes            Do not prompt before replacing existing skills
   -h, --help           Show this help
 
 Examples:
   $(basename "$0") ~/projects/my-go-app --agent claude
   $(basename "$0") --agent cursor --symlink
   $(basename "$0") --global --agent claude
+  $(basename "$0") --global --agent claude --dry-run
   $(basename "$0")                              # interactive mode
 EOF
     exit 0
@@ -51,6 +56,8 @@ while [[ $# -gt 0 ]]; do
         --agent)   AGENT="$2"; shift 2 ;;
         --global)  GLOBAL=true; shift ;;
         --symlink) USE_SYMLINK=true; shift ;;
+        --dry-run) DRY_RUN=true; shift ;;
+        -y|--yes)  ASSUME_YES=true; shift ;;
         -h|--help) usage ;;
         -*)        echo -e "${RED}Unknown option: $1${NC}"; usage ;;
         *)         PROJECT_DIR="$1"; shift ;;
@@ -138,38 +145,74 @@ if [[ -z "$TARGET_DIR" ]]; then
     exit 1
 fi
 
-# Create target directory
-mkdir -p "$TARGET_DIR"
+# Collect the skills to install
+SKILL_DIRS=()
+for category_dir in "$SKILLS_DIR"/*/; do
+    for skill_dir in "$category_dir"*/; do
+        # Skip _category.json entries (not directories with SKILL.md)
+        [[ ! -f "$skill_dir/SKILL.md" ]] && continue
+        SKILL_DIRS+=("$skill_dir")
+    done
+done
 
-# Count skills
-SKILL_COUNT=0
+if [[ ${#SKILL_DIRS[@]} -eq 0 ]]; then
+    echo -e "${RED}No skills found under $SKILLS_DIR${NC}"
+    exit 1
+fi
 
-# Install skills
 echo ""
 echo -e "${CYAN}Installing Go skills to: ${NC}$TARGET_DIR"
 echo -e "${CYAN}Method: ${NC}$(if $USE_SYMLINK; then echo 'symlink'; else echo 'copy'; fi)"
 echo ""
 
-for category_dir in "$SKILLS_DIR"/*/; do
-    for skill_dir in "$category_dir"*/; do
-        # Skip _category.json entries (not directories with SKILL.md)
-        [[ ! -f "$skill_dir/SKILL.md" ]] && continue
+# Warn about skills that will be replaced
+REPLACING=()
+for skill_dir in "${SKILL_DIRS[@]}"; do
+    target="$TARGET_DIR/$(basename "$skill_dir")"
+    [[ -e "$target" || -L "$target" ]] && REPLACING+=("$(basename "$skill_dir")")
+done
 
-        skill_name=$(basename "$skill_dir")
-        target="$TARGET_DIR/$skill_name"
+if [[ ${#REPLACING[@]} -gt 0 ]]; then
+    echo -e "${YELLOW}${#REPLACING[@]} existing skill(s) will be replaced:${NC}"
+    printf '  %s\n' "${REPLACING[@]}"
+    echo ""
+    if ! $DRY_RUN && ! $ASSUME_YES; then
+        read -rp "Continue? [y/N]: " confirm
+        [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
+        echo ""
+    fi
+fi
 
-        # Remove existing
-        rm -rf "$target"
+if $DRY_RUN; then
+    echo -e "${CYAN}Dry run — nothing was written.${NC}"
+    printf '  would install %s\n' "${SKILL_DIRS[@]##*/skills/}"
+    exit 0
+fi
 
-        if $USE_SYMLINK; then
-            ln -sf "$(realpath "$skill_dir")" "$target"
-        else
-            cp -r "$skill_dir" "$target"
+mkdir -p "$TARGET_DIR"
+
+SKILL_COUNT=0
+for skill_dir in "${SKILL_DIRS[@]}"; do
+    skill_name=$(basename "$skill_dir")
+    target="$TARGET_DIR/$skill_name"
+
+    # Only ever remove a path we are about to own, inside TARGET_DIR
+    if [[ -e "$target" || -L "$target" ]]; then
+        if [[ "$target" != "$TARGET_DIR/"* || -z "$skill_name" ]]; then
+            echo -e "${RED}Refusing to remove unexpected path: $target${NC}"
+            exit 1
         fi
+        rm -rf "$target"
+    fi
 
-        echo -e "  ${GREEN}✓${NC} $skill_name"
-        SKILL_COUNT=$((SKILL_COUNT + 1))
-    done
+    if $USE_SYMLINK; then
+        ln -sfn "$(realpath "$skill_dir")" "$target"
+    else
+        cp -r "$skill_dir" "$target"
+    fi
+
+    echo -e "  ${GREEN}✓${NC} $skill_name"
+    SKILL_COUNT=$((SKILL_COUNT + 1))
 done
 
 echo ""
