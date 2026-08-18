@@ -214,3 +214,91 @@ req, err := http.NewRequest(http.MethodGet, url, nil)
 // ✅ After — context propagated
 req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 ```
+
+## sync.WaitGroup.Go (Go 1.25+)
+
+```go
+// ❌ Before — Add/Done must stay in sync by hand
+var wg sync.WaitGroup
+wg.Add(1)
+go func() {
+    defer wg.Done()
+    work()
+}()
+wg.Wait()
+
+// ✅ After
+var wg sync.WaitGroup
+wg.Go(work)
+wg.Wait()
+```
+
+`errgroup.Group` is still the right choice when the goroutines return errors
+or need a shared cancellation context. `wg.Go` replaces only the plain case.
+
+## errors.AsType (Go 1.26+)
+
+```go
+// ❌ Before
+var perr *fs.PathError
+if errors.As(err, &perr) {
+    return perr.Path
+}
+
+// ✅ After — no target variable, no double indirection to get wrong
+if perr, ok := errors.AsType[*fs.PathError](err); ok {
+    return perr.Path
+}
+```
+
+## slog.NewMultiHandler (Go 1.26+)
+
+```go
+// ❌ Before — a hand-written handler forwarding to two others
+type multiHandler struct{ a, b slog.Handler }
+
+func (h multiHandler) Handle(ctx context.Context, r slog.Record) error {
+    _ = h.a.Handle(ctx, r)
+    return h.b.Handle(ctx, r)
+}
+// ... plus Enabled, WithAttrs and WithGroup, each easy to get wrong
+
+// ✅ After
+logger := slog.New(slog.NewMultiHandler(
+    slog.NewJSONHandler(os.Stdout, nil),
+    auditHandler,
+))
+```
+
+## new(expr) (Go 1.26+)
+
+```go
+// ❌ Before — a temporary variable only to take its address
+port := 8080
+cfg := Config{Port: &port}
+
+// ✅ After
+cfg := Config{Port: new(8080)}
+```
+
+Useful for optional struct fields and protobuf-style pointer scalars. Do not
+use it to hide a value that deserves a name.
+
+## os.Root for path containment (Go 1.24+)
+
+```go
+// ❌ Before — manual traversal checks are easy to bypass
+clean := filepath.Clean(userPath)
+if strings.HasPrefix(clean, "..") {
+    return errors.New("invalid path")
+}
+data, err := os.ReadFile(filepath.Join(baseDir, clean))
+
+// ✅ After — the OS enforces containment, symlinks included
+root, err := os.OpenRoot(baseDir)
+if err != nil {
+    return err
+}
+defer root.Close()
+data, err := root.ReadFile(userPath) // cannot escape baseDir
+```
