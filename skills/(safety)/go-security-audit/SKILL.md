@@ -2,21 +2,20 @@
 name: go-security-audit
 description: >
   Security review for Go applications: input validation, SQL injection,
-  authentication/authorization, secrets management, TLS, OWASP Top 10,
-  and secure coding patterns.
-  Use when performing security reviews, checking for vulnerabilities,
-  hardening Go services, or reviewing auth implementations.
+  authentication/authorization, secrets management, TLS, OWASP Top 10, and
+  secure coding patterns. Use when performing security reviews, checking for
+  vulnerabilities, hardening Go services, or reviewing auth implementations.
   Trigger examples: "security review", "check vulnerabilities", "OWASP",
   "SQL injection", "input validation", "secrets management", "auth review".
-  Do NOT use for dependency CVE scanning (use go-dependency-audit) or
-  concurrency safety (use go-concurrency-review).
+  Not for: dependency CVEs (go-dependency-audit), concurrency safety
+  (go-concurrency-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. govulncheck, gosec and gitleaks are optional. Read-only: this skill reports findings, it does not edit code.
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*) Bash(gosec:*) Bash(gitleaks:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Go Security Audit
@@ -65,239 +64,105 @@ beyond ~20 files:
 4. Every finding must cite `file.go:line`, the vulnerable input path,
    and a concrete fix. Aggregate into one report sorted by severity.
 
+Detailed reference material, loaded on demand:
+
+- `references/injection.md` — boundary validation, sanitization,
+  parameterized and dynamic queries.
+- `references/auth-and-transport.md` — passwords, JWT, authorization
+  middleware, secrets, TLS, headers, rate limiting.
+
+Read a reference file only when the section below is not enough.
+
 ## 1. Input Validation
 
-### NEVER trust user input. Validate at the boundary:
+Validate at the boundary, before the value reaches any business code:
 
-```go
-// ✅ Good — validate before use
-func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request) {
-    // Limit body size
-    r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
+- Cap the request body with `http.MaxBytesReader` — an unbounded decoder is
+  a memory exhaustion vector.
+- Decode into a typed struct, then validate it. A decode that succeeds is not
+  a value that is valid.
+- Reject rather than repair. Reply with the status code, not with the
+  internal error text.
+- Sanitize anything rendered back as HTML (`bluemonday`), parse emails with
+  `net/mail`, and reject URLs whose scheme is not `http`/`https`.
 
-    var req CreateRequest
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        respondError(w, http.StatusBadRequest, "invalid JSON")
-        return
-    }
-
-    if err := validate.Struct(req); err != nil {
-        respondError(w, http.StatusBadRequest, "validation failed")
-        return
-    }
-    // proceed with validated data
-}
-```
-
-### String sanitization:
-
-```go
-// Sanitize HTML to prevent XSS
-import "github.com/microcosm-cc/bluemonday"
-
-p := bluemonday.UGCPolicy()
-sanitized := p.Sanitize(userInput)
-
-// Validate email format
-import "net/mail"
-_, err := mail.ParseAddress(email)
-
-// Validate URLs
-u, err := url.Parse(input)
-if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
-    // reject
-}
-```
+Examples in `references/injection.md`.
 
 ## 2. SQL Injection Prevention
 
-### ALWAYS use parameterized queries:
+ALWAYS pass values as query parameters. There is no safe amount of string
+concatenation:
 
 ```go
 // ✅ Good — parameterized
-row := db.QueryRowContext(ctx,
-    "SELECT id, name FROM users WHERE email = $1", email)
+row := db.QueryRowContext(ctx, "SELECT id, name FROM users WHERE email = $1", email)
 
-// ✅ Good — with sqlx named params
-query := "SELECT * FROM users WHERE name = :name AND age > :age"
-rows, err := db.NamedQueryContext(ctx, query, map[string]interface{}{
-    "name": name,
-    "age":  minAge,
-})
-
-// ❌ CRITICAL — string concatenation = SQL injection
+// ❌ CRITICAL — SQL injection
 query := "SELECT * FROM users WHERE email = '" + email + "'"
 query := fmt.Sprintf("SELECT * FROM users WHERE id = %s", id)
 ```
 
-### Dynamic queries:
+Dynamic filters are built by appending placeholders (`$1`, `$2`, …) and
+collecting the values into an `args` slice — never by interpolating the value
+itself. Table and column names cannot be parameterized: allowlist them
+against a fixed set.
 
-When building dynamic WHERE clauses, use query builders or safe concatenation:
-
-```go
-// ✅ Good — safe dynamic query building
-var conditions []string
-var args []interface{}
-argIdx := 1
-
-if name != "" {
-    conditions = append(conditions, fmt.Sprintf("name = $%d", argIdx))
-    args = append(args, name)
-    argIdx++
-}
-
-query := "SELECT * FROM users"
-if len(conditions) > 0 {
-    query += " WHERE " + strings.Join(conditions, " AND ")
-}
-```
+Examples in `references/injection.md`.
 
 ## 3. Authentication & Authorization
 
-### Password handling:
+- Hash passwords with `bcrypt` (or argon2id). NEVER store plaintext, NEVER
+  use MD5/SHA — they are fast, which is the wrong property here.
+- Compare with `bcrypt.CompareHashAndPassword`, which is constant-time.
+  Hand-rolled comparisons leak timing.
+- Validate every JWT claim that matters: signature with the expected
+  algorithm, `exp`, `iss`, `aud`. Reject `alg: none` and never hardcode the
+  signing key.
+- Authorize per request in middleware, reading the identity from the request
+  context. An endpoint with no role check is a public endpoint.
+- Check ownership, not only role: a valid token for user A must not read
+  user B's row.
 
-```go
-import "golang.org/x/crypto/bcrypt"
-
-// Hash password
-hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-// Verify password — constant-time comparison built in
-err := bcrypt.CompareHashAndPassword(hash, []byte(password))
-```
-
-NEVER store plaintext passwords. NEVER use MD5/SHA for passwords.
-
-### JWT validation:
-
-```go
-// ✅ Always validate:
-// 1. Signature (algorithm must match expectation)
-// 2. Expiration (exp claim)
-// 3. Issuer (iss claim)
-// 4. Audience (aud claim)
-
-// ❌ CRITICAL — never disable signature verification
-// ❌ CRITICAL — never accept "alg": "none"
-// ❌ CRITICAL — never hardcode signing keys in source code
-```
-
-### Authorization middleware:
-
-```go
-func RequireRole(role string) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            user := UserFromContext(r.Context())
-            if user == nil || !user.HasRole(role) {
-                http.Error(w, "forbidden", http.StatusForbidden)
-                return
-            }
-            next.ServeHTTP(w, r)
-        })
-    }
-}
-```
+Examples in `references/auth-and-transport.md`.
 
 ## 4. Secrets Management
 
-### Rules:
 - 🔴 NEVER hardcode secrets, tokens, or API keys in source code
 - 🔴 NEVER commit secrets to git (even in "test" files)
 - 🔴 NEVER log secrets, tokens, or passwords
 
+Read them from the environment or a secrets manager, keep `.env`, `*.pem`,
+`*.key` and `credentials.json` in `.gitignore`, and run `gitleaks detect` in
+CI so a leak fails the build instead of ageing in history.
+
+Examples in `references/auth-and-transport.md`.
+
+## 5. Transport, Headers and Rate Limiting
+
+- Set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a
+  `Content-Security-Policy`, and HSTS on every response.
+- TLS: `MinVersion: tls.VersionTLS12` and an explicit cipher suite list.
+  NEVER `InsecureSkipVerify: true` outside a test.
+- Rate limit auth endpoints, public APIs, and anything expensive, keyed per
+  client rather than globally.
+
+Examples in `references/auth-and-transport.md`.
+
+## 6. Logging Security
+
+Log the identifier, never the credential:
+
 ```go
-// ✅ Good — from environment
-dbURL := os.Getenv("DATABASE_URL")
-
-// ✅ Good — from secrets manager
-secret, err := secretsManager.GetSecret(ctx, "api-key")
-
 // ❌ CRITICAL
-const apiKey = "EXAMPLE-NOT-A-REAL-KEY" // hardcoded secret
-```
-
-### Use `.gitignore`:
-
-```text
-.env
-*.pem
-*.key
-credentials.json
-```
-
-### Scan for leaked secrets:
-
-```bash
-# Use gitleaks in CI
-gitleaks detect --source=. --verbose
-```
-
-## 5. HTTP Security Headers
-
-```go
-func SecurityHeaders(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("X-Content-Type-Options", "nosniff")
-        w.Header().Set("X-Frame-Options", "DENY")
-        w.Header().Set("Content-Security-Policy", "default-src 'self'")
-        w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-        w.Header().Set("X-XSS-Protection", "0") // modern browsers handle this
-        next.ServeHTTP(w, r)
-    })
-}
-```
-
-## 6. TLS Configuration
-
-```go
-tlsConfig := &tls.Config{
-    MinVersion: tls.VersionTLS12,
-    CipherSuites: []uint16{
-        tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-        tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    },
-    PreferServerCipherSuites: true,
-}
-
-srv := &http.Server{
-    TLSConfig: tlsConfig,
-    // ...
-}
-```
-
-## 7. Rate Limiting
-
-```go
-import "golang.org/x/time/rate"
-
-type RateLimiter struct {
-    limiters sync.Map
-    rate     rate.Limit
-    burst    int
-}
-
-func (rl *RateLimiter) Allow(key string) bool {
-    limiter, _ := rl.limiters.LoadOrStore(key,
-        rate.NewLimiter(rl.rate, rl.burst))
-    return limiter.(*rate.Limiter).Allow()
-}
-```
-
-Apply rate limiting to auth endpoints, public APIs, and any resource-intensive operations.
-
-## 8. Logging Security
-
-```go
-// ❌ CRITICAL — logging sensitive data
 log.Printf("user login: email=%s password=%s", email, password)
-log.Printf("auth token: %s", token)
 log.Printf("request body: %v", req) // may contain secrets
 
-// ✅ Good — redact sensitive fields
-log.Printf("user login: email=%s", email)
+// ✅ Good — redacted
 logger.Info("auth completed", slog.String("user_id", userID))
 ```
+
+Whole-struct logging is the common leak: a `%v` on a request struct prints
+whatever field someone adds next sprint.
 
 ## Security Audit Checklist
 

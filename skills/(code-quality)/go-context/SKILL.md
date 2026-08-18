@@ -1,20 +1,20 @@
 ---
 name: go-context
 description: >
-  Correct usage of context.Context in Go: propagation, cancellation, timeouts,
-  deadlines, values, and common anti-patterns.
-  Use when: "context usage", "context.Context", "context cancellation", "timeout",
-  "context.WithTimeout", "context.WithCancel", "context values", "context propagation".
-  Do NOT use for: concurrency patterns beyond context (use go-concurrency-review),
-  HTTP middleware context (use go-api-design), or
-  error handling (use go-error-handling).
+  Correct usage of context.Context in Go: propagation, cancellation,
+  timeouts, deadlines, values, and common anti-patterns. Use when: "context
+  usage", "context.Context", "context cancellation", "timeout",
+  "context.WithTimeout", "context.WithCancel", "context values", "context
+  propagation".
+  Not for: concurrency beyond context (go-concurrency-review), HTTP
+  middleware (go-api-design), error handling (go-error-handling).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Go Context
@@ -22,6 +22,16 @@ metadata:
 `context.Context` controls cancellation, deadlines, and request-scoped values
 across API boundaries. Misusing it causes goroutine leaks, orphaned work,
 and subtle production bugs.
+
+Detailed reference material, loaded on demand:
+
+- `references/timeout-budgets.md` — dividing a parent's remaining budget,
+  reading `ctx.Deadline()`.
+- `references/values.md` — context key types, accessors, collision traps.
+- `references/http-and-testing.md` — request context in handlers and
+  middleware, and cancellation tests.
+
+Read a reference file only when the section below is not enough.
 
 ## 1. Core Rules
 
@@ -158,159 +168,43 @@ ctx, cancel := context.WithDeadline(ctx, deadline)
 defer cancel()
 ```
 
-### Timeout budgets — don't exceed parent timeout:
+### Timeout budgets
 
-```go
-// ✅ Good — child timeout shorter than parent
-func handler(ctx context.Context) error {
-    // Parent has 30s timeout (from HTTP server)
+A child timeout spends part of the parent's budget; it never extends it. A
+5s DB call and a 10s API call inside a 30s request handler are a budget. A
+60s child under a parent with 5s left silently fires at the parent's
+deadline, which reads as a bug at 3am.
 
-    // Give DB query 5s of the 30s budget
-    dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-    defer cancel()
-    data, err := db.QueryContext(dbCtx, query)
+Before starting work that cannot be interrupted, read the remaining budget
+with `ctx.Deadline()` and fail fast when it is too short.
 
-    // Give external API 10s of the remaining budget
-    apiCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-    defer cancel()
-    result, err := client.Call(apiCtx, data)
-
-    return nil
-}
-
-// ❌ Bad — child timeout exceeds parent (silently capped anyway)
-ctx, cancel := context.WithTimeout(parentCtx, 60*time.Second) // parent has 5s left
-// This timeout is 60s but will actually fire at parent's deadline
-```
-
-### Check if deadline exists:
-
-```go
-if deadline, ok := ctx.Deadline(); ok {
-    remaining := time.Until(deadline)
-    if remaining < minRequired {
-        return fmt.Errorf("insufficient time remaining: %v", remaining)
-    }
-}
-```
+Examples in `references/timeout-budgets.md`.
 
 ## 4. Context Values
 
-### Use sparingly — only for request-scoped metadata:
+Store only request-scoped metadata: request ID, trace or span ID, the
+authenticated user, a request-scoped logger. Never a database connection,
+configuration, or anything the function could take as an explicit parameter.
 
-```go
-// ✅ Appropriate uses:
-// - Request ID
-// - Trace/span ID
-// - Authenticated user info
-// - Request-scoped logger
+Keys must be an unexported type, never a string — a string key can be
+overwritten by any other package in the process. Export accessor functions
+so callers never type-assert on `ctx.Value` themselves.
 
-// ❌ Bad uses:
-// - Database connections (use dependency injection)
-// - Configuration (use struct fields)
-// - Function parameters (pass explicitly)
-```
+Examples in `references/values.md`.
 
-### Use unexported key types to prevent collisions:
+## 5. Context in HTTP Handlers and Tests
 
-```go
-// ✅ Good — unexported type prevents key collisions
-type contextKey struct{}
+Handlers take `r.Context()` and pass it downstream. A cancelled request means
+the client disconnected: return without writing a response. Middleware
+attaches values with `r.WithContext(ctx)`.
 
-var requestIDKey = contextKey{}
+Tests wrap the call under test in `context.WithTimeout` so a hang fails the
+test instead of blocking the suite, and assert `errors.Is(err,
+context.Canceled)` to prove cancellation is honoured.
 
-func WithRequestID(ctx context.Context, id string) context.Context {
-    return context.WithValue(ctx, requestIDKey, id)
-}
+Examples in `references/http-and-testing.md`.
 
-func RequestID(ctx context.Context) string {
-    id, _ := ctx.Value(requestIDKey).(string)
-    return id
-}
-```
-
-```go
-// ❌ Bad — string keys risk collisions across packages
-ctx = context.WithValue(ctx, "request_id", id) // any package could overwrite this
-```
-
-### Always provide accessor functions — never expose the key:
-
-```go
-// ✅ Good — clean API with accessors
-rid := middleware.RequestID(ctx)
-
-// ❌ Bad — exposes internal key type
-rid := ctx.Value(requestIDKey).(string) // caller needs key, risks panic on nil
-```
-
-## 5. Context in HTTP Handlers
-
-### Use r.Context() for the request context:
-
-```go
-func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-    ctx := r.Context() // carries cancellation when client disconnects
-
-    user, err := h.service.GetUser(ctx, id)
-    if err != nil {
-        if errors.Is(err, context.Canceled) {
-            return // client disconnected, no point writing response
-        }
-        // handle error...
-    }
-    // ...
-}
-```
-
-### Attach values via middleware:
-
-```go
-func AuthMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        user, err := authenticate(r)
-        if err != nil {
-            http.Error(w, "unauthorized", http.StatusUnauthorized)
-            return
-        }
-        ctx := WithUser(r.Context(), user)
-        next.ServeHTTP(w, r.WithContext(ctx))
-    })
-}
-```
-
-## 6. Context in Testing
-
-### Use context with timeout in tests to prevent hangs:
-
-```go
-func TestSlowOperation(t *testing.T) {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    defer cancel()
-
-    result, err := slowOperation(ctx)
-    if err != nil {
-        t.Fatalf("unexpected error: %v", err)
-    }
-    // assert result...
-}
-```
-
-### Test cancellation behavior:
-
-```go
-func TestCancellation(t *testing.T) {
-    ctx, cancel := context.WithCancel(context.Background())
-    cancel() // cancel immediately
-
-    _, err := operation(ctx)
-    if !errors.Is(err, context.Canceled) {
-        t.Errorf("expected context.Canceled, got %v", err)
-    }
-}
-```
-
-## 7. context.Background() vs context.TODO()
+## 6. context.Background() vs context.TODO()
 
 | Function | When to use |
 |---|---|

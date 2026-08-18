@@ -1,27 +1,36 @@
 ---
 name: go-concurrency-review
 description: >
-  Review and implement safe concurrency patterns in Go: goroutines, channels,
-  sync primitives, context propagation, and goroutine lifecycle management.
-  Use when writing concurrent code, reviewing async patterns, checking thread safety,
-  debugging race conditions, or designing producer/consumer pipelines.
-  Trigger examples: "check thread safety", "review goroutines", "race condition",
-  "channel patterns", "sync.Mutex", "context cancellation", "goroutine leak".
-  Do NOT use for general code style (use go-coding-standards) or
-  HTTP handler patterns (use go-api-design).
+  Review and implement safe concurrency patterns in Go: goroutines,
+  channels, sync primitives, context propagation, and goroutine lifecycle
+  management. Use when writing concurrent code, reviewing async patterns,
+  checking thread safety, debugging race conditions, or designing
+  producer/consumer pipelines. Trigger examples: "check thread safety",
+  "review goroutines", "race condition", "channel patterns", "sync.Mutex",
+  "context cancellation", "goroutine leak".
+  Not for: general style (go-coding-standards), HTTP handler patterns
+  (go-api-design).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Race detection requires cgo (CGO_ENABLED=1).
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Go Concurrency Review
 
 Concurrency in Go is powerful and deceptively easy to get wrong.
 These patterns prevent goroutine leaks, data races, and deadlocks.
+
+Detailed reference material, loaded on demand:
+
+- `references/channels.md` — sizing, signalling, producer shutdown.
+- `references/mutex-and-atomics.md` — mutex placement, lock scope, atomics,
+  `sync.Once`.
+
+Read a reference file only when the section below is not enough.
 
 ## Operating Modes
 
@@ -109,152 +118,39 @@ func NewWorker() *Worker {
 
 ## 2. Channel Patterns
 
-### Channel size is one or none:
+- Size is one or none. Unbuffered is a synchronization point; buffer 1 is a
+  handoff. Any larger buffer needs a comment justifying the number — an
+  arbitrary `100` is a bug waiting for the day production is slower than
+  staging.
+- Signal channels carry `struct{}`, and `close(done)` broadcasts to every
+  receiver at once.
+- The producer owns the channel and is the only one that closes it, with
+  `defer close(ch)` in the producing goroutine. Every send sits in a `select`
+  against `ctx.Done()`, or a consumer that walks away leaks the producer.
 
-```go
-// Unbuffered — synchronization point
-ch := make(chan Result)
+Examples in `references/channels.md`.
 
-// Buffered with size 1 — single-item handoff
-ch := make(chan Result, 1)
+## 3. Mutexes and Atomics
 
-// Larger buffers need explicit justification with documented reasoning
-ch := make(chan Result, 100) // requires comment explaining why
-```
+- Zero-value `sync.Mutex` and `sync.RWMutex` are ready to use. A
+  `*sync.Mutex` field is always wrong.
+- Declare the mutex directly above the fields it guards, with a comment
+  naming the relationship. A mutex that guards "the struct" guards nothing in
+  particular.
+- Keep the critical section minimal — never call out to an external service,
+  or take a second lock, while holding one.
+- 🔴 Never copy a value containing a mutex (`c2 := *c1`): the copy carries the
+  original's lock state. `go vet` catches most of these; trust it.
+- Use `sync/atomic` types for counters and flags rather than a mutex around
+  an `int64`.
+- `sync.Once` for lazy initialization that must happen exactly once.
 
-### Signal channels use empty struct:
+Examples in `references/mutex-and-atomics.md`.
 
-```go
-done := make(chan struct{})
-close(done) // broadcast signal to all receivers
-```
+## 4. Context Propagation
 
-### Producer/consumer with clean shutdown:
-
-```go
-func produce(ctx context.Context) <-chan Item {
-    ch := make(chan Item)
-    go func() {
-        defer close(ch)
-        for {
-            item, err := fetchNext(ctx)
-            if err != nil {
-                return
-            }
-            select {
-            case ch <- item:
-            case <-ctx.Done():
-                return
-            }
-        }
-    }()
-    return ch
-}
-```
-
-## 3. Mutex Patterns
-
-### Zero-value mutexes are valid:
-
-```go
-// ✅ Good — zero value works
-type Cache struct {
-    mu    sync.RWMutex
-    items map[string]Item
-}
-
-// ❌ Bad — unnecessary pointer
-type Cache struct {
-    mu    *sync.RWMutex // never do this
-}
-```
-
-### Mutex placement in struct:
-
-```go
-type SafeMap struct {
-    mu sync.RWMutex // mutex guards the fields below
-    items map[string]string
-    count int
-}
-```
-
-The mutex should appear directly above the field(s) it protects,
-with a comment indicating the relationship.
-
-### Lock scope should be minimal:
-
-```go
-// ✅ Good — minimal lock scope
-func (c *Cache) Get(key string) (Item, bool) {
-    c.mu.RLock()
-    item, ok := c.items[key]
-    c.mu.RUnlock()
-    return item, ok
-}
-
-// ✅ Also good — defer for methods that return early
-func (c *Cache) GetOrCreate(key string) Item {
-    c.mu.Lock()
-    defer c.mu.Unlock()
-
-    if item, ok := c.items[key]; ok {
-        return item
-    }
-    item := newItem(key)
-    c.items[key] = item
-    return item
-}
-```
-
-### Never copy mutexes:
-
-```go
-// ❌ BLOCKER — copying a mutex copies its lock state
-cache2 := *cache1 // this copies the mutex!
-```
-
-## 4. Atomic Operations
-
-Use `sync/atomic` or `go.uber.org/atomic` for simple counters and flags:
-
-```go
-// ✅ Good — type-safe atomics
-import "go.uber.org/atomic"
-
-type Server struct {
-    running atomic.Bool
-    reqCount atomic.Int64
-}
-
-func (s *Server) HandleRequest() {
-    s.reqCount.Inc()
-    // ...
-}
-```
-
-## 5. Context Propagation
-
-### Rules:
-- Context is ALWAYS the first parameter.
-- Never store context in a struct field.
-- Derive child contexts for sub-operations:
-
-```go
-func (s *Service) Process(ctx context.Context, req Request) error {
-    // Derive context with timeout for external call
-    fetchCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-    defer cancel() // ALWAYS defer cancel
-
-    data, err := s.client.Fetch(fetchCtx, req.ID)
-    if err != nil {
-        return fmt.Errorf("fetch %s: %w", req.ID, err)
-    }
-    // ...
-}
-```
-
-### NEVER ignore context cancellation in select:
+Context is always the first parameter, never a struct field, and every
+blocking operation selects on `ctx.Done()`:
 
 ```go
 // ✅ Good
@@ -265,11 +161,14 @@ case <-ctx.Done():
     return nil, ctx.Err()
 }
 
-// ❌ Bad — blocks forever if context cancelled
+// ❌ Bad — blocks forever if the context is cancelled
 result := <-ch
 ```
 
-## 6. Avoid Mutable Globals
+Derive a child context with its own timeout for each external call and
+`defer cancel()` immediately. Full rules in the `go-context` skill.
+
+## 5. Avoid Mutable Globals
 
 ```go
 // ❌ Bad — mutable global, not safe for concurrent access
@@ -278,22 +177,6 @@ var db *sql.DB
 // ✅ Good — pass as dependency
 type Server struct {
     db *sql.DB
-}
-```
-
-## 7. sync.Once for Lazy Initialization
-
-```go
-type Client struct {
-    initOnce sync.Once
-    conn     *grpc.ClientConn
-}
-
-func (c *Client) getConn() *grpc.ClientConn {
-    c.initOnce.Do(func() {
-        c.conn = dial()
-    })
-    return c.conn
 }
 ```
 
