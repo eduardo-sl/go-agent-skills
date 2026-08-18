@@ -18,7 +18,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gosec:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Go Defensive Coding
@@ -154,6 +154,35 @@ the pointed-to users.
 Copy when the value is retained past the call or exposed to a caller. Do not
 copy a slice you only read inside the function; that is wasted allocation.
 
+### Preventing accidental copies
+
+A struct containing a `sync.Mutex`, `sync.WaitGroup`, or `atomic.Int64` must
+never be copied — the copy gets its own independent lock, and both halves
+believe they are synchronised.
+
+```go
+// ❌ Bad — the receiver is a copy, so the mutex protects nothing
+func (c Counter) Value() int { ... }
+
+// ❌ Bad — passing by value copies the mutex
+func report(c Counter) { ... }
+```
+
+`go vet`'s `copylocks` analyzer catches these. For types that must not be
+copied but hold no lock, embed a `noCopy` marker so `vet` catches them too:
+
+```go
+type noCopy struct{}
+
+func (*noCopy) Lock()   {}
+func (*noCopy) Unlock() {}
+
+type Tracker struct {
+    noCopy noCopy
+    // ...
+}
+```
+
 ## 5. Numeric Conversion and Comparison
 
 Go never panics on numeric conversion. It truncates.
@@ -281,9 +310,10 @@ old `v := v` shadow line; do not remove one from a module still on `go 1.21`.
 2. Every map is initialised before its first write
 3. Subslices handed across a package boundary use a full slice expression `a[:n:n]`
 4. Slices and maps stored in or returned from a struct are cloned
-5. Every narrowing numeric conversion is range-checked, or documented as bounded
-6. No `==` on floats or on `time.Time`
-7. Divisors derived from input are checked against zero
-8. No `defer` inside a loop body without an enclosing function scope
-9. Deferred `Close` on written resources reports its error
-10. `go vet`, `golangci-lint` and `go test -race` are clean
+5. No type holding a mutex or atomic is passed or received by value
+6. Every narrowing numeric conversion is range-checked, or documented as bounded
+7. No `==` on floats or on `time.Time`
+8. Divisors derived from input are checked against zero
+9. No `defer` inside a loop body without an enclosing function scope
+10. Deferred `Close` on written resources reports its error
+11. `go vet`, `golangci-lint` and `go test -race` are clean
