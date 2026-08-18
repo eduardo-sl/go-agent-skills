@@ -11,7 +11,7 @@ description: >
   code review (use go-code-review).
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Git Commit Standards
@@ -189,14 +189,19 @@ git commit  # opens $EDITOR
 
 ### Interactive rebase before PR:
 
-```bash
-# Clean up commit history before opening PR
-git rebase -i main
+Interactive rebase opens `$EDITOR`, so an agent cannot drive it. Prepare
+fixups non-interactively, then hand the final step to the developer:
 
-# Squash fixup commits
-# Reword unclear messages
-# Reorder for logical flow
+```bash
+# Mark a commit as a fixup of an earlier one (no editor)
+git commit --fixup <sha>
+
+# Collapse them automatically (no editor with --autosquash + GIT_SEQUENCE_EDITOR)
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash main
 ```
+
+For reordering or rewording, tell the developer to run `git rebase -i main`
+themselves rather than attempting it.
 
 ## 7. What NOT to Commit
 

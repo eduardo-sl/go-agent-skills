@@ -12,7 +12,7 @@ description: >
   concurrency safety (use go-concurrency-review).
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go Security Audit
@@ -210,7 +210,7 @@ dbURL := os.Getenv("DATABASE_URL")
 secret, err := secretsManager.GetSecret(ctx, "api-key")
 
 // ❌ CRITICAL
-const apiKey = "sk-1234567890abcdef" // hardcoded secret
+const apiKey = "EXAMPLE-NOT-A-REAL-KEY" // hardcoded secret
 ```
 
 ### Use `.gitignore`:
