@@ -37,6 +37,7 @@ Or use directly by invoking `/skill-name` in Claude Code.
 - `/go-performance-review` — Allocations, benchmarks, pprof
 - `/go-observability` — Structured logging, tracing, metrics, OpenTelemetry
 - `/go-troubleshooting` — Panics, deadlocks, leaks, pprof diffing, delve
+- `/go-defensive-coding` — Nil traps, slice aliasing, integer overflow, defensive copying
 
 ### Testing
 - `/go-test-quality` — Subtests, httptest, golden files, fuzz, testcontainers

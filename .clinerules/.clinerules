@@ -13,7 +13,7 @@ go-architecture-review, go-project-layout, go-interface-design, go-api-design, g
 go-design-patterns, go-dependency-injection, go-cli,
 go-database,
 go-concurrency-review, go-security-audit, go-performance-review, go-observability,
-go-troubleshooting,
+go-troubleshooting, go-defensive-coding,
 go-test-quality, go-test-table-driven,
 go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, git-commit.
 

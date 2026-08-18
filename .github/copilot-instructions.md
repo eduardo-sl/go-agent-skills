@@ -41,6 +41,7 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 - **go-performance-review** — Allocations, benchmarking, pprof
 - **go-observability** — Structured logging, tracing, metrics, OpenTelemetry
 - **go-troubleshooting** — Panics, deadlocks, leaks, pprof diffing, delve
+- **go-defensive-coding** — Typed-nil interfaces, slice aliasing, numeric overflow, defensive copying
 
 ### Testing
 - **go-test-quality** — Subtests, httptest, golden files, fuzz, testcontainers
