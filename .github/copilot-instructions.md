@@ -31,6 +31,7 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 - **go-design-patterns** — Functional options, factory, strategy, decorator
 - **go-dependency-injection** — Constructor injection, composition root, wire/fx
 - **go-cli** — Flags, subcommands, exit codes, signals, Cobra
+- **go-openapi** — Spec-first REST, oapi-codegen, request validation, breaking-change detection
 
 ### Data
 - **go-database** — Connection pools, transactions, sqlc, migrations
