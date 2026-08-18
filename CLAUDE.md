@@ -28,6 +28,7 @@ Or use directly by invoking `/skill-name` in Claude Code.
 - `/go-dependency-injection` — Constructor injection, composition root, wire/fx
 - `/go-cli` — Flags, subcommands, exit codes, signals, Cobra
 - `/go-openapi` — Spec-first REST, oapi-codegen, request validation, contract tests
+- `/go-graphql` — gqlgen resolvers, dataloaders, N+1, complexity limits
 
 ### Data
 - `/go-database` — Connection pools, transactions, sqlc, migrations
