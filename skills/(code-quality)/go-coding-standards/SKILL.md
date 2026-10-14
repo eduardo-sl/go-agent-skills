@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.1"
+  version: "1.3.2"
 ---
 
 # Go Coding Standards
@@ -32,11 +32,11 @@ import (
     // 1. Standard library
     "context"
     "fmt"
+    "log/slog"
     "net/http"
 
     // 2. External packages
     "github.com/gorilla/mux"
-    "log/slog"
 
     // 3. Internal/project packages
     "github.com/myorg/myproject/internal/service"
@@ -214,7 +214,8 @@ defer f.Close()
 
 ## 9. Enums
 
-Start enums at 1 (or use explicit sentinel) so zero-value signals "unset":
+Reserve the zero value for an explicit `Unknown` sentinel, so a value that
+was never set cannot pass for a real state:
 
 ```go
 type Status int
