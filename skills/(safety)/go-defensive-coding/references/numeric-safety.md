@@ -2,6 +2,17 @@
 
 Loaded on demand from `go-defensive-coding`.
 
+## Contents
+
+- Conversion truncates, silently
+- Arithmetic overflow
+- Division
+- Float comparison
+- Never use floats for money
+- Time comparison
+- Parsing input
+- Enforcement
+
 ## Conversion truncates, silently
 
 Go's numeric conversions never panic and never report loss. Every narrowing

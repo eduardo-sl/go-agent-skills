@@ -2,6 +2,18 @@
 
 Worked examples for the rules summarized in SKILL.md.
 
+## Contents
+
+- Canonical Table
+- Removing Constants from the Struct
+- Naming the `name` Field
+- `wantErr` Boolean
+- `wantErrIs` with Sentinel Errors
+- Parallel Tables and Loop Variable Capture
+- Aligned Struct Literals for Scanning
+- Map-Based Tables
+- Error-Only Tables
+
 ## Canonical Table
 
 ```go

@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Go Table-Driven Tests
@@ -25,6 +25,9 @@ Table-driven tests are a powerful Go idiom — when used correctly. Most
 codebases either underuse them (10 copy-paste tests) or overuse them
 (complex branching logic in a 200-line struct). This skill covers the
 sweet spot.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-test-table-driven` takes precedence over this one.
 
 Detailed reference material, loaded on demand:
 

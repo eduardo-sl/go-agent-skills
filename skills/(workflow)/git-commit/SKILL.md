@@ -14,13 +14,16 @@ compatibility: Designed for Claude Code or similar AI coding agents. Requires gi
 allowed-tools: Read Glob Grep Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Git Commit Standards
 
 Commits tell the story of your codebase. A good commit history is worth
 more than any amount of documentation — because it's always up to date.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `git-commit` takes precedence over this one.
 
 ## 1. Conventional Commits Format
 

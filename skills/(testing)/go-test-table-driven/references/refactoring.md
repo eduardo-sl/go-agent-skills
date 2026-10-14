@@ -2,6 +2,13 @@
 
 Before/after rewrites for the smells summarized in SKILL.md.
 
+## Contents
+
+- Smell: Setup Functions Inside the Struct
+- Smell: Fewer Than 3 Cases
+- Smell: The Loop Body Became a Mini-Program
+- Symptom → Fix Table
+
 ## Smell: Setup Functions Inside the Struct
 
 If each case needs different mocks, different state, or different
