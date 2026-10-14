@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(dlv:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.5.0"
 ---
 
 # Go Troubleshooting
@@ -23,10 +23,33 @@ metadata:
 Diagnosis before fixes. Reproduce, observe, localize, then change code.
 Never "fix" a symptom you haven't explained — the bug will move.
 
+Detailed reference material, loaded on demand:
+
+- `references/methodology.md` — the debugging loop, tracing callers before
+  blaming code, `git bisect`, red flags in your own reasoning.
+- `references/flaky-and-build.md` — reproducing flaky tests and their usual
+  causes; build, module and toolchain errors with their fixes.
+- `references/common-bugs.md` — symptom → bug → fix tables for the Go bugs
+  that compile cleanly and misbehave.
+
+Read a reference file only when the summary below is not enough.
+
+## 0. Method
+
+1. State expected vs actual, and collect the full evidence (whole stack,
+   exact input, trace ID).
+2. Reproduce it in a failing test, then shrink the reproduction.
+3. One hypothesis, one change, one observation — never stacked changes.
+4. Fix the cause, not the trigger: keep asking why the bad value existed.
+5. Three failed fixes means the mental model is wrong — start over from
+   the evidence. If the cause predates you, `git bisect run` finds the
+   commit.
+
 ## 1. Pick the Procedure by Symptom
 
 | Symptom | Procedure |
 |---|---|
+| Wrong result, no crash | §0 Method, then `references/common-bugs.md` |
 | Crash with stack trace | §2 Read the panic |
 | Program hangs / requests stall | §3 Dump goroutines, find the block |
 | `fatal error: all goroutines are asleep` | §3 — Go detected total deadlock |
@@ -34,6 +57,9 @@ Never "fix" a symptom you haven't explained — the bug will move.
 | Goroutine count grows | §5 Goroutine profile diff |
 | Intermittent corrupt data / weird values | §6 Race detector |
 | Need to inspect state interactively | §7 Delve |
+| Incident in production right now | §11 Capture before restart |
+| Test fails intermittently | §9 Flaky tests |
+| Build, module or toolchain error | §10 Build failures |
 
 ## 2. Reading a Panic
 
@@ -65,7 +91,7 @@ Get a goroutine dump from the hanging process:
 
 ```bash
 kill -QUIT <pid>      # dumps all goroutine stacks to stderr, then exits
-# or, if net/http/pprof is mounted (see §4):
+# or, if net/http/pprof is mounted:
 curl 'localhost:6060/debug/pprof/goroutine?debug=2'
 ```
 
@@ -80,17 +106,16 @@ Then classify the stacks:
   ignores cancellation.
 - Hundreds of identical stacks — that's a leak (§5), not a deadlock.
 
+Slow rather than stuck? Enable `runtime.SetMutexProfileFraction` /
+`SetBlockProfileRate` and read the mutex and block profiles, or take a
+5-second trace (`/debug/pprof/trace?seconds=5`) to see goroutines that are
+runnable but not running. `kill -QUIT` ends the process — in production,
+prefer the pprof endpoint.
+
 ## 4. Memory Leaks
 
-Mount pprof in long-running services (private port only, never public):
-
-```go
-import _ "net/http/pprof"
-
-go func() {
-    log.Println(http.ListenAndServe("localhost:6060", nil))
-}()
-```
+Mount `net/http/pprof` in long-running services on a private listener
+(`localhost:6060`), never on the public mux.
 
 Diff heap profiles over time — a leak is growth that never returns:
 
@@ -108,6 +133,16 @@ pinning large arrays, `time.Ticker` never stopped, response bodies not
 closed, growing global slices, forgotten goroutines holding buffers.
 
 ## 5. Goroutine Leaks
+
+On Go 1.27+, start with the leak profile — goroutines blocked on a channel
+or lock that nothing can ever release:
+
+```bash
+go tool pprof http://localhost:6060/debug/pprof/goroutineleak
+```
+
+It cannot see goroutines kept alive through globals or by goroutines that
+are still running; for those, diff two goroutine profiles:
 
 ```bash
 curl -s localhost:6060/debug/pprof/goroutine > g1.pb.gz
@@ -160,7 +195,43 @@ GOTRACEBACK=all ./api        # panic dumps ALL goroutines, not just one
 GODEBUG=gctrace=1 ./api      # GC cycles: pacing, heap goal, pause times
 GOMEMLIMIT=512MiB ./api      # soft memory limit — mitigates OOM while
                              # you find the real leak
+GOTRACEBACK=crash ./api      # also write a core dump, for `dlv core`
+GODEBUG=schedtrace=1000 ./api  # scheduler state every second
 ```
+
+Go 1.27+ prints pprof goroutine labels in tracebacks; set
+`GODEBUG=tracebacklabels=0` if labels carry anything sensitive.
+
+## 9. Flaky Tests
+
+Make it fail on demand before touching it: `-count=200 -failfast`, then
+`-race`, `-shuffle=on` (replay with the printed seed), and `-cpu=1,2,8`.
+The usual causes are sleeps used as synchronization, real clocks, shared
+package state, map order in assertions, fixed ports, and goroutines leaking
+from earlier tests. Retrying in CI hides the bug from you, not from users.
+
+## 10. Build Failures
+
+Read the first error only — later ones are usually consequences. Toolchain
+too old (`GOTOOLCHAIN`), missing `go.sum` entries, ambiguous imports from
+v1/v2 modules side by side, OS-specific files, missing C compiler, private
+modules (`GOPRIVATE`) and the Go 1.27 `stdversion` check each have a fixed
+remedy.
+
+Commands and the full cause → fix tables: `references/flaky-and-build.md`.
+
+## 11. Production Incidents
+
+Capture before you restart — a restart destroys the evidence:
+
+1. Goroutine dump (`/debug/pprof/goroutine?debug=2`), heap profile, a
+   30-second CPU profile, and a 5-second trace — or a flight recorder
+   snapshot (Go 1.25+) if the service runs one.
+2. The exact build: `go version -m ./bin/api` shows the Go version, module
+   versions and VCS revision.
+3. Then restart, and analyze the captures offline with the procedures
+   above. Serve pprof on an internal port only — it exposes stacks and
+   the command line.
 
 ## Verification Checklist
 
