@@ -9,14 +9,15 @@ description: >
   too big", "shrink the binary", "reduce image size", "strip symbols", "what
   is making my binary large", "ldflags -s -w".
   Not for: runtime speed and allocations (go-performance-review), CI setup
-  (go-ci), dependency CVEs (go-dependency-audit).
+  (go-ci), release pipelines and signing (go-build-release), dependency
+  CVEs (go-dependency-audit).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. upx and go-size-analyzer are optional.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(strip:*) Bash(upx:*) Bash(gsa:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # Go Binary Size
