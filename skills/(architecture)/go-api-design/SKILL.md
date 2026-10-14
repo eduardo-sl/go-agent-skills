@@ -1,28 +1,31 @@
 ---
 name: go-api-design
 description: >
-  REST and gRPC API design patterns for Go services. Covers HTTP handlers,
-  middleware, routing, request/response patterns, versioning, pagination,
-  graceful shutdown, and OpenAPI documentation. Use when designing APIs,
-  writing HTTP handlers, implementing middleware, structuring REST
-  endpoints, or setting up gRPC services. Trigger examples: "design API",
-  "REST endpoints", "HTTP handler", "middleware pattern", "graceful
-  shutdown", "gRPC service", "API versioning".
-  Not for: general architecture (go-architecture-review), concurrency in
-  handlers (go-concurrency-review).
+  HTTP/REST API design for Go services: handlers, ServeMux routing,
+  middleware, request validation, pagination, idempotency, health checks,
+  error responses, and graceful shutdown. Use when designing APIs, writing
+  HTTP handlers, implementing middleware, or structuring REST endpoints.
+  Trigger examples: "design API", "REST endpoints", "HTTP handler",
+  "middleware pattern", "graceful shutdown", "API versioning".
+  Not for: gRPC services (go-grpc), spec-first OpenAPI work (go-openapi),
+  general architecture (go-architecture-review), concurrency in handlers
+  (go-concurrency-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.3"
+  version: "2.0.1"
 ---
 
 # Go API Design
 
 APIs are contracts. Once published, they're promises. Design them as if
 you'll maintain them for a decade — because you probably will.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-api-design` takes precedence over this one.
 
 Detailed reference material, loaded on demand:
 
@@ -33,6 +36,10 @@ Read a reference file only when the summary below is not enough.
 
 ## 1. HTTP Handler Structure
 
+- Route with the standard `http.ServeMux` (Go 1.22+): `"GET /users/{id}"`
+  patterns match the method, `r.PathValue("id")` reads the wildcard, and a
+  wrong method gets a 405 with `Allow`. A router dependency earns its place
+  for middleware groups and sub-routers, not for path parameters.
 - Handlers are methods on a struct that holds their dependencies (store,
   logger) — never package globals.
 - Handler methods return nothing: they write the response and handle the
@@ -74,7 +81,8 @@ GET    /api/v1/users/{id}/orders → list user orders (nested resource)
 Rules:
 - Plural nouns for resources: `/users`, not `/user`
 - Kebab-case for multi-word paths: `/order-items`
-- camelCase for JSON fields: `"createdAt"`, `"firstName"`
+- One JSON field convention per API, never mixed — camelCase
+  (`"createdAt"`) is the default here; match an existing API if one exists
 - Version in URL path: `/api/v1/...`
 - No verbs in URLs: `/users/search?q=alice`, NOT `/searchUsers`
 
@@ -88,8 +96,8 @@ type PageRequest struct {
 
 type PageResponse[T any] struct {
     Items      []T    `json:"items"`
-    NextCursor string `json:"next_cursor,omitempty"`
-    HasMore    bool   `json:"has_more"`
+    NextCursor string `json:"nextCursor,omitempty"`
+    HasMore    bool   `json:"hasMore"`
 }
 ```
 
@@ -151,12 +159,13 @@ func run(ctx context.Context) error {
 ## 7. Health Check Endpoints
 
 ```go
-// Liveness: is the process alive?
-// GET /healthz → 200 OK
-
-// Readiness: can the process serve traffic?
-// GET /readyz → 200 OK or 503 Service Unavailable
+// Liveness: is the process alive? GET /healthz → 200, no dependency checks
+// Readiness: should it receive traffic? GET /readyz → 200 or 503
 func (h *HealthHandler) handleReady(w http.ResponseWriter, r *http.Request) {
+    if h.draining.Load() { // atomic.Bool, set when shutdown starts
+        h.respondError(w, http.StatusServiceUnavailable, "shutting down")
+        return
+    }
     if err := h.db.PingContext(r.Context()); err != nil {
         h.respondError(w, http.StatusServiceUnavailable, "database unavailable")
         return
@@ -164,6 +173,12 @@ func (h *HealthHandler) handleReady(w http.ResponseWriter, r *http.Request) {
     h.respondJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 }
 ```
+
+On SIGTERM behind a load balancer: set `draining`, wait one readiness
+period so the balancer stops routing, *then* call `srv.Shutdown`.
+Shutting down first rejects requests the balancer is still sending. Keep
+liveness free of dependency checks — a database outage should not make the
+orchestrator restart every replica.
 
 ## 8. Error Response Format
 
@@ -182,4 +197,16 @@ Consistent error responses across the entire API:
 ```
 
 Map internal errors to HTTP status codes at the handler boundary.
-Internal errors should NEVER leak to clients.
+Internal errors should NEVER leak to clients. For a standard shape, use
+RFC 9457 problem details (`application/problem+json`) — the go-openapi
+skill has the type.
+
+## 9. Idempotency and Browser Clients
+
+- `POST` endpoints that create or charge accept an `Idempotency-Key`
+  header: store key → response for a bounded time, replay the stored
+  response for a repeated key, and reject a concurrent duplicate with 409.
+  Clients and proxies retry; without this, a retry is a double charge.
+- APIs called from browsers with cookies need CSRF protection —
+  `http.CrossOriginProtection` (Go 1.25+); the go-security-audit skill
+  owns the details.

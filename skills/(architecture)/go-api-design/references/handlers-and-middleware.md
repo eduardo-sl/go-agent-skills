@@ -2,6 +2,12 @@
 
 Worked examples for the rules in SKILL.md sections 1-3.
 
+## Contents
+
+- HTTP Handler Structure
+- Middleware Pattern
+- Request Validation
+
 ## HTTP Handler Structure
 
 ### Handler as a struct with dependencies
@@ -13,15 +19,12 @@ type UserHandler struct {
     logger *slog.Logger
 }
 
-func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    switch r.Method {
-    case http.MethodGet:
-        h.handleGet(w, r)
-    case http.MethodPost:
-        h.handleCreate(w, r)
-    default:
-        http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-    }
+// Routes registers the handler's endpoints. Go 1.22+ ServeMux patterns
+// match the method and capture path wildcards; a wrong method gets a 405
+// with an Allow header automatically.
+func (h *UserHandler) Routes(mux *http.ServeMux) {
+    mux.HandleFunc("GET /api/v1/users/{id}", h.handleGet)
+    mux.HandleFunc("POST /api/v1/users", h.handleCreate)
 }
 ```
 
@@ -33,7 +36,7 @@ func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) handleGet(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
 
-    id := chi.URLParam(r, "id") // or mux.Vars(r)["id"]
+    id := r.PathValue("id") // Go 1.22+; chi.URLParam with chi
     if id == "" {
         h.respondError(w, http.StatusBadRequest, "missing user id")
         return
@@ -57,7 +60,7 @@ func (h *UserHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 ### JSON response helpers
 
 ```go
-func (h *UserHandler) respondJSON(w http.ResponseWriter, status int, data interface{}) {
+func (h *UserHandler) respondJSON(w http.ResponseWriter, status int, data any) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
     if err := json.NewEncoder(w).Encode(data); err != nil {
