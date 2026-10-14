@@ -15,13 +15,20 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.2"
+  version: "1.2.0"
 ---
 
 # Go Dependency Audit
 
 Every dependency you add is code you don't control but are responsible for.
 Audit ruthlessly.
+
+Detailed reference material, loaded on demand:
+
+- `references/resolution-and-workspaces.md` — minimal version selection,
+  `replace`/`exclude`/`retract`, `go.work`, tool dependencies.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Vulnerability Scanning
 
@@ -72,22 +79,11 @@ go mod tidy
 git diff --exit-code go.mod go.sum
 ```
 
-### No replace directives in committed code:
+### No replace directives in committed code
 
-```go
-// ❌ Bad — committed replace directive
-replace github.com/foo/bar => ../local-bar
-
-// ✅ Acceptable — in monorepos with workspace
-// go.work handles this instead
-```
-
-Exception: temporary replace for bug fixes with a comment and linked issue:
-
-```go
-// TODO(#1234): remove after upstream merges fix
-replace github.com/foo/bar => github.com/myorg/bar v0.0.0-fix
-```
+A committed `replace => ../local-path` breaks every other checkout; local
+multi-module work belongs in `go.work`. The one exception — a temporary
+fork with a linked issue — is in section 8.
 
 ### Verify checksums:
 
@@ -137,15 +133,19 @@ go list -m -u all  # shows available updates
 ### Upgrade strategy:
 
 ```bash
-# Update specific module
+# Update one module to its latest minor/patch
 go get github.com/foo/bar@latest
 
-# Update all direct deps (minor/patch only)
-go get -u ./...
+# Patch releases only, for every dependency of the packages
+go get -u=patch ./...
 
-# Update all deps including major versions (dangerous)
-go get -u -t ./...
+# Latest minor/patch of every dependency (add -t to include test deps)
+go get -u ./...
 ```
+
+`go get -u` never crosses a major version: `github.com/foo/bar/v2` is a
+different module path. A major upgrade means changing the import paths
+and reading the changelog — it is a migration, not an update.
 
 ALWAYS run full test suite after updates:
 
@@ -171,7 +171,9 @@ go mod graph | modgraphviz | dot -Tpng -o deps.png
 Watch for:
 - 🔴 Transitive deps with known CVEs
 - 🔴 Abandoned transitive deps (no commits in 2+ years)
-- 🟡 Diamond dependency conflicts (two versions of same module)
+- 🟡 A dependency forcing a higher minimum version of a shared module on
+  everyone (minimal version selection picks the highest requirement)
+- 🟡 Two major versions of one library (`v1` and `v2`) linked side by side
 - 🟡 Oversized transitive trees (a logging library pulling in gRPC)
 
 ## 6. Go Version Management
@@ -188,28 +190,34 @@ Rules:
 - `toolchain` directive (Go 1.21+) pins the exact toolchain version.
 - Test against multiple Go versions in CI (at minimum: current and previous).
 
-## 7. Recommended vs. Avoid
+## 7. Adding a Dependency
 
-### Well-maintained, production-proven packages:
+Ask before adding one: a new module is code the team must audit, update
+and trust indefinitely, and the agent should not make that decision
+silently. When proposing one:
 
-| Domain | Package |
-|---|---|
-| Logging | `log/slog` (stdlib 1.21+); `go.uber.org/zap` only behind a slog handler when profiling demands it |
-| HTTP Router | `github.com/go-chi/chi`, `net/http` (1.22+ routing) |
-| Config | `github.com/caarlos0/env`, `github.com/spf13/viper` |
-| Testing | `github.com/stretchr/testify`, stdlib `testing` |
-| Database | `github.com/jackc/pgx`, `github.com/jmoiron/sqlx` |
-| Validation | `github.com/go-playground/validator` |
-| UUID | stdlib `uuid` (Go 1.27+); `github.com/google/uuid` below 1.27 or for v3/v5 namespace UUIDs |
-| Errors | stdlib `errors` — `errors.Join` (1.20+) replaces `multierr` |
+- Name the standard-library alternative and why it is not enough — since
+  Go 1.21-1.27, `slog`, `slices`/`maps`, `errors.Join`, ServeMux routing,
+  `os.Root` and `uuid` each removed a common reason to add a dependency.
+- Report what the evaluation criteria above found: maintenance, license,
+  transitive size (`go mod graph` after a trial `go get`), API stability.
+- Avoid frameworks that take over `main`, ORMs that hide the SQL, and code
+  generators nobody on the team understands.
 
-### Patterns to avoid:
+## 8. Resolving Version Problems
 
-- ❌ Frameworks that take over `main()` (Go is not Java Spring)
-- ❌ ORMs that hide SQL (prefer `sqlx` or raw `database/sql`)
-- ❌ Code generators you don't understand
-- ❌ Packages whose minor releases keep breaking callers. `v0` alone is not
-  the signal: the `golang.org/x/...` modules have always been v0
+- Minimal version selection builds with the highest *minimum* any module
+  requires — adding one dependency can raise another's version.
+- Application fixes: `replace` (temporary fork, with an issue link) and
+  `exclude` (a known-broken version). Both apply only in the main module.
+- Library fixes: `retract` versions you published by mistake; it is the
+  only signal that reaches consumers.
+- Local multi-module work uses `go.work`, not committed
+  `replace => ../path` directives.
+- Developer tools are `go.mod` tool dependencies (`go get -tool`, Go
+  1.24+), not a `tools.go` file.
+
+Examples: `references/resolution-and-workspaces.md`.
 
 ## Audit Output Format
 

@@ -2,8 +2,9 @@
 name: go-ci
 description: >
   Continuous integration for Go projects: GitHub Actions pipelines, caching,
-  golangci-lint setup, test/coverage gates, vulnerability scanning, build
-  matrices, and Makefile targets. Use when: "set up CI", "GitHub Actions for
+  golangci-lint setup, test/coverage gates, vulnerability scanning, SAST
+  (CodeQL, gosec), Dependabot, action pinning, build matrices, Makefile
+  targets. Use when: "set up CI", "GitHub Actions for
   Go", "add lint to the pipeline", "CI is slow", "coverage gate", "build
   matrix", "write a Makefile", "run govulncheck in CI".
   Not for: commit conventions (git-commit), choosing or auditing
@@ -15,13 +16,21 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.2"
+  version: "1.2.0"
 ---
 
 # Go CI
 
 A Go pipeline has exactly four gates: build, vet/lint, test with race
 detector, vulnerability scan. Everything else is optimization.
+
+Detailed reference material, loaded on demand:
+
+- `references/security-and-automation.md` — CodeQL and gosec SARIF,
+  Dependabot config, SHA pinning, repository hardening, Trivy, an AI
+  review workflow.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Baseline GitHub Actions Workflow
 
@@ -174,6 +183,32 @@ only after pushing. Keep them identical.
 - If the build cache misses constantly, check that `go.sum` is the
   cache key input (setup-go does this) and that jobs don't mutate it.
 
+## 7. Security Gates
+
+Beyond `govulncheck`: CodeQL (`security-extended`) and gosec as SARIF
+uploads to the Security tab, and Trivy on any container image you build.
+Start gosec with `-no-fail` to collect a baseline, then make new findings
+fail the PR.
+
+## 8. Dependency Updates and Action Pinning
+
+- Dependabot for both `gomod` and `github-actions`, weekly, with minor and
+  patch updates grouped into one PR. Majors stay separate — they need a
+  changelog read.
+- Pin third-party actions by commit SHA with the version in a comment; a
+  tag can be moved to malicious code, and Dependabot updates SHA pins.
+
+## 9. Workflow and Repository Hardening
+
+- Per-job permissions on top of a read-only default.
+- No `pull_request_target` workflow that checks out and runs fork code
+  with secrets available.
+- Branch protection: required checks, a review, no force pushes.
+- An AI reviewer loaded with the go-code-review skill is an extra reviewer,
+  never a check that can approve on its own.
+
+Snippets for sections 7-9: `references/security-and-automation.md`.
+
 ## Verification Checklist
 
 1. Pipeline has all four gates: build, vet+lint, test -race, govulncheck
@@ -186,3 +221,6 @@ only after pushing. Keep them identical.
 8. Coverage floor enforced, generated code excluded
 9. `make ci` reproduces the pipeline locally, byte-for-byte
 10. Integration tests isolated behind tags, not slowing every push
+11. CodeQL/gosec results uploaded as SARIF; images scanned before push
+12. Dependabot covers modules and actions; third-party actions pinned by SHA
+13. Per-job permissions; no fork code run with secrets

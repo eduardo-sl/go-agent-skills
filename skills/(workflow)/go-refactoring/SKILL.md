@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(git:*) Bash(gopls:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Go Refactoring Workflow
@@ -24,6 +24,27 @@ metadata:
 A refactor changes structure, never behavior. The definition of done is
 mechanical: same tests pass before and after every step, and every step
 is small enough to revert alone.
+
+Detailed reference material, loaded on demand:
+
+- `references/bulk-rewrites.md` — `gofmt -r`, `//go:fix inline`, `eg`,
+  `gopatch` and custom analyzers, with the verification to run after.
+
+Read a reference file only when the summary below is not enough.
+
+## 0. Risk, Checkpoints, and When Not To
+
+| Risk | Transformations | Before you start |
+|---|---|---|
+| Low | gopls rename, extract/inline variable, organize imports | Green build and tests |
+| Medium | Extract function or method, inline a call across packages, add/remove a parameter | Tests that cover every changed call site |
+| High | Move types across packages, split or merge packages, break cycles, change exported API | Full safety net, and the developer's sign-off |
+
+Stop for the developer's approval before any cross-package move, exported
+API change, deletion, or change to code with no tests. Question the
+refactor itself when the code is stable and nothing planned touches it,
+when it is critical and untested, or when no concrete next change gets
+easier.
 
 ## 1. The Loop
 
@@ -52,6 +73,10 @@ gopls rename -w internal/service/user.go:#offset newName
 find . -name '*.go' -exec sed -i 's|github.com/acme/old|github.com/acme/new|g' {} +
 go build ./...   # the compiler is the reviewer
 ```
+
+After a rename, grep for the old name in struct tags, templates, SQL and
+anything reflection reads — gopls guards compilation, not those. Renaming
+a field silently desyncs it from its `json`/`db` tag.
 
 Never rename an exported identifier of a published library without a
 deprecation cycle: add the new name, mark the old one
@@ -101,6 +126,10 @@ func (s *Service) Process(id string) error {
 // Step 4 — delete the old form (same module) or keep until next major (library)
 ```
 
+On Go 1.26+, add `//go:fix inline` above the deprecated wrapper and step 3
+becomes `go fix ./...` — for your module now, and for every downstream
+module when it next runs `go fix`.
+
 Inside a single module, prefer atomic signature changes when the
 compiler can find every caller for you: change it, then chase the
 build errors — that's the compiler enumerating your TODO list.
@@ -117,7 +146,16 @@ Replacing a subsystem (old store, legacy client) too big for one PR:
    trivially revertible). Feature-flag it if risk warrants.
 5. Delete the old implementation in its own commit.
 
-## 7. What Is NOT a Refactor
+## 7. Bulk Mechanical Rewrites
+
+When the same change lands at many sites, encode it once and let a tool
+apply it: `gofmt -r` for syntactic expressions, `//go:fix inline` + `go fix`
+for callers of your own APIs, `eg` for type-aware expression rewrites,
+`gopatch` for statements and imports, a `go/analysis` fixer for migrations
+you will run again. A tool's rewrite is reviewable and re-runnable; forty
+hand edits are neither. Examples: `references/bulk-rewrites.md`.
+
+## 8. What Is NOT a Refactor
 
 - "While I'm here" bug fixes — separate commit before or after.
 - Reordering struct fields used with positional literals, changing
@@ -137,3 +175,5 @@ Replacing a subsystem (old store, legacy client) too big for one PR:
 7. Public API changes follow the deprecation cycle
 8. `go vet ./...` and the full test suite pass at every commit, not just the last
 9. git log reads as a sequence of safe, revertible steps
+10. High-risk steps approved by the developer before they start
+11. Struct tags, templates and SQL grepped after every rename
