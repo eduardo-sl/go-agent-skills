@@ -2,6 +2,16 @@
 
 Full implementations for the rules summarized in SKILL.md.
 
+## Contents
+
+- Helpers with `t.Helper()`
+- Factory Functions with Functional Options
+- Cleanup with `t.Cleanup`
+- Golden File Testing
+- Interface-Based Mocks
+- Function Injection for Simple Seams
+- What NOT to Mock
+
 ## Helpers with `t.Helper()`
 
 `t.Helper()` makes failure messages point to the caller, not the helper:
