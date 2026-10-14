@@ -36,14 +36,24 @@ func MetricsMiddleware(next http.Handler) http.Handler {
 
         next.ServeHTTP(ww, r)
 
+        // r.Pattern (Go 1.23+) is the matched ServeMux pattern, e.g.
+        // "GET /users/{id}" — bounded, unlike r.URL.Path ("/users/42").
+        // It is set when this middleware wraps the ServeMux directly.
+        route := r.Pattern
+        if route == "" {
+            route = "unmatched"
+        }
         duration := time.Since(start).Seconds()
         status := strconv.Itoa(ww.statusCode)
 
-        requestDuration.WithLabelValues(r.Method, r.URL.Path, status).Observe(duration)
-        requestsTotal.WithLabelValues(r.Method, r.URL.Path, status).Inc()
+        requestDuration.WithLabelValues(r.Method, route, status).Observe(duration)
+        requestsTotal.WithLabelValues(r.Method, route, status).Inc()
     })
 }
 ```
+
+With chi, read `chi.RouteContext(r.Context()).RoutePattern()` after
+`next.ServeHTTP` instead.
 
 ## Cardinality
 
