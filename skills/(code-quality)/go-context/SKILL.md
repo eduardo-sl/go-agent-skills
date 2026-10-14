@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.3.2"
 ---
 
 # Go Context
@@ -23,6 +23,9 @@ metadata:
 across API boundaries. Misusing it causes goroutine leaks, orphaned work,
 and subtle production bugs.
 
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-context` takes precedence over this one.
+
 Detailed reference material, loaded on demand:
 
 - `references/timeout-budgets.md` — dividing a parent's remaining budget,
@@ -30,6 +33,8 @@ Detailed reference material, loaded on demand:
 - `references/values.md` — context key types, accessors, collision traps.
 - `references/http-and-testing.md` — request context in handlers and
   middleware, and cancellation tests.
+- `references/cause-and-detach.md` — `WithCancelCause`, `WithTimeoutCause`,
+  `WithoutCancel`, `AfterFunc`.
 
 Read a reference file only when the section below is not enough.
 
@@ -198,17 +203,31 @@ Handlers take `r.Context()` and pass it downstream. A cancelled request means
 the client disconnected: return without writing a response. Middleware
 attaches values with `r.WithContext(ctx)`.
 
-Tests wrap the call under test in `context.WithTimeout` so a hang fails the
-test instead of blocking the suite, and assert `errors.Is(err,
-context.Canceled)` to prove cancellation is honoured.
+Tests derive contexts from `t.Context()` (Go 1.24+), not
+`context.Background()`, wrap the call under test in `context.WithTimeout` so
+a hang fails the test instead of blocking the suite, and assert
+`errors.Is(err, context.Canceled)` to prove cancellation is honoured.
 
 Examples in `references/http-and-testing.md`.
 
-## 6. context.Background() vs context.TODO()
+## 6. Causes, Detached Work, and AfterFunc
+
+| Need | API (Go version) |
+|---|---|
+| Record *why* work was cancelled | `WithCancelCause` + `context.Cause` (1.20) |
+| Say which timeout fired | `WithTimeoutCause`, `WithDeadlineCause` (1.21) |
+| Finish work after the request returns, keeping its values | `WithoutCancel` + your own timeout (1.21) |
+| Unblock a call that takes no context | `AfterFunc` (1.21) |
+
+Detached work always gets its own timeout. `context.Background()` would
+also outlive the request, but it drops the trace ID. Examples:
+`references/cause-and-detach.md`.
+
+## 7. context.Background() vs context.TODO()
 
 | Function | When to use |
 |---|---|
-| `context.Background()` | Top-level: `main()`, `init()`, test setup. Intentional root context. |
+| `context.Background()` | Top-level: `main()`, `init()`. Intentional root context. Tests use `t.Context()` (Go 1.24+). |
 | `context.TODO()` | Placeholder when you don't know which context to use yet. Signals "this needs to be fixed". |
 
 `context.TODO()` is a code smell in production code — replace it before shipping.
@@ -225,3 +244,4 @@ Examples in `references/http-and-testing.md`.
 8. HTTP handlers use `r.Context()` and pass it downstream
 9. No `nil` context passed — use `context.TODO()` or `context.Background()`
 10. Tests use `context.WithTimeout` to prevent hanging
+11. Work that outlives a request uses `WithoutCancel` plus its own timeout, not `context.Background()`

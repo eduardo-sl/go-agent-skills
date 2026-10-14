@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.1"
+  version: "1.4.0"
 ---
 
 # Go Code Review
@@ -55,6 +55,24 @@ go test -race ./...     # tests pass, no data races
 Report tool findings alongside manual findings — a failing `go vet` is
 an automatic 🔴 BLOCKER. Never report an issue a tool already proves
 absent.
+
+## Verify Before Reporting
+
+A finding that is wrong costs the author time and the reviewer trust.
+Before writing one up:
+
+- **Follow the diff outward.** Read the callers of a changed function and
+  the callees it now relies on (the go-semantic-tools skill finds them by
+  type, not by name). A bug can live outside the diff yet be triggered by
+  it — and a "bug" inside it can be unreachable because a caller already
+  guarantees the precondition.
+- **Lower severity for upstream guarantees, don't drop the finding.** A
+  nil dereference behind a constructor that never returns nil is a
+  🟢 SUGGESTION to make that contract explicit, not a 🔴 BLOCKER.
+- **Ask when intent is unclear** rather than asserting a bug — "is
+  `retries` meant to include the first attempt?" beats a wrong fix.
+- **Propose a check, not just an opinion.** Where a linter, a vet analyzer
+  or a test could catch the issue next time, name it.
 
 ## 1. Correctness & Safety
 
