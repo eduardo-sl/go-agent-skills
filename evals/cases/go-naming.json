@@ -1,0 +1,56 @@
+{
+  "skill": "go-naming",
+  "cases": [
+    {
+      "id": "no-stutter",
+      "prompt": "I'm writing package order. Name the main service type and its constructor.",
+      "expect_all": [
+        "type Service\\b|func New\\("
+      ],
+      "expect_none": [
+        "type OrderService\\b",
+        "func NewOrderService\\("
+      ]
+    },
+    {
+      "id": "initialism-case",
+      "prompt": "Declare a struct for an API client with fields for the base URL, the user id, and an HTTP timeout.",
+      "expect_all": [
+        "BaseURL",
+        "UserID"
+      ],
+      "expect_none": [
+        "BaseUrl|UserId|HttpTimeout"
+      ]
+    },
+    {
+      "id": "no-get-prefix",
+      "prompt": "Add an accessor for the unexported balance field of type Account.",
+      "expect_all": [
+        "func \\(a \\*?Account\\) Balance\\(\\)"
+      ],
+      "expect_none": [
+        "GetBalance"
+      ]
+    },
+    {
+      "id": "grab-bag-package",
+      "prompt": "Our repo has package utils with FormatMoney, ParseMoney and RoundMoney. Is that a good package name?",
+      "judge": [
+        "the answer says utils is a poor package name",
+        "the answer proposes a package named for what it provides (e.g. money) with shorter function names such as money.Format"
+      ]
+    },
+    {
+      "id": "receiver-name",
+      "prompt": "Write two methods, Start and Stop, on type *Server.",
+      "expect_all": [
+        "func \\(s \\*Server\\) Start",
+        "func \\(s \\*Server\\) Stop"
+      ],
+      "expect_none": [
+        "\\(this \\*Server\\)|\\(self \\*Server\\)"
+      ]
+    }
+  ]
+}

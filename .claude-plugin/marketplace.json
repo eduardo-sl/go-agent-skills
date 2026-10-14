@@ -39,7 +39,8 @@
         "./skills/(workflow)/go-binary-size",
         "./skills/(architecture)/go-openapi",
         "./skills/(architecture)/go-graphql",
-        "./skills/(workflow)/go-skills-router"
+        "./skills/(workflow)/go-skills-router",
+        "./skills/(code-quality)/go-naming"
       ]
     }
   ]

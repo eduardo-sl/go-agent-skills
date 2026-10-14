@@ -10,7 +10,8 @@ Install skills with: `npx skills add eduardo-sl/go-agent-skills`
 Or use directly by invoking `/skill-name` in Claude Code.
 
 ### Code Quality
-- `/go-coding-standards` — Style, naming, imports, struct init
+- `/go-coding-standards` — Style, imports, declarations, struct init
+- `/go-naming` — Packages, stuttering, initialisms, getters, receivers, errors
 - `/go-code-review` — Structured review with severity levels
 - `/go-error-handling` — Wrapping, sentinels, custom types, errors.Is/As
 - `/go-context` — Context propagation, cancellation, timeouts, values
