@@ -16,13 +16,23 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.2"
+  version: "1.2.1"
 ---
 
 # Go Interface Design
 
 Go interfaces are implicit. This is the single most important design feature
 of the language, and most people coming from Java or C# get it wrong at first.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-interface-design` takes precedence over this one.
+
+Detailed reference material, loaded on demand:
+
+- `references/embedding-and-assertions.md` — embedding vs named fields,
+  interface-embedding test fakes, optional capabilities, sealed interfaces.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. The Cardinal Rule: Define Interfaces at the Consumer
 
@@ -205,24 +215,25 @@ type PaymentServiceInterface interface { ... }
 // Each consumer declares only the methods IT needs
 ```
 
-### Misusing interfaces for enums:
+### Sealed interfaces vs enums:
 
-```go
-// ❌ Bad — interface used as enum/sum type
-type Shape interface {
-    isShape()
-}
-type Circle struct{}
-func (Circle) isShape() {}
+A sealed interface — an unexported marker method, so only this package can
+add variants — is the right tool for a closed set of variants that carry
+different data, consumed with a type switch. When the variants carry no
+data, use a typed constant enum instead. Example:
+`references/embedding-and-assertions.md`.
 
-// ✅ Better — sealed interface pattern (if you need it)
-// Or just use constants with a type
-type ShapeKind int
-const (
-    ShapeCircle ShapeKind = iota
-    ShapeRectangle
-)
-```
+## 9. Embedding and Type Assertions
+
+- Embedding promotes the whole method set. Embedding `sync.Mutex` in an
+  exported struct publishes `Lock`/`Unlock`; use a named field unless the
+  outer type truly *is* the inner one, extended.
+- An interface embedded in a struct satisfies it with methods that panic
+  when called — fine for test fakes, a hidden runtime failure elsewhere.
+- Assert to an interface for optional capabilities
+  (`w.(http.Flusher)`), always with comma-ok.
+- Generic methods (Go 1.27+) never satisfy an interface method; keep the
+  methods of anything you define as an interface non-generic.
 
 ## Decision Checklist
 
@@ -232,3 +243,4 @@ const (
 3. **How many methods?** — Fewer is better. 1-3 is ideal.
 4. **Am I returning an interface?** — Probably shouldn't. Return concrete.
 5. **Have I verified compliance?** — `var _ Interface = (*Type)(nil)`
+6. **Am I embedding for convenience?** — named field unless every promoted method belongs on the outer type.

@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.1"
 ---
 
 # Go Project Layout
@@ -22,6 +22,9 @@ metadata:
 Structure follows size. The biggest layout mistake in Go is copying a
 microservice skeleton for a 500-line tool — or growing a 50-package
 service inside a flat directory. Match the layout to the project.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-project-layout` takes precedence over this one.
 
 ## 1. Pick the Layout by Project Size
 
@@ -144,13 +147,34 @@ retry/
   explicitly vendors), one-file packages like `types/` or `models/`
   that become dumping grounds.
 
+## 8. Configuration
+
+- One config struct, loaded from the environment in one place
+  (`internal/config`), validated at startup — fail fast with every missing
+  or invalid value listed, not the first one.
+- Flags for CLIs; environment variables for services (12-factor); defaults
+  in code. No config files baked into images, no environment-specific
+  branches (`if env == "prod"`) in business code.
+- Secrets come from the environment or a secret manager, never from flags
+  (`ps` shows argv) or the repository.
+
+## 9. One Module or Several
+
+Default to one module per repository. Split into modules only when parts
+are versioned and released independently (a public client library next to
+a service). Develop across modules locally with `go.work`; don't commit
+`replace => ../path` directives.
+
 ## Scaffolding Procedure
 
 1. Ask/decide: tool, library, or service? How many binaries?
-2. `go mod init <repo-path>`.
+2. `go mod init <repo-path>`, then set the `go` directive deliberately —
+   since Go 1.26, `go mod init` writes the previous release
+   (`go 1.(N-1).0`), not the toolchain's.
 3. Create only the directories the first feature needs.
-4. Write `main.go` with the thin-main pattern above.
-5. Add `Makefile` targets: `build`, `test`, `lint`.
+4. Write `main.go` with the thin-main pattern above, and a config struct.
+5. Pin developer tools as module tools (`go get -tool ...`, Go 1.24+) and
+   add `Makefile` targets: `build`, `test`, `lint`.
 6. Verify: `go build ./...` and `go vet ./...` pass on the skeleton.
 
 ## Verification Checklist
@@ -164,3 +188,5 @@ retry/
 7. No `util`/`common`/`helpers`/`models` grab-bag packages
 8. Package names match directories, lowercase, no stutter
 9. `go build ./...` passes on the fresh skeleton
+10. Config loaded and validated in one place at startup; no secrets in flags
+11. One module unless parts are released independently; no committed local `replace`

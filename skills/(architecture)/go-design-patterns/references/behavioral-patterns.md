@@ -2,6 +2,16 @@
 
 Full examples for the behavioral patterns summarized in SKILL.md.
 
+## Contents
+
+- Strategy with Function Types (simpler)
+- Strategy with Interfaces (when behavior is complex)
+- HTTP Middleware Chain
+- Interface Decorator
+- Result Type Pattern
+- Cleanup with defer
+- Sentinel Values vs Zero Values
+
 ## Strategy with Function Types (simpler)
 
 ```go

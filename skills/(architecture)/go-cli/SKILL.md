@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Go CLI Design
@@ -22,6 +22,13 @@ metadata:
 A good CLI is a well-behaved Unix citizen: flags before magic, stdout
 for data, stderr for diagnostics, exit codes that scripts can trust,
 and Ctrl+C that actually stops it.
+
+Detailed reference material, loaded on demand:
+
+- `references/testing-and-versioning.md` — exit-code mapping in `main`,
+  golden-file and testscript tests, version from build info, completions.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Structure: Testable main
 
@@ -53,7 +60,8 @@ func run(ctx context.Context, args []string, stdin io.Reader, stdout, stderr io.
 ```
 
 - `signal.NotifyContext` makes Ctrl+C cancel the context — every
-  long operation takes `ctx` and stops cleanly.
+  long operation takes `ctx` and stops cleanly. Call `stop()` once the
+  context is done so a second Ctrl+C kills a stuck program immediately.
 - `run` receives args and streams — tests call it directly with
   `strings.Reader`/`bytes.Buffer`, no subprocess needed.
 - `os.Exit` only in `main` (it skips defers).
@@ -84,8 +92,10 @@ fmt.Printf("processing...\ndone: %s\n", result)
 | >2 | Tool-specific, documented meanings (e.g. grep's 1 = no match) |
 
 Map errors to codes in one place (`main`), not scattered `os.Exit`
-calls. If scripts will branch on distinct failures, define sentinel
-errors and translate: `errors.Is(err, ErrNoMatch) → 1`.
+calls. With `flag.ContinueOnError`, `-h` returns `flag.ErrHelp` — exit 0
+for it, and wrap parse errors in a usage error type so `main` can exit 2.
+Exit 130 after Ctrl+C. If scripts will branch on distinct failures, define
+sentinel errors and translate: `errors.Is(err, ErrNoMatch) → 1`.
 
 ## 4. Flags and Arguments
 
@@ -146,6 +156,28 @@ Cobra rules: always `RunE` (never `Run` + `os.Exit`), set
   is set.
 - Progress bars/spinners go to stderr and only when it's a terminal.
 
+## 7. Testing
+
+Test `run` directly with buffers, comparing stdout against golden files
+regenerated with `-update`. For end-to-end behavior — real binary, exit
+codes, stdin — use `testscript` (`.txtar` scripts), the format the Go
+command tests itself with.
+
+## 8. Version Information
+
+`mytool version` reads `debug.ReadBuildInfo()`: since Go 1.24 the main
+module's version comes from the VCS tag, and `vcs.revision` from the
+build settings. Fall back to `-ldflags "-X main.version=..."` only when
+building without VCS metadata.
+
+## 9. Shell Completions
+
+Cobra generates `completion bash|zsh|fish|powershell`; add
+`ValidArgsFunction` for dynamic values. Without Cobra, ship a static
+completion script with the release.
+
+Examples for sections 3 and 7-9: `references/testing-and-versioning.md`.
+
 ## Verification Checklist
 
 1. `run(ctx, args, stdin, stdout, stderr)` pattern — logic testable without subprocess
@@ -158,3 +190,5 @@ Cobra rules: always `RunE` (never `Run` + `os.Exit`), set
 8. No secrets via argv
 9. Cobra (if used): RunE everywhere, SilenceUsage, context propagated
 10. Colors/spinners disabled for non-TTY and NO_COLOR
+11. `-h` exits 0, usage errors exit 2, Ctrl+C exits 130
+12. `version` output comes from build info; golden or testscript tests cover the CLI surface

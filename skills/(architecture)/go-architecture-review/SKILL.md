@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.2"
+  version: "1.3.0"
 ---
 
 # Go Architecture Review
@@ -39,6 +39,23 @@ Pick the mode that matches the request before starting:
   migration plan (smallest safe steps first), not just findings.
 - **New service consultation** — asked "how should I structure X":
   apply sections 1-3 as prescriptive guidance instead of review checks.
+
+## Match the Architecture to the Problem
+
+Judge a codebase against the structure its problem needs, not the most
+elaborate one available. Over-architecture is a finding too.
+
+| Situation | Fitting structure |
+|---|---|
+| CLI, small service, one data store, little business logic | Flat `main` + a few packages; no layers for their own sake |
+| Typical service: HTTP/gRPC in front, a database behind | Handler → service → store, interfaces at the consumer (sections 1-2) |
+| Several adapters (HTTP, gRPC, queue, CLI) over the same rules, or infrastructure expected to change | Ports and adapters: a pure core, adapters on the edge |
+| Large domain, several teams, rules that differ by sub-domain | Bounded contexts as top-level packages, each layered inside, talking through explicit APIs or events |
+
+Signs of too much: interfaces with one implementation per layer, mapping
+structs copied unchanged through three layers, a "domain" package with no
+behavior. Signs of too little: SQL in handlers, business rules spread
+across transport code, packages that import each other in both directions.
 
 ## Auditing Large Codebases
 
@@ -207,3 +224,4 @@ func init() {
 - 🟢 Package names are short, singular, descriptive
 - 🟢 No `utils/`, `common/`, `helpers/` packages
 - 🟢 Main package is a thin composition root
+- 🟢 Structure is proportional to the domain — no layers or interfaces without a second reason to exist
