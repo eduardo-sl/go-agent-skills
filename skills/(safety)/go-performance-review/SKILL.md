@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(benchstat:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Go Performance Review
@@ -72,7 +72,7 @@ var users []User // starts at 0, grows via doubling
 
 ```go
 var bufPool = sync.Pool{
-    New: func() interface{} {
+    New: func() any {
         return new(bytes.Buffer)
     },
 }
@@ -145,23 +145,23 @@ ALWAYS write benchmarks before and after optimization:
 
 ```go
 func BenchmarkFoo(b *testing.B) {
-    // Setup outside the loop
-    input := generateInput()
-
-    b.ResetTimer()
-    for i := 0; i < b.N; i++ {
-        result = Foo(input) // assign to package-level var to prevent elision
+    input := generateInput() // setup runs once, outside the timed loop
+    b.ReportAllocs()
+    for b.Loop() {           // Go 1.24+: no ResetTimer, no sink variable
+        Foo(input)
     }
 }
-
-// Package-level var prevents compiler from eliminating the call
-var result string
 ```
+
+`b.Loop()` times only the loop body and keeps arguments and results alive,
+so the compiler cannot eliminate the call. Below Go 1.24, use
+`for range b.N` with `b.ResetTimer()` after setup and assign results to a
+package-level sink.
 
 Run benchmarks with memory profiling:
 
 ```bash
-go test -bench=BenchmarkFoo -benchmem -count=5 ./...
+go test -bench=BenchmarkFoo -benchmem -count=10 ./...
 ```
 
 Compare before/after with `benchstat`:
@@ -287,7 +287,7 @@ NEVER switch loggers without a benchmark proving the need.
 | Slice without preallocation | `make([]T, 0, n)` |
 | Map without capacity hint | `make(map[K]V, n)` |
 | `regexp.Compile` inside function | Compile once at package level |
-| `json.Marshal` in hot path | Use code-gen (`easyjson`, `sonic`) |
+| `json.Marshal` in hot path | Profile first: since Go 1.27 `encoding/json` runs on the faster v2 engine; code-gen (`easyjson`) only if JSON still dominates |
 | Logging in tight loop | Batch or sample |
 | `defer` in very tight inner loop | Manual cleanup (rare, benchmark first) |
 
