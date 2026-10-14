@@ -195,12 +195,13 @@ All figures are approximate tokens (bytes ÷ 4).
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
 | [`go-code-review`](skills/(code-quality)/go-code-review/) | Structured review process with severity classification | "review this code", "check this PR" | 103 | 1,844 | 1,844 |
-| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) 📚 | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" | 127 | 1,959 | 2,842 |
+| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) 📚 | Style conventions, imports, declarations, struct init, formatting | "check Go style", "fix formatting" | 127 | 1,959 | 2,842 |
 | [`go-context`](skills/(code-quality)/go-context/) 📚 | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" | 108 | 2,054 | 3,751 |
 | [`go-data-structures`](skills/(code-quality)/go-data-structures/) 📚 | Slices, maps, sets, aliasing, preallocation, nil vs empty | "nil slice", "map iteration", "slice aliasing" | 135 | 2,031 | 2,747 |
 | [`go-documentation`](skills/(code-quality)/go-documentation/) 📚 | Godoc conventions, testable examples, deprecation notices | "add godoc", "document this package" | 108 | 1,743 | 2,327 |
 | [`go-error-handling`](skills/(code-quality)/go-error-handling/) 📚 | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" | 131 | 2,053 | 2,678 |
 | [`go-modernize`](skills/(code-quality)/go-modernize/) 📚 | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" | 129 | 2,320 | 8,437 |
+| [`go-naming`](skills/(code-quality)/go-naming/) 📚 | Packages, stuttering, initialisms, getters, receivers, error names | "what should I name this", "naming review" | 136 | 2,044 | 2,991 |
 
 ### Architecture & Design
 
@@ -253,9 +254,9 @@ All figures are approximate tokens (bytes ÷ 4).
 | [`go-semantic-tools`](skills/(workflow)/go-semantic-tools/) 📚 | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" | 155 | 1,727 | 2,507 |
 | [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 175 | 2,515 | 2,515 |
 
-**Budget.** All 33 descriptions together are ~4,470 tokens at startup — the only
+**Budget.** All 34 descriptions together are ~4,600 tokens at startup — the only
 figure paid on every request, Go work or not. A typical session fires 2–4
-skills, so ~5,300 tokens of body. The full tree is ~118,700 tokens and is never
+skills, so ~5,300 tokens of body. The full tree is ~121,700 tokens and is never
 loaded at once; that gap is the point of progressive disclosure.
 
 ---
