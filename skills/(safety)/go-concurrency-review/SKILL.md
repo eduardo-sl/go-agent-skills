@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.0"
+  version: "1.8.0"
 ---
 
 # Go Concurrency Review
@@ -28,7 +28,9 @@ Detailed reference material, loaded on demand:
 
 - `references/channels.md` — sizing, signalling, producer shutdown.
 - `references/mutex-and-atomics.md` — mutex placement, lock scope, atomics,
-  `sync.Once`.
+  `sync.Once`, RWMutex pitfalls, `sync.Map`, `sync.Pool`, `singleflight`.
+- `references/goroutine-patterns.md` — panic recovery at goroutine
+  boundaries, pipelines, bounded fan-out, timers.
 
 Read a reference file only when the section below is not enough.
 
@@ -42,7 +44,9 @@ Pick the mode that matches the request before starting:
   paying extra attention to new `go` statements and shared state.
 - **Leak/race hunt** — a symptom is already observed (growing goroutine
   count, `-race` report, deadlock). Start from "Auditing Large Codebases"
-  and the Race Detection section to localize it.
+  and the Race Detection section to localize it. On Go 1.27+ read the
+  `goroutineleak` profile first: it lists goroutines blocked on something
+  nothing can ever unblock. The go-troubleshooting skill owns the procedure.
 
 ## Auditing Large Codebases
 
@@ -62,6 +66,24 @@ one linear read:
 If your environment supports delegating work to parallel sub-agents or
 tasks, assign each pass to one; otherwise run them in order. Findings
 must cite `file.go:line`. Always finish with `go test -race ./...`.
+
+## Choosing a Primitive
+
+| Need | Use | Why |
+|---|---|---|
+| Hand data from one goroutine to another | Channel | The send transfers ownership |
+| Guard fields of a shared struct | `sync.Mutex` / `RWMutex` | Short critical sections, explicit owner |
+| A counter or flag | `atomic.Int64`, `atomic.Bool` | No lock, no torn reads |
+| Compute once, read many | `sync.OnceValue` | Exactly once, even under contention |
+| Collapse concurrent identical calls | `singleflight.Group` | One backend call per key, not N |
+| Reuse short-lived buffers on a hot path | `sync.Pool` | Fewer allocations — only after a profile |
+
+| Waiting for goroutines | Use |
+|---|---|
+| Results don't fail | `sync.WaitGroup` (`wg.Go`, Go 1.25+) |
+| First error matters | `errgroup.Group` |
+| First error cancels the rest | `errgroup.WithContext` |
+| Cap how many run at once | `errgroup` + `SetLimit(n)` — not a hand-rolled pool |
 
 ## 1. Goroutine Lifecycle Management
 
@@ -116,6 +138,16 @@ func NewWorker() *Worker {
 }
 ```
 
+### Recover at the goroutine boundary
+
+A panic in any goroutine terminates the whole process. The `recover` in
+HTTP middleware covers the request goroutine only, not goroutines it
+starts. Workers and background tasks that run input-dependent or
+third-party code recover in their own deferred function, log the stack,
+and turn the panic into an error. Don't recover to hide bugs in code you
+own — recover where a crash would take unrelated work down with it.
+Example: `references/goroutine-patterns.md`.
+
 ## 2. Channel Patterns
 
 - Size is one or none. Unbuffered is a synchronization point; buffer 1 is a
@@ -128,7 +160,11 @@ func NewWorker() *Worker {
   `defer close(ch)` in the producing goroutine. Every send sits in a `select`
   against `ctx.Done()`, or a consumer that walks away leaks the producer.
 
-Examples in `references/channels.md`.
+- Pipelines: each stage closes its own output; fan-out is bounded with
+  `errgroup.SetLimit`; a single-goroutine chain is an `iter.Seq`, not
+  channels.
+
+Examples in `references/channels.md` and `references/goroutine-patterns.md`.
 
 ## 3. Mutexes and Atomics
 
@@ -144,6 +180,10 @@ Examples in `references/channels.md`.
 - Use `sync/atomic` types for counters and flags rather than a mutex around
   an `int64`.
 - `sync.Once` for lazy initialization that must happen exactly once.
+- `RWMutex` cannot be upgraded or read-locked recursively; `sync.Map`
+  fits two workloads only; `sync.Pool` objects must be reset and size-capped;
+  `singleflight` runs on the first caller's context — detach it. Details in
+  `references/mutex-and-atomics.md`.
 
 Examples in `references/mutex-and-atomics.md`.
 
@@ -203,3 +243,4 @@ about concurrent correctness.
 - 🟡 Buffered channel with arbitrary large size
 - 🟡 `time.Sleep` used for synchronization instead of proper signaling
 - 🟡 Goroutine starting inside `init()` or constructor without lifecycle control
+- 🟡 Background goroutine running input-dependent code with no `recover`
