@@ -3,6 +3,16 @@
 Loaded on demand from `go-defensive-coding`. Read this when the summary in
 SKILL.md is not enough to resolve a concrete case.
 
+## Contents
+
+- Interface nil-ness in full
+- Nil receivers can be valid
+- Nil vs empty slice in JSON
+- Slice aliasing scenarios
+- Memory retention
+- Map iteration order
+- Comma-ok on every dynamic lookup
+
 ## Interface nil-ness in full
 
 An interface value is a pair: `(dynamic type, dynamic value)`. It is `nil`

@@ -178,6 +178,45 @@ Where a tool can prove a rule, tell the agent to run it (`go vet`,
 tools that aren't installed. A checklist item the toolchain can check
 should not rely on the agent's judgment.
 
+### 10. Write for every agent, not one harness
+
+These skills are read by Claude Code, Cursor, Copilot, Codex, Windsurf and
+others. Name capabilities in the body ("ask the user", "if your
+environment supports parallel sub-agents", "fetch the page") and declare
+concrete tool names only in `allowed-tools`. A body that says "use the
+Task tool" works in one harness and confuses the rest. Generated artifacts
+(a GitHub Actions workflow, an MCP registration command) may name real
+tools — label which harness they target.
+
+### 11. Refer to sibling skills by name, never with `@`
+
+Write "the go-context skill" or `` `go-context` ``. Some harnesses treat
+`@go-context` as an instruction to load the whole skill immediately,
+which spends the context budget the progressive-disclosure rules protect.
+`scripts/validate.sh` fails on a backticked `go-*` name that is not a
+skill in this repository.
+
+### 12. State facts relative to versions, not dates
+
+"Go 1.24+" stays true; "as of this year" goes stale without anyone
+noticing. Mark every version-dependent rule with the release that
+introduced it, and keep superseded patterns only as a short "before
+Go 1.N" note next to the current one.
+
+### 13. Give long reference files a contents list
+
+A reference file over 100 lines opens with a `## Contents` list of its
+sections, so an agent that reads only the head still sees everything the
+file covers. `scripts/validate.sh` warns when one is missing.
+
+### 14. Verify examples before committing them
+
+Compile every non-trivial Go example in a scratch module (`go vet`, and
+`go run` or `go test` where behavior is claimed). Check API signatures
+against the package documentation for the Go version the example names.
+An example that does not compile teaches the agent to write code that
+does not compile.
+
 ## Severity Classification
 
 When skills produce findings (reviews, audits), use consistent severity:
@@ -218,4 +257,9 @@ Avoid these in skill content:
 - **Framework worship**: "Always use chi/gin/echo" → Explain the pattern, mention options.
 - **Outdated advice**: Check that Go version requirements match current releases.
 - **Hallucinated APIs**: If you're not sure a function exists, don't include it.
+- **Library catalogues**: "Use these ten packages" goes stale within a
+  quarter. Teach how to evaluate a dependency (go-dependency-audit), not
+  which one to pick.
+- **Contradicting a sibling skill**: when two skills touch one topic, one
+  owns it and the other points to it. Grep for the topic before adding it.
 - **Wall of text**: If a section has no code example, it probably needs one.

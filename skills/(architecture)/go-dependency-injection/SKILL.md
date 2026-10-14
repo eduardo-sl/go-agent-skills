@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go Dependency Injection
@@ -22,6 +22,9 @@ metadata:
 DI in Go is a pattern, not a framework: pass dependencies to
 constructors, wire everything explicitly in `main`. Reach for a
 framework only when manual wiring measurably hurts.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-dependency-injection` takes precedence over this one.
 
 ## 1. Constructor Injection — the Default
 
