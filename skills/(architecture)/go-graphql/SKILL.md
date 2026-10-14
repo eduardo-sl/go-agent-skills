@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(gqlgen:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # Go GraphQL
@@ -25,6 +25,13 @@ GraphQL moves query planning to the client. That is the feature and the
 danger: one innocuous query can become ten thousand database round trips, and
 one over-permissive field can leak another tenant's data. Both are solved at
 the server, not in the schema review.
+
+Detailed reference material, loaded on demand:
+
+- `references/errors-auth-testing.md` — error presenter, field
+  authorization directive, client-driven tests with query-count asserts.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Schema-First with gqlgen
 
@@ -175,23 +182,10 @@ behind an `http.Server` with `ReadTimeout` and `WriteTimeout` set.
 
 GraphQL returns 200 with an `errors` array. Never leak internals into it.
 
-```go
-srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
-    err := graphql.DefaultErrorPresenter(ctx, e)
-
-    var domainErr *domain.ValidationError
-    if errors.As(e, &domainErr) {
-        err.Message = domainErr.Message
-        err.Extensions = map[string]any{"code": "VALIDATION_FAILED"}
-        return err
-    }
-
-    slog.ErrorContext(ctx, "graphql resolver failed", "error", e)
-    err.Message = "internal server error" // stable, safe
-    err.Extensions = map[string]any{"code": "INTERNAL"}
-    return err
-})
-```
+Install `srv.SetErrorPresenter`: map known domain errors (validation,
+not found) to their message plus a stable `extensions.code`, and log
+everything else server-side while returning `internal server error` with
+code `INTERNAL`. Example: `references/errors-auth-testing.md`.
 
 Use `srv.SetRecoverFunc` to convert a resolver panic into an error instead of
 killing the connection, and log it with the stack.
@@ -205,23 +199,9 @@ legitimately be absent.
 Object-level checks are not enough — a client can reach an object through
 several paths.
 
-```graphql
-directive @hasRole(role: Role!) on FIELD_DEFINITION
-
-type User {
-  id: ID!
-  email: String! @hasRole(role: ADMIN)
-}
-```
-
-```go
-cfg.Directives.HasRole = func(ctx context.Context, obj any, next graphql.Resolver, role model.Role) (any, error) {
-    if !auth.FromContext(ctx).HasRole(role) {
-        return nil, gqlerror.Errorf("access denied")
-    }
-    return next(ctx)
-}
-```
+Declare a `@hasRole` (or similar) directive on sensitive fields and
+implement it as a check against the principal in the context; return
+`access denied` without detail. Example: `references/errors-auth-testing.md`.
 
 Authenticate in HTTP middleware, before the GraphQL handler. Authorize in the
 directive or the resolver, using the principal from the context — never from
@@ -229,25 +209,10 @@ a query argument.
 
 ## 7. Testing
 
-```go
-func TestUserQuery(t *testing.T) {
-    c := client.New(handler.NewDefaultServer(generated.NewExecutableSchema(cfg)))
-
-    var resp struct {
-        User struct{ ID, Email string }
-    }
-    c.MustPost(`{ user(id: "u-1") { id email } }`, &resp)
-
-    require.Equal(t, "u-1", resp.User.ID)
-}
-```
-
-Assert the query count for any resolver with a dataloader — that is the only
-way an N+1 regression fails a build rather than a dashboard:
-
-```go
-require.Equal(t, 2, db.QueryCount(), "expected batched loads, got N+1")
-```
+Drive the real schema through gqlgen's test `client` and assert on the
+decoded response. For every resolver behind a dataloader, also assert the
+query count — that is the only way an N+1 regression fails a build rather
+than a dashboard. Examples: `references/errors-auth-testing.md`.
 
 ## Verification Checklist
 
