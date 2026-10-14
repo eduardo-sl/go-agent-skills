@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(gqlgen:*)
 metadata:
   author: eduardo-sl
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # Go GraphQL

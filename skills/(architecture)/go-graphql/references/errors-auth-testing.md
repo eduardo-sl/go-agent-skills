@@ -44,9 +44,15 @@ cfg.Directives.HasRole = func(ctx context.Context, obj any, next graphql.Resolve
 
 ## Testing
 
+Build the server under test the way production builds it. `NewDefaultServer`
+is deprecated: gqlgen documents it as unsuitable for production, and a test
+against it exercises transports and caches you do not ship.
+
 ```go
 func TestUserQuery(t *testing.T) {
-    c := client.New(handler.NewDefaultServer(generated.NewExecutableSchema(cfg)))
+    srv := handler.New(generated.NewExecutableSchema(cfg))
+    srv.AddTransport(transport.POST{})
+    c := client.New(srv)
 
     var resp struct {
         User struct{ ID, Email string }
