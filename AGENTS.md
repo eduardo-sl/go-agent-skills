@@ -23,7 +23,8 @@ skills/(category-name)/skill-name/SKILL.md
 ## When modifying skills
 
 1. **Read `docs/SKILL_GUIDELINES.md` first.** It defines the quality standards.
-2. **Keep SKILL.md under 500 lines.** Move detailed content to `references/`.
+2. **Keep SKILL.md within the 250-line budget** (CI warns above 250 and fails
+   above 500). Move detailed content to `references/`.
 3. **YAML frontmatter is mandatory.** Every SKILL.md must have `name`,
    `description`, `user-invocable`, `license`, `compatibility`, `allowed-tools`,
    `metadata.author` and `metadata.version`. `allowed-tools` is least-privilege:

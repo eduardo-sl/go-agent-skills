@@ -8,16 +8,16 @@ already provides, and which candidate skills remain unimplemented.
 
 ---
 
-## Current Coverage Map (33 skills)
+## Current Coverage Map (35 skills)
 
 | Category | Skills |
 |---|---|
-| Code Quality | go-coding-standards, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation |
+| Code Quality | go-coding-standards, go-naming, go-code-review, go-error-handling, go-context, go-modernize, go-data-structures, go-documentation |
 | Architecture | go-architecture-review, go-project-layout, go-interface-design, go-api-design, go-openapi, go-graphql, go-grpc, go-design-patterns, go-dependency-injection, go-cli |
 | Data | go-database |
 | Safety & Performance | go-concurrency-review, go-security-audit, go-defensive-coding, go-performance-review, go-observability, go-troubleshooting |
 | Testing | go-test-quality, go-test-table-driven |
-| Workflow | go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, go-binary-size, go-skills-router, git-commit |
+| Workflow | go-dependency-audit, go-ci, go-refactoring, go-semantic-tools, go-binary-size, go-build-release, go-skills-router, git-commit |
 
 ## Implemented Candidates
 
@@ -43,17 +43,21 @@ already provides, and which candidate skills remain unimplemented.
 | go-graphql | `(architecture)/go-graphql` — gqlgen, dataloaders, query bounding |
 | go-binary-size | `(workflow)/go-binary-size` — build-output size, not runtime performance |
 | go-skills-router | `(workflow)/go-skills-router` — task-to-skill routing and overlap boundaries |
+| go-naming | `(code-quality)/go-naming` — split out of go-coding-standards, which kept only declaration rules |
+| go-build-release | `(workflow)/go-build-release` — reproducible builds, GoReleaser, SBOMs, keyless signing, provenance |
 | go-linter | Absorbed into `go-ci` (curated .golangci.yml section) |
 | go-safety | Delivered as `go-defensive-coding`, with the threat-facing half in go-security-audit |
 
 ## Ecosystem Comparison
 
-Surveyed August 2026 against the published Go skill repositories.
+Surveyed August 2026 and again October 2026 against the published Go
+skill repositories.
 
 **Covered here and not elsewhere:** structured review with severity levels
 (`go-code-review`), architecture review as a distinct pass, table-driven
 testing as its own deep dive, `go-openapi` with a settled codegen opinion,
-`go-binary-size`, and Conventional Commits (`git-commit`).
+`go-binary-size`, a release skill built around verification
+(`go-build-release`), and Conventional Commits (`git-commit`).
 
 **Deliberately not adopted from other repositories:**
 
@@ -63,7 +67,7 @@ testing as its own deep dive, `go-openapi` with a settled codegen opinion,
 | `popular-libraries` catalogue | High maintenance, stale within a quarter, and it encodes taste as fact. |
 | `stay-updated` link list | A bookmark file, not a skill. Nothing for an agent to apply. |
 | Separate `lint` skill | Absorbed into `go-ci`, where the config is actually enforced. |
-| Separate `benchmark` skill | Absorbed into `go-performance-review`; splitting measurement from optimisation forces the agent to load both every time. |
+| Separate `benchmark` skill | Absorbed into `go-performance-review`, with the measurement depth (benchstat, pprof, traces, CI regression checks) in its references; splitting measurement from optimisation forces the agent to load both every time. |
 | A pkg.go.dev query CLI skill | Would require installing a third-party binary to answer questions `go list -m -versions` and `govulncheck` already answer. |
 
 ## Remaining Candidates
@@ -74,12 +78,7 @@ testing as its own deep dive, `go-openapi` with a settled codegen opinion,
 - **Scope:** evaluating third-party libraries (maintenance signals, API stability, pkg.go.dev metrics)
 - **Why not yet:** substantially covered by `go-dependency-audit`'s dep evaluation section
 
-#### 2. `go-build-release`
-- **Scope:** goreleaser, reproducible builds, signing, SBOM, provenance
-- **Why not yet:** partially covered by `go-ci` and `go-binary-size`; the
-  supply-chain half (SLSA, cosign, SBOM) is the part that would justify it
-
-#### 3. `go-wasm`
+#### 2. `go-wasm`
 - **Scope:** GOOS=js/wasip1 targets, TinyGo trade-offs, host bindings
 - **Why not yet:** niche; revisit on demand
 
@@ -98,3 +97,13 @@ testing as its own deep dive, `go-openapi` with a settled codegen opinion,
   `.github/workflows/`.
 - `SECURITY.md` with the threat model contributions are reviewed against.
 - `evals/` harness so a skill's value is a number, not an assertion.
+- An eval suite for every skill, a rubric `judge` mode in
+  `scripts/run-evals.py`, and prompts passed to agent commands without a
+  shell.
+- `scripts/validate.sh` fails on references to skills that do not exist,
+  `@`-force-loads and pipe-to-shell installers, and warns on long
+  reference files without a contents list.
+- Convention skills marked as community defaults that a team rule can
+  supersede by name.
+- A weekly workflow that opens an issue when a Go release is not yet
+  covered by `go-modernize`.
