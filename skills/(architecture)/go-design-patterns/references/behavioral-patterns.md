@@ -109,21 +109,24 @@ type Result[T any] struct {
 
 func fetchAll(ctx context.Context, ids []string) []Result[User] {
     results := make([]Result[User], len(ids))
-    var wg sync.WaitGroup
 
-    for i, id := range ids {
-        wg.Add(1)
-        go func(i int, id string) {
-            defer wg.Done()
+    var g errgroup.Group
+    g.SetLimit(8) // bound concurrent fetches; an unbounded fan-out is a DoS on the backend
+
+    for i, id := range ids { // Go 1.22+: i and id are per-iteration
+        g.Go(func() error {
             user, err := fetchUser(ctx, id)
-            results[i] = Result[User]{Value: user, Err: err}
-        }(i, id)
+            results[i] = Result[User]{Value: user, Err: err} // each goroutine owns one index
+            return nil // per-item errors live in the result, not the group
+        })
     }
-
-    wg.Wait()
+    _ = g.Wait() // always nil: every func returns nil
     return results
 }
 ```
+
+Use this shape when one failure must not cancel the rest. When it should,
+switch to `errgroup.WithContext` and return the error from the func.
 
 ## Cleanup with defer
 
