@@ -2,6 +2,15 @@
 
 Full implementations for the test types summarized in SKILL.md.
 
+## Contents
+
+- HTTP Handler Testing with `httptest.NewRecorder`
+- Full Server Test with `httptest.NewServer`
+- Integration Tests with Testcontainers
+- TestMain for Shared Setup
+- Fuzz Testing (Go 1.18+)
+- Coverage Commands
+
 ## HTTP Handler Testing with `httptest.NewRecorder`
 
 Unit-style handler tests with a mock store:

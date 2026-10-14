@@ -2,6 +2,12 @@
 
 Worked examples for SKILL.md sections 7 and 8.
 
+## Contents
+
+- Testing concurrent code
+  - Detect goroutine leaks
+- Test context, benchmarks, and artifacts
+
 ## Testing concurrent code
 
 Never synchronize a test with `time.Sleep`. It is slow when it works and
