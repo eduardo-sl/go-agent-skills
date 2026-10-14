@@ -1,0 +1,27 @@
+{
+  "skill": "go-refactoring",
+  "cases": [
+    {
+      "id": "go-fix-inline",
+      "prompt": "Go 1.26 module: we're replacing Process(id string) with ProcessCtx(ctx, id) and there are 300 call sites across our packages. Plan the migration.",
+      "expect_all": [
+        "go:fix inline",
+        "go fix"
+      ]
+    },
+    {
+      "id": "type-alias-move",
+      "prompt": "Move the User type from package store to a new package domain without breaking the 40 packages that import store.User.",
+      "expect_all": [
+        "type User = "
+      ]
+    },
+    {
+      "id": "separate-refactor-commit",
+      "prompt": "While extracting a function I noticed and fixed an off-by-one bug. Commit them together?",
+      "judge": [
+        "the answer recommends separating the behavior change (bug fix) from the refactor commit"
+      ]
+    }
+  ]
+}

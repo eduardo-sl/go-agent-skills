@@ -1,0 +1,42 @@
+{
+  "skill": "go-observability",
+  "cases": [
+    {
+      "id": "no-pii-in-logs",
+      "prompt": "Log a successful login with slog. Available: user.ID, user.Email, user.IPAddress.",
+      "expect_all": [
+        "user_id|\\\"id\\\"|UserID|user\\.ID"
+      ],
+      "expect_none": [
+        "slog\\.String\\(\\\"email\\\"|user\\.Email"
+      ]
+    },
+    {
+      "id": "route-pattern-label",
+      "prompt": "Write Prometheus HTTP middleware for a Go 1.23 ServeMux service that records request duration by method, path and status.",
+      "expect_all": [
+        "r\\.Pattern|RoutePattern|route"
+      ],
+      "expect_none": [
+        "WithLabelValues\\([^)]*r\\.URL\\.Path"
+      ]
+    },
+    {
+      "id": "histogram-not-summary",
+      "prompt": "We run 20 replicas and want a p99 latency across all of them. Summary or histogram?",
+      "expect_all": [
+        "[Hh]istogram"
+      ],
+      "judge": [
+        "the answer explains that summary quantiles cannot be aggregated across instances"
+      ]
+    },
+    {
+      "id": "logvaluer-redaction",
+      "prompt": "We keep accidentally logging User structs that contain email and phone fields. How can Go code make that impossible rather than relying on review?",
+      "expect_all": [
+        "LogValue\\(\\)|LogValuer"
+      ]
+    }
+  ]
+}

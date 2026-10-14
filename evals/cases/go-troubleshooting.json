@@ -1,0 +1,41 @@
+{
+  "skill": "go-troubleshooting",
+  "cases": [
+    {
+      "id": "break-in-select",
+      "prompt": "This loop never exits: for { select { case <-done: break; case v := <-ch: handle(v) } }. Why?",
+      "expect_all": [
+        "label|return"
+      ],
+      "judge": [
+        "the answer explains that break only exits the select statement"
+      ]
+    },
+    {
+      "id": "flaky-reproduce",
+      "prompt": "A Go test fails about once in 50 CI runs. How do I investigate?",
+      "expect_all": [
+        "-count",
+        "-race"
+      ]
+    },
+    {
+      "id": "capture-before-restart",
+      "prompt": "Production Go service is hung right now and on-call wants to restart it. What should we do first?",
+      "expect_all": [
+        "goroutine",
+        "pprof|SIGQUIT|QUIT"
+      ],
+      "judge": [
+        "the answer says to capture goroutine dumps/profiles before restarting"
+      ]
+    },
+    {
+      "id": "goroutine-leak-profile",
+      "prompt": "Go 1.27 service: goroutine count grows steadily. Fastest way to find the leaking goroutines?",
+      "expect_all": [
+        "goroutineleak"
+      ]
+    }
+  ]
+}

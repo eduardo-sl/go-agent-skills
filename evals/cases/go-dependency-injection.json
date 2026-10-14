@@ -1,0 +1,30 @@
+{
+  "skill": "go-dependency-injection",
+  "cases": [
+    {
+      "id": "composition-root",
+      "prompt": "Where should I construct the database pool, repositories and services in a Go HTTP service, and how do they reach the handlers?",
+      "expect_all": [
+        "main|composition root"
+      ],
+      "judge": [
+        "dependencies are constructed explicitly in main (or a run function) and passed through constructors",
+        "the answer does not recommend package-level global variables for dependencies"
+      ]
+    },
+    {
+      "id": "no-framework-default",
+      "prompt": "We have 12 services in one binary. Should we adopt a DI framework?",
+      "judge": [
+        "the answer defaults to manual constructor injection and states a concrete condition under which a framework (wire/fx) would be worth it"
+      ]
+    },
+    {
+      "id": "function-dependency",
+      "prompt": "My service calls time.Now() and the tests are flaky around midnight. How do I make it testable without a big interface?",
+      "expect_all": [
+        "func\\(\\)\\s*time\\.Time|now\\s+func|Clock"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "skill": "go-test-table-driven",
+  "cases": [
+    {
+      "id": "named-cases",
+      "prompt": "Write a table-driven test for func ParseDuration(s string) (time.Duration, error) with valid and invalid inputs.",
+      "expect_all": [
+        "t\\.Run\\(",
+        "name\\s+string|name:"
+      ]
+    },
+    {
+      "id": "too-few-cases",
+      "prompt": "I have two test cases for a function. Should I convert them to a table-driven test?",
+      "judge": [
+        "the answer says a table is not worth it for so few cases, or only when more cases are expected"
+      ]
+    },
+    {
+      "id": "loop-body-trivial",
+      "prompt": "My table-driven test struct has setup func(), mockBehavior func(*Mock), and the loop body is 40 lines of if/else. Is this ok?",
+      "judge": [
+        "the answer recommends splitting into separate tests or simplifying the table so the loop body is trivial"
+      ]
+    }
+  ]
+}

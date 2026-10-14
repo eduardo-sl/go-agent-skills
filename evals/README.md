@@ -42,6 +42,7 @@ it is absent, the prompt is written to the process's stdin instead.
       "prompt": "What the user would actually type.",
       "expect_all": ["regex that must match", "another"],
       "expect_none": ["regex that must not match"],
+      "judge": ["a statement a grader can check against the answer"],
       "case_sensitive": false
     }
   ]
@@ -52,6 +53,20 @@ it is absent, the prompt is written to the process's stdin instead.
   not the wording: `slices\.Clone|copy\(` rather than a full sentence.
 - `expect_none` — the anti-pattern the skill exists to prevent.
 - Patterns are Python regexes, case-insensitive unless `case_sensitive` is set.
+- `judge` — rubric statements that must be true of the answer, for
+  behaviour a regex cannot see ("the helper is only called from the test
+  goroutine"). Graded by a second model call when `--judge-cmd` is given;
+  skipped and reported otherwise. A case needs `expect_all`, `judge`, or
+  both.
+
+```bash
+scripts/run-evals.py --cmd 'claude -p "{prompt}"' --judge-cmd 'claude -p "{prompt}"'
+```
+
+The judge sees the task, the answer and the rubric, and must reply with a
+JSON array of booleans. Keep rubric items atomic — one checkable fact
+each — so a failure names exactly what was missing. Prompts and answers
+are passed to both commands as arguments, never through a shell.
 
 ## Routing cases
 

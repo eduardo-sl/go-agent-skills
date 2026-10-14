@@ -1,0 +1,33 @@
+{
+  "skill": "go-graphql",
+  "cases": [
+    {
+      "id": "dataloader-n-plus-one",
+      "prompt": "Our gqlgen resolver Order.customer runs one SQL query per order when clients request orders { customer { name } }. Fix it.",
+      "expect_all": [
+        "[Dd]ataloader|dataloadgen|batch"
+      ],
+      "judge": [
+        "loaders are created per request, not once per process"
+      ]
+    },
+    {
+      "id": "bound-queries",
+      "prompt": "We're making our gqlgen API public. What do we need to protect against abusive queries?",
+      "expect_all": [
+        "[Cc]omplexity",
+        "[Dd]epth"
+      ]
+    },
+    {
+      "id": "test-server-handler-new",
+      "prompt": "Write a Go test that runs a GraphQL query against our gqlgen schema.",
+      "expect_none": [
+        "NewDefaultServer"
+      ],
+      "expect_all": [
+        "handler\\.New\\("
+      ]
+    }
+  ]
+}

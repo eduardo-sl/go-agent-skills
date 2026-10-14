@@ -1,0 +1,29 @@
+{
+  "skill": "go-data-structures",
+  "cases": [
+    {
+      "id": "priority-queue",
+      "prompt": "I need to always process the job with the highest priority next from a set that changes constantly. What should I use in Go?",
+      "expect_all": [
+        "container/heap|heap\\.Push|heap\\.Interface"
+      ]
+    },
+    {
+      "id": "map-never-shrinks",
+      "prompt": "Our session map held 10 million entries during a spike; we deleted almost all of them but RSS stayed high. Why?",
+      "expect_all": [
+        "never shrink|does not shrink|doesn't shrink|buckets"
+      ],
+      "judge": [
+        "the answer recommends rebuilding/copying the map into a new one to release memory"
+      ]
+    },
+    {
+      "id": "weak-cache",
+      "prompt": "I want a cache of decoded images that never keeps an image alive on its own — once nobody else references it, it can go. Go 1.24+.",
+      "expect_all": [
+        "weak\\.Pointer|weak\\.Make"
+      ]
+    }
+  ]
+}

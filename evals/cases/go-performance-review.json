@@ -1,0 +1,38 @@
+{
+  "skill": "go-performance-review",
+  "cases": [
+    {
+      "id": "benchstat-count",
+      "prompt": "I changed a function and the benchmark went from 120ns/op to 112ns/op in one run. Can I claim a 7% improvement?",
+      "expect_all": [
+        "benchstat",
+        "-count"
+      ]
+    },
+    {
+      "id": "http-client-reuse",
+      "prompt": "Our service creates &http.Client{} in every handler to call another service. Under load latency spikes. Why?",
+      "expect_all": [
+        "MaxIdleConnsPerHost|reuse|connection pool|keep-alive"
+      ],
+      "judge": [
+        "the answer recommends one shared client with a timeout"
+      ]
+    },
+    {
+      "id": "gomemlimit-container",
+      "prompt": "Our Go service in a 2 GiB container gets OOM-killed during traffic bursts, though the live heap is only ~900 MiB. What runtime setting helps?",
+      "expect_all": [
+        "GOMEMLIMIT|SetMemoryLimit"
+      ]
+    },
+    {
+      "id": "profile-off-cpu",
+      "prompt": "p99 latency is 2s but CPU usage is 10%. The CPU profile shows nothing interesting. What next?",
+      "judge": [
+        "the answer explains the time is spent waiting (off-CPU)",
+        "the answer recommends goroutine/block/mutex profiles or an execution trace"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "go-architecture-review",
+  "cases": [
+    {
+      "id": "over-architecture",
+      "prompt": "Review the structure: a 600-line CLI that converts CSV to JSON has packages domain/, ports/, adapters/, application/ and an interface for every type, each with one implementation.",
+      "judge": [
+        "the answer flags the structure as over-engineered for the problem",
+        "the answer recommends a flatter layout with fewer packages and no single-implementation interfaces"
+      ]
+    },
+    {
+      "id": "dependency-direction",
+      "prompt": "Our internal/domain package imports internal/store/postgres to load related entities. Is that a problem?",
+      "expect_all": [
+        "inward|depend(s|ency) on (the )?domain|interface"
+      ],
+      "judge": [
+        "the answer says domain must not import infrastructure and suggests an interface defined on the consumer side"
+      ]
+    },
+    {
+      "id": "init-side-effects",
+      "prompt": "A package opens its database connection in func init() using an env var. Fine?",
+      "expect_all": [
+        "constructor|New[A-Z]\\w*\\(|explicit"
+      ]
+    }
+  ]
+}
