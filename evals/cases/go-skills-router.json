@@ -211,6 +211,13 @@
       "expect_all": [
         "go-naming"
       ]
+    },
+    {
+      "id": "release-not-ci",
+      "prompt": "We want every tagged version of our Go CLI to publish signed binaries for Linux, macOS and Windows with an SBOM. Which Go skill should I use?",
+      "expect_all": [
+        "go-build-release"
+      ]
     }
   ]
 }
