@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go API Design
@@ -205,38 +205,53 @@ Offset pagination breaks under concurrent writes.
 
 ```go
 func main() {
+    if err := run(context.Background()); err != nil {
+        slog.Error("server stopped", slog.Any("error", err))
+        os.Exit(1)
+    }
+}
+
+func run(ctx context.Context) error {
+    ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+    defer stop()
+
     srv := &http.Server{
-        Addr:         ":8080",
-        Handler:      router,
-        ReadTimeout:  5 * time.Second,
-        WriteTimeout: 10 * time.Second,
-        IdleTimeout:  120 * time.Second,
+        Addr:              ":8080",
+        Handler:           router,
+        ReadHeaderTimeout: 5 * time.Second, // Slowloris guard
+        ReadTimeout:       10 * time.Second,
+        WriteTimeout:      15 * time.Second,
+        IdleTimeout:       120 * time.Second,
     }
 
-    // Start server
-    go func() {
-        if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-            log.Fatalf("server error: %v", err)
-        }
-    }()
+    errc := make(chan error, 1)
+    go func() { errc <- srv.ListenAndServe() }()
 
-    // Wait for interrupt
-    quit := make(chan os.Signal, 1)
-    signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-    <-quit
+    select {
+    case err := <-errc:
+        return fmt.Errorf("listen: %w", err) // e.g. port already in use
+    case <-ctx.Done():
+    }
 
-    // Graceful shutdown with timeout
-    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    // ctx is already cancelled; shutdown needs its own deadline.
+    shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
     defer cancel()
-
-    if err := srv.Shutdown(ctx); err != nil {
-        log.Fatalf("shutdown error: %v", err)
+    if err := srv.Shutdown(shutdownCtx); err != nil {
+        return fmt.Errorf("shutdown: %w", err)
     }
-    log.Println("server stopped gracefully")
+    if err := <-errc; !errors.Is(err, http.ErrServerClosed) {
+        return err
+    }
+    return nil
 }
 ```
 
-Programs should exit only in `main()`, preferably at most once.
+- `ReadHeaderTimeout` is the Slowloris defence: without it a client can
+  hold a connection open by trickling header bytes. `gosec` G112 flags a
+  server that lacks it.
+- Compare `http.ErrServerClosed` with `errors.Is`, never `==`.
+- Exit only from `main`. A `log.Fatal` inside the serving goroutine skips
+  every deferred cleanup, including the shutdown itself.
 
 ## 7. Health Check Endpoints
 
