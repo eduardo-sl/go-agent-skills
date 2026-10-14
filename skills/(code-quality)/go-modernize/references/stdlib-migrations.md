@@ -2,6 +2,30 @@
 
 Full before/after examples for the migrations summarized in SKILL.md.
 
+## Contents
+
+- log/slog (Go 1.21+)
+- errors.Join (Go 1.20+)
+- slices Package (Go 1.21+)
+- maps Package (Go 1.21+)
+- Range Over Integers (Go 1.22+)
+- Range Over Function / Iterators (Go 1.23+)
+- http.NewRequestWithContext (Go 1.13+, often missed)
+- sync.WaitGroup.Go (Go 1.25+)
+- errors.AsType (Go 1.26+)
+- slog.NewMultiHandler (Go 1.26+)
+- new(expr) (Go 1.26+)
+- os.Root for path containment (Go 1.24+)
+- unique and runtime.AddCleanup (Go 1.23-1.24)
+- Loop variable shadow copies (Go 1.22+)
+- math/rand/v2 and cmp.Or (Go 1.22+)
+- ServeMux patterns (Go 1.22+)
+- omitzero (Go 1.24+)
+- Iterator-returning string helpers (Go 1.24+)
+- x/crypto → standard library (Go 1.24+)
+- Container-aware GOMAXPROCS (Go 1.25+)
+- ReverseProxy.Rewrite (Go 1.20+, Director deprecated in 1.26)
+
 ## log/slog (Go 1.21+)
 
 Replace `log`/`fmt.Printf` with structured logging:
@@ -302,3 +326,113 @@ if err != nil {
 defer root.Close()
 data, err := root.ReadFile(userPath) // cannot escape baseDir
 ```
+
+## unique and runtime.AddCleanup (Go 1.23-1.24)
+
+```go
+// ✅ unique.Make deduplicates repeated values; Value() returns the canonical copy
+h := unique.Make(hostname)          // unique.Handle[string], comparable, cheap
+store[h] = conn                     // one string kept in memory, not one per entry
+
+// ✅ AddCleanup replaces SetFinalizer: multiple cleanups, no resurrection,
+//    and it works on objects that are part of a cycle
+runtime.AddCleanup(obj, func(fd int) { syscall.Close(fd) }, obj.fd)
+```
+
+Reach for `unique` only where profiling shows duplicate values dominating the
+heap — a config parser reading millions of rows, not a request handler.
+
+## Loop variable shadow copies (Go 1.22+)
+
+```go
+// ❌ Before — needed only when go.mod said 1.21 or lower
+for _, v := range items {
+    v := v
+    go func() { use(v) }()
+}
+
+// ✅ Go 1.22+ — each iteration already has its own v
+for _, v := range items {
+    go func() { use(v) }()
+}
+```
+
+Delete the copies only after `go.mod` says `go 1.22` or later; the
+semantics follow the module's `go` line, not the toolchain.
+
+## math/rand/v2 and cmp.Or (Go 1.22+)
+
+```go
+n := rand.IntN(10)            // math/rand/v2: no Seed, no global lock
+addr := cmp.Or(cfg.Addr, os.Getenv("ADDR"), ":8080") // first non-zero
+```
+
+Neither package is for secrets — use `crypto/rand`.
+
+## ServeMux patterns (Go 1.22+)
+
+```go
+mux := http.NewServeMux()
+mux.HandleFunc("GET /users/{id}", h.getUser)   // method + wildcard
+mux.HandleFunc("POST /users", h.createUser)
+
+func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id")
+    // ...
+}
+```
+
+Keep a third-party router when you use its middleware groups or
+sub-routers; drop it when it only matched methods and path parameters.
+
+## omitzero (Go 1.24+)
+
+```go
+type Event struct {
+    // omitempty never omits a struct, so a zero time.Time encodes as
+    // "0001-01-01T00:00:00Z". omitzero uses the Go zero value (or IsZero()).
+    At time.Time `json:"at,omitzero"`
+}
+```
+
+## Iterator-returning string helpers (Go 1.24+)
+
+```go
+for line := range strings.Lines(text) { ... }        // keeps the "\n"
+for part := range strings.SplitSeq(csv, ",") { ... } // no []string allocation
+```
+
+## x/crypto → standard library (Go 1.24+)
+
+| Before | After |
+|---|---|
+| `golang.org/x/crypto/sha3` | `crypto/sha3` |
+| `golang.org/x/crypto/hkdf` | `crypto/hkdf` |
+| `golang.org/x/crypto/pbkdf2` | `crypto/pbkdf2` |
+
+The stdlib APIs differ slightly (they return errors and take the hash
+constructor); compile, then read each call site. `crypto/rand.Text()`
+returns a 26-character base32 token with 128 bits of entropy.
+
+## Container-aware GOMAXPROCS (Go 1.25+)
+
+```go
+// ❌ Before — needed until Go 1.24
+import _ "go.uber.org/automaxprocs"
+
+// ✅ Go 1.25+ — the runtime reads the cgroup CPU limit itself; delete the import
+```
+
+## ReverseProxy.Rewrite (Go 1.20+, Director deprecated in 1.26)
+
+```go
+proxy := &httputil.ReverseProxy{
+    Rewrite: func(pr *httputil.ProxyRequest) {
+        pr.SetURL(target)  // routes and sets Host
+        pr.SetXForwarded() // X-Forwarded-For/Host/Proto from the inbound request
+    },
+}
+```
+
+`Director` let hop-by-hop header handling strip headers the director had
+just set; `Rewrite` runs after that cleanup.
