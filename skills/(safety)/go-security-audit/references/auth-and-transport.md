@@ -120,17 +120,51 @@ named compliance regime requires a specific list, and record which one.
 ```go
 import "golang.org/x/time/rate"
 
+type client struct {
+    lim      *rate.Limiter
+    lastSeen time.Time
+}
+
 type RateLimiter struct {
-    limiters sync.Map
-    rate     rate.Limit
-    burst    int
+    mu      sync.Mutex
+    clients map[string]*client
+    rate    rate.Limit
+    burst   int
 }
 
 func (rl *RateLimiter) Allow(key string) bool {
-    limiter, _ := rl.limiters.LoadOrStore(key,
-        rate.NewLimiter(rl.rate, rl.burst))
-    return limiter.(*rate.Limiter).Allow()
+    rl.mu.Lock()
+    defer rl.mu.Unlock()
+
+    c, ok := rl.clients[key]
+    if !ok {
+        c = &client{lim: rate.NewLimiter(rl.rate, rl.burst)}
+        rl.clients[key] = c
+    }
+    c.lastSeen = time.Now()
+    return c.lim.Allow()
+}
+
+// Evict drops clients idle longer than ttl. Call it from a ticker owned by
+// the server's lifecycle. Without eviction the map gains one entry per
+// distinct key forever.
+func (rl *RateLimiter) Evict(ttl time.Duration) {
+    rl.mu.Lock()
+    defer rl.mu.Unlock()
+
+    for k, c := range rl.clients {
+        if time.Since(c.lastSeen) > ttl {
+            delete(rl.clients, k)
+        }
+    }
 }
 ```
 
-Apply rate limiting to auth endpoints, public APIs, and any resource-intensive operations.
+A per-key limiter map with no eviction is itself a denial-of-service
+vector: an attacker who rotates source addresses or tokens grows it until
+the process runs out of memory.
+
+- Key on the authenticated identity, or on `r.RemoteAddr`. Trust
+  `X-Forwarded-For` only when a proxy you control sets it.
+- Apply rate limiting to auth endpoints, public APIs, and any
+  resource-intensive operations.

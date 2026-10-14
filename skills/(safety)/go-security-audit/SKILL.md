@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*) Bash(gosec:*) Bash(gitleaks:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # Go Security Audit
