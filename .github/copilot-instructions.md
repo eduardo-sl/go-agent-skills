@@ -14,7 +14,8 @@ Or manually: copy `skills/*/*/` into `.github/skills/`.
 ## Skills Catalog
 
 ### Code Quality
-- **go-coding-standards** — Style conventions, naming, imports
+- **go-coding-standards** — Style conventions, imports, declarations
+- **go-naming** — Package, type, function, receiver and error naming
 - **go-code-review** — Structured review with BLOCKER/WARNING/SUGGESTION severity
 - **go-error-handling** — Error wrapping, sentinel errors, custom types
 - **go-context** — Context propagation, cancellation, timeouts, values
