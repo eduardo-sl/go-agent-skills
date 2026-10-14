@@ -9,14 +9,14 @@ description: >
   matrix", "write a Makefile", "run govulncheck in CI".
   Not for: commit conventions (git-commit), choosing or auditing
   dependencies (go-dependency-audit), writing the tests themselves
-  (go-test-quality).
+  (go-test-quality), releases and signing (go-build-release).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Targets GitHub Actions.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go CI
@@ -208,6 +208,8 @@ fail the PR.
   never a check that can approve on its own.
 
 Snippets for sections 7-9: `references/security-and-automation.md`.
+Tag-triggered releases — GoReleaser, signing, SBOMs, provenance — are
+owned by the go-build-release skill.
 
 ## Verification Checklist
 
