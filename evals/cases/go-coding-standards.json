@@ -1,0 +1,33 @@
+{
+  "skill": "go-coding-standards",
+  "cases": [
+    {
+      "id": "stdlib-import-group",
+      "prompt": "Write the import block for a Go file that uses context, log/slog, net/http, github.com/go-chi/chi/v5 and our own package github.com/acme/shop/internal/order.",
+      "expect_all": [
+        "\"log/slog\"\\s*\\n\\s*\"net/http\"\\s*\\n\\s*\\n|\"context\"\\s*\\n\\s*\"log/slog\""
+      ],
+      "judge": [
+        "log/slog is grouped with the standard library imports, not with third-party imports",
+        "standard library, third-party and internal imports are separated into groups by blank lines"
+      ]
+    },
+    {
+      "id": "omitzero-time",
+      "prompt": "My API returns {\"deletedAt\":\"0001-01-01T00:00:00Z\"} for records that were never deleted. The field is DeletedAt time.Time `json:\"deletedAt,omitempty\"`. Fix it for Go 1.24+.",
+      "expect_all": [
+        "omitzero"
+      ]
+    },
+    {
+      "id": "unit-in-field-name",
+      "prompt": "Our JSON config has a timeout field. Should the Go struct field be `Timeout int` or something else?",
+      "expect_all": [
+        "Seconds|Millis|Ms\\b|time\\.Duration"
+      ],
+      "judge": [
+        "the answer recommends either time.Duration in Go or a field name that states the unit (e.g. TimeoutSeconds) when the format cannot carry a Duration"
+      ]
+    }
+  ]
+}

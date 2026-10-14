@@ -1,0 +1,45 @@
+{
+  "skill": "go-database",
+  "cases": [
+    {
+      "id": "tx-panic-safe",
+      "prompt": "Write a WithTx(ctx, db, fn) helper for database/sql that commits on success and rolls back otherwise.",
+      "expect_all": [
+        "defer",
+        "recover\\(\\)|Rollback"
+      ],
+      "judge": [
+        "the transaction is rolled back if fn panics, not only if it returns an error"
+      ]
+    },
+    {
+      "id": "serialization-retry",
+      "prompt": "Under SERIALIZABLE isolation our Postgres transfer transaction sometimes fails with SQLSTATE 40001. What should the Go code do?",
+      "expect_all": [
+        "retry|retries"
+      ],
+      "judge": [
+        "the whole transaction function is retried, not just the failing statement",
+        "retries are bounded and use backoff"
+      ]
+    },
+    {
+      "id": "keyset-pagination",
+      "prompt": "Paginating a 50M-row posts table with LIMIT 50 OFFSET n gets slower on later pages. Fix the query.",
+      "expect_all": [
+        "WHERE\\s*\\(?\\s*created_at|keyset|cursor"
+      ],
+      "expect_none": [
+        "OFFSET \\$\\d"
+      ]
+    },
+    {
+      "id": "unique-violation",
+      "prompt": "Inserting a user with a duplicate email returns a 500. Map it to a 409 in Go with pgx.",
+      "expect_all": [
+        "23505|UniqueViolation",
+        "pgconn\\.PgError|PgError"
+      ]
+    }
+  ]
+}

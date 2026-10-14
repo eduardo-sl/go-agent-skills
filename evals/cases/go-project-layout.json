@@ -1,0 +1,33 @@
+{
+  "skill": "go-project-layout",
+  "cases": [
+    {
+      "id": "flat-small-tool",
+      "prompt": "Scaffold a Go project for a 300-line command-line tool that renames files.",
+      "expect_none": [
+        "internal/domain|pkg/"
+      ],
+      "judge": [
+        "the layout is flat (a single main package or very few files) rather than a multi-layer service skeleton"
+      ]
+    },
+    {
+      "id": "service-layout",
+      "prompt": "Scaffold the layout for a Go HTTP service with one binary and a Postgres database.",
+      "expect_all": [
+        "cmd/",
+        "internal/"
+      ]
+    },
+    {
+      "id": "go-directive-after-init",
+      "prompt": "I ran `go mod init` with Go 1.26 for a new service that will use errors.AsType. Anything to check in go.mod?",
+      "expect_all": [
+        "1\\.26"
+      ],
+      "judge": [
+        "the answer notes that go mod init on Go 1.26 writes an older go directive (1.25) and that it must be raised to use Go 1.26 APIs"
+      ]
+    }
+  ]
+}

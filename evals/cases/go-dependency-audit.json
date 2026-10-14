@@ -1,0 +1,29 @@
+{
+  "skill": "go-dependency-audit",
+  "cases": [
+    {
+      "id": "go-get-u-major",
+      "prompt": "Will `go get -u ./...` upgrade github.com/foo/bar from v1 to v2?",
+      "expect_all": [
+        "\\bno\\b|not|never|won't|does not"
+      ],
+      "judge": [
+        "the answer explains that v2 is a different module path and requires changing imports"
+      ]
+    },
+    {
+      "id": "retract-version",
+      "prompt": "We published v1.3.0 of our Go library with a data-loss bug. How do we tell users not to use it?",
+      "expect_all": [
+        "retract"
+      ]
+    },
+    {
+      "id": "govulncheck-reachable",
+      "prompt": "How do I check whether known vulnerabilities in my Go dependencies actually affect my code?",
+      "expect_all": [
+        "govulncheck"
+      ]
+    }
+  ]
+}

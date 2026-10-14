@@ -1,0 +1,38 @@
+{
+  "skill": "go-concurrency-review",
+  "cases": [
+    {
+      "id": "recover-in-goroutine",
+      "prompt": "Our HTTP server has a recover middleware, yet a panic in a goroutine started by a handler crashed the whole process. Why, and how should background work be protected?",
+      "judge": [
+        "the answer explains that recover only works in the goroutine that panicked",
+        "the answer recommends a deferred recover inside the spawned goroutine"
+      ]
+    },
+    {
+      "id": "singleflight-stampede",
+      "prompt": "When a popular cache key expires, hundreds of requests hit the database at once for the same value. Fix it in Go.",
+      "expect_all": [
+        "singleflight"
+      ]
+    },
+    {
+      "id": "bounded-fanout",
+      "prompt": "Process 10,000 files concurrently and stop on the first error.",
+      "expect_all": [
+        "errgroup",
+        "SetLimit|semaphore"
+      ]
+    },
+    {
+      "id": "typed-atomics",
+      "prompt": "Add a request counter to a struct that many goroutines increment.",
+      "expect_all": [
+        "atomic\\.Int64|atomic\\.Uint64|sync\\.Mutex"
+      ],
+      "expect_none": [
+        "go\\.uber\\.org/atomic"
+      ]
+    }
+  ]
+}

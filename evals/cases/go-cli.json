@@ -1,0 +1,30 @@
+{
+  "skill": "go-cli",
+  "cases": [
+    {
+      "id": "help-exit-zero",
+      "prompt": "My CLI uses flag.NewFlagSet(..., flag.ContinueOnError) inside run(), and main does os.Exit(1) on any error. Running `mytool -h` exits 1. Fix the exit codes.",
+      "expect_all": [
+        "flag\\.ErrHelp"
+      ],
+      "judge": [
+        "-h exits 0",
+        "usage errors exit 2"
+      ]
+    },
+    {
+      "id": "version-buildinfo",
+      "prompt": "Add a `version` subcommand to my Go CLI that prints the version and commit, built with plain `go build` from a git checkout.",
+      "expect_all": [
+        "debug\\.ReadBuildInfo|ReadBuildInfo"
+      ]
+    },
+    {
+      "id": "stdout-stderr",
+      "prompt": "My CLI prints a progress message and then the resulting JSON with fmt.Printf. Users complain that piping to jq breaks.",
+      "expect_all": [
+        "[Ss]tderr"
+      ]
+    }
+  ]
+}

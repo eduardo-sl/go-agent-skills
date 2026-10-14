@@ -1,0 +1,53 @@
+{
+  "skill": "go-security-audit",
+  "cases": [
+    {
+      "id": "command-injection",
+      "prompt": "We convert uploaded images with exec.Command(\"sh\", \"-c\", \"convert \"+name+\" out.png\"). Review it.",
+      "expect_all": [
+        "inject"
+      ],
+      "judge": [
+        "the fix calls the program directly with separate arguments and no shell",
+        "the answer mentions argument injection or using -- before user input"
+      ]
+    },
+    {
+      "id": "ssrf",
+      "prompt": "Our webhook feature fetches a URL the customer provides with http.Get. Anything to worry about?",
+      "expect_all": [
+        "SSRF|169\\.254|metadata|private"
+      ],
+      "judge": [
+        "the defense checks the resolved IP address at dial time, not just the hostname string"
+      ]
+    },
+    {
+      "id": "path-traversal-root",
+      "prompt": "Go 1.24 service: serve files from /srv/uploads using a path from the request.",
+      "expect_all": [
+        "os\\.OpenRoot|os\\.Root"
+      ]
+    },
+    {
+      "id": "random-token",
+      "prompt": "Generate a password-reset token in Go.",
+      "expect_all": [
+        "crypto/rand|rand\\.Text\\(\\)"
+      ],
+      "expect_none": [
+        "\\\"math/rand"
+      ]
+    },
+    {
+      "id": "tls-defaults",
+      "prompt": "Write a hardened tls.Config for our Go HTTPS server.",
+      "expect_all": [
+        "MinVersion"
+      ],
+      "expect_none": [
+        "PreferServerCipherSuites"
+      ]
+    }
+  ]
+}

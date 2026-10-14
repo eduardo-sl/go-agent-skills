@@ -1,0 +1,26 @@
+{
+  "skill": "git-commit",
+  "cases": [
+    {
+      "id": "conventional-format",
+      "prompt": "Write a commit message for adding retry with exponential backoff to the payment client in internal/payment.",
+      "expect_all": [
+        "^feat\\(payment\\):|feat\\(payment\\):"
+      ]
+    },
+    {
+      "id": "atomic-commits",
+      "prompt": "I fixed a nil-pointer bug and also renamed a package in the same working tree. How should I commit?",
+      "judge": [
+        "the answer recommends separate commits for the bug fix and the rename"
+      ]
+    },
+    {
+      "id": "breaking-change",
+      "prompt": "Write the commit message for removing the deprecated Fetch function from our public Go library.",
+      "expect_all": [
+        "BREAKING CHANGE|!:"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "go-interface-design",
+  "cases": [
+    {
+      "id": "consumer-side",
+      "prompt": "Package store has PostgresStore with 15 methods and an interface UserStore listing all 15 next to it. The service package uses 2 of them. Is this idiomatic?",
+      "judge": [
+        "the answer recommends defining a small interface in the consumer (service) package with only the methods it uses"
+      ]
+    },
+    {
+      "id": "embedded-mutex-leak",
+      "prompt": "type Cache struct { sync.Mutex; items map[string]Item } — Cache is exported. Any concern?",
+      "expect_all": [
+        "Lock|Unlock"
+      ],
+      "judge": [
+        "the answer points out that embedding exports Lock/Unlock as part of Cache's API and recommends a named field"
+      ]
+    },
+    {
+      "id": "optional-capability",
+      "prompt": "My SSE handler needs to flush after each event. How do I do that with an http.ResponseWriter safely?",
+      "expect_all": [
+        "http\\.Flusher",
+        ",\\s*ok\\s*:=|ok\\s*:=\\s*w\\.\\(http\\.Flusher\\)"
+      ]
+    }
+  ]
+}

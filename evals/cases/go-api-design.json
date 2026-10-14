@@ -1,0 +1,34 @@
+{
+  "skill": "go-api-design",
+  "cases": [
+    {
+      "id": "servemux-patterns",
+      "prompt": "Go 1.23 service, no router dependency yet. Register GET /users/{id} and read the id in the handler.",
+      "expect_all": [
+        "\\\"GET /users/\\{id\\}\\\"",
+        "PathValue\\(\\\"id\\\"\\)"
+      ],
+      "expect_none": [
+        "chi\\.URLParam|mux\\.Vars"
+      ]
+    },
+    {
+      "id": "shutdown-errors-is",
+      "prompt": "Write main for an HTTP server that shuts down gracefully on SIGTERM.",
+      "expect_all": [
+        "ReadHeaderTimeout",
+        "errors\\.Is\\([^)]*http\\.ErrServerClosed|NotifyContext"
+      ],
+      "expect_none": [
+        "err\\s*!=\\s*http\\.ErrServerClosed"
+      ]
+    },
+    {
+      "id": "idempotency-key",
+      "prompt": "Mobile clients retry POST /payments when the network drops, and some customers get charged twice. How should the API prevent that?",
+      "expect_all": [
+        "[Ii]dempotency[- ][Kk]ey"
+      ]
+    }
+  ]
+}

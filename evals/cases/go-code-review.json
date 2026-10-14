@@ -1,0 +1,34 @@
+{
+  "skill": "go-code-review",
+  "cases": [
+    {
+      "id": "severity-labels",
+      "prompt": "Review this Go function:\n\nfunc Get(db *sql.DB, id string) (*User, error) {\n    row := db.QueryRow(\"SELECT name FROM users WHERE id = '\" + id + \"'\")\n    var u User\n    row.Scan(&u.Name)\n    return &u, nil\n}",
+      "expect_all": [
+        "BLOCKER|🔴",
+        "inject",
+        "Scan|error is (ignored|discarded|not checked)"
+      ],
+      "judge": [
+        "the SQL injection is reported at the highest severity",
+        "the ignored Scan error is reported"
+      ]
+    },
+    {
+      "id": "verify-before-reporting",
+      "prompt": "In a PR diff I see `user.Profile.Name` dereferenced without a nil check. The user comes from NewUser(), which always sets Profile. Is this a blocker?",
+      "judge": [
+        "the answer does not call it a blocker",
+        "the answer acknowledges the upstream guarantee from NewUser and suggests making it explicit (comment, constructor contract or test) or lowering severity"
+      ]
+    },
+    {
+      "id": "run-tools-first",
+      "prompt": "How should I start reviewing a Go pull request before reading the code line by line?",
+      "expect_all": [
+        "go vet",
+        "-race|golangci-lint"
+      ]
+    }
+  ]
+}

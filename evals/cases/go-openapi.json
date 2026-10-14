@@ -1,0 +1,29 @@
+{
+  "skill": "go-openapi",
+  "cases": [
+    {
+      "id": "spec-first-codegen",
+      "prompt": "We have an OpenAPI 3 spec for our Go service and want handlers that can't drift from it. How should we set this up?",
+      "expect_all": [
+        "oapi-codegen"
+      ],
+      "judge": [
+        "code generation is wired into the build (e.g. go generate) and the generated interface is implemented by the server"
+      ]
+    },
+    {
+      "id": "problem-details",
+      "prompt": "What error response format should our REST API return?",
+      "expect_all": [
+        "9457|problem\\+json"
+      ]
+    },
+    {
+      "id": "breaking-change-check",
+      "prompt": "How do we stop a PR from accidentally making a breaking change to our OpenAPI spec?",
+      "expect_all": [
+        "oasdiff|breaking"
+      ]
+    }
+  ]
+}

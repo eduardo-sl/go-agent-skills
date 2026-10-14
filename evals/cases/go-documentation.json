@@ -1,0 +1,29 @@
+{
+  "skill": "go-documentation",
+  "cases": [
+    {
+      "id": "deprecated-form",
+      "prompt": "Mark func Fetch(url string) as deprecated in favor of FetchContext, in godoc.",
+      "expect_all": [
+        "//\\s*Deprecated: "
+      ]
+    },
+    {
+      "id": "changelog-format",
+      "prompt": "We're releasing v1.4.0 of our Go library: it adds an OnRetry hook, deprecates Backoff, and fixes a jitter bug. Write the CHANGELOG entry.",
+      "expect_all": [
+        "###\\s*Added",
+        "###\\s*Deprecated",
+        "###\\s*Fixed"
+      ]
+    },
+    {
+      "id": "testable-example",
+      "prompt": "Add an example to the godoc of func Slugify(s string) string that is verified when tests run.",
+      "expect_all": [
+        "func ExampleSlugify\\(\\)",
+        "//\\s*Output:"
+      ]
+    }
+  ]
+}
