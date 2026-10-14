@@ -15,12 +15,19 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Go Architecture Review
 
 Good architecture makes the next change easy. Bad architecture makes every change scary.
+
+Detailed reference material, loaded on demand:
+
+- `references/layout-and-wiring.md` — the full reference directory tree and
+  a composition-root `main.go`.
+
+Read a reference file only when the summary below is not enough.
 
 ## Operating Modes
 
@@ -50,38 +57,12 @@ judging it:
 
 ## 1. Standard Project Layout
 
-```text
-myproject/
-├── cmd/                    # Main applications (one dir per binary)
-│   ├── api-server/
-│   │   └── main.go
-│   └── worker/
-│       └── main.go
-├── internal/               # Private packages — cannot be imported externally
-│   ├── domain/             # Core business types (entities, value objects)
-│   │   ├── user.go
-│   │   └── order.go
-│   ├── service/            # Business logic (use cases)
-│   │   ├── user.go
-│   │   └── order.go
-│   ├── store/              # Data access (repositories)
-│   │   ├── postgres/
-│   │   │   └── user.go
-│   │   └── redis/
-│   │       └── cache.go
-│   ├── handler/            # HTTP/gRPC handlers (adapters)
-│   │   └── user.go
-│   └── config/             # Configuration loading
-│       └── config.go
-├── pkg/                    # Public packages (use sparingly)
-│   └── httputil/
-│       └── response.go
-├── migrations/             # Database migrations
-├── api/                    # API definitions (OpenAPI, proto files)
-├── go.mod
-├── go.sum
-└── Makefile
-```
+The reference layout: `cmd/<binary>/main.go` per binary, project-private
+code under `internal/` (`domain`, `service`, `store/<backend>`,
+`handler`, `config`), `pkg/` only for genuinely reusable code, plus
+`api/` for OpenAPI/proto and `migrations/`. Full tree:
+`references/layout-and-wiring.md`. For scaffolding a new project, the
+go-project-layout skill owns the procedure.
 
 ### Key Rules:
 - `internal/` enforces encapsulation at the compiler level. Use it aggressively.
@@ -129,32 +110,9 @@ func (s *Store) GetByID(ctx context.Context, id string) (*domain.User, error) { 
 
 `main.go` is the composition root. Wire everything here:
 
-```go
-func main() {
-    cfg := config.Load()
-    logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
-    db, err := sql.Open("postgres", cfg.DatabaseURL)
-    if err != nil {
-        logger.Error("connect db", slog.Any("error", err))
-        os.Exit(1)
-    }
-    defer db.Close()
-
-    // Wire dependencies
-    userStore := postgres.NewUserStore(db)
-    userService := service.NewUserService(userStore)
-    userHandler := handler.NewUserHandler(userService, logger)
-
-    // Setup router
-    r := chi.NewRouter()
-    r.Mount("/api/v1/users", userHandler.Routes())
-
-    // Run server
-    srv := &http.Server{Addr: cfg.Addr, Handler: r}
-    // ... graceful shutdown
-}
-```
+Read config, build the logger, open connections, construct stores →
+services → handlers in that order, mount routes, run the server. No
+business logic. Example: `references/layout-and-wiring.md`.
 
 Avoid dependency injection frameworks. Go's explicit wiring is a feature.
 If wiring gets complex, use Google's `wire` for compile-time DI code generation.
