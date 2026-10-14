@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Go Error Handling
@@ -72,11 +72,29 @@ func (e *ValidationError) Error() string {
     return fmt.Sprintf("validation: field %s: %s", e.Field, e.Message)
 }
 
-// Callers extract with errors.As:
+// Callers extract it from the chain — Go 1.26+:
+if valErr, ok := errors.AsType[*ValidationError](err); ok {
+    log.Printf("invalid field: %s", valErr.Field)
+}
+
+// Before Go 1.26:
 var valErr *ValidationError
 if errors.As(err, &valErr) {
     log.Printf("invalid field: %s", valErr.Field)
 }
+```
+
+A custom type that wraps a cause must expose it, or `errors.Is`/`errors.As`
+stop at your type and never see the error underneath:
+
+```go
+type QueryError struct {
+    Query string
+    Err   error
+}
+
+func (e *QueryError) Error() string { return "query " + e.Query + ": " + e.Err.Error() }
+func (e *QueryError) Unwrap() error { return e.Err } // keeps the chain walkable
 ```
 
 ## 4. Error Wrapping
@@ -212,6 +230,7 @@ golangci-lint run --enable errcheck,errorlint # unchecked errors, %v-vs-%w,
 2. Every `fmt.Errorf` wrapping uses `%w` (or `%v` with documented reason)
 3. Sentinel errors use `var Err...` naming
 4. Custom error types implement `error` interface
-5. Callers use `errors.Is` / `errors.As`, never `==` or type assertion
-6. No log-and-return patterns
-7. Error messages are lowercase, contextual, chain-friendly
+5. Callers use `errors.Is` / `errors.As` (`errors.AsType` on Go 1.26+), never `==` or type assertion
+6. Custom types that wrap a cause implement `Unwrap() error`
+7. No log-and-return patterns
+8. Error messages are lowercase, contextual, chain-friendly
