@@ -2,6 +2,13 @@
 
 Full examples for the creation patterns summarized in SKILL.md.
 
+## Contents
+
+- Functional Options — Complete Example
+- Functional Options vs Config Struct
+- Constructor Pattern
+- Factory Pattern
+
 ## Functional Options — Complete Example
 
 ```go
