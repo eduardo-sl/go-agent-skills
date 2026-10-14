@@ -1,0 +1,57 @@
+{
+  "skill": "go-build-release",
+  "cases": [
+    {
+      "id": "no-build-timestamp",
+      "prompt": "Write the go build command for our release binary, with the version and build date embedded.",
+      "expect_all": [
+        "-trimpath"
+      ],
+      "expect_none": [
+        "\\$\\(date"
+      ],
+      "judge": [
+        "the answer does not embed the current wall-clock time; it uses the commit time or omits the date"
+      ]
+    },
+    {
+      "id": "goreleaser-formats",
+      "prompt": "Write a .goreleaser.yaml (GoReleaser v2) that ships tar.gz archives, with zip on Windows.",
+      "expect_all": [
+        "version:\\s*2",
+        "formats:"
+      ],
+      "expect_none": [
+        "\\n[\\s-]*format:\\s"
+      ]
+    },
+    {
+      "id": "keyless-signing",
+      "prompt": "How should we sign the binaries our GitHub Actions release job publishes, without managing a private key?",
+      "expect_all": [
+        "cosign",
+        "id-token:\\s*write|OIDC|keyless"
+      ]
+    },
+    {
+      "id": "provenance",
+      "prompt": "Users want to verify which workflow and commit built our release archives. What do we add to the release workflow?",
+      "expect_all": [
+        "actions/attest|attest-build-provenance|provenance"
+      ],
+      "judge": [
+        "the answer includes how users verify it (gh attestation verify or cosign verify-blob)"
+      ]
+    },
+    {
+      "id": "never-move-tags",
+      "prompt": "We tagged v1.4.0 but forgot a fix. Can we delete the tag and re-tag the fixed commit as v1.4.0?",
+      "expect_all": [
+        "v1\\.4\\.1|retract|new (patch )?(release|version)"
+      ],
+      "judge": [
+        "the answer says not to move or reuse a published tag because the module proxy and go.sum already pin it"
+      ]
+    }
+  ]
+}
