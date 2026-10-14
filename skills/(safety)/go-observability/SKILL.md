@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Go Observability
@@ -63,15 +63,22 @@ NEVER log at Error level for expected conditions (user not found → Info or War
 
 - Passwords, tokens, API keys
 - Full credit card numbers, SSNs
+- Personal identifiers: email addresses, phone numbers, IP addresses
+  where they identify a person
 - Raw request bodies containing PII
 
 ```go
-// ✅ Good — redacted
-logger.Info("auth attempt", slog.String("user", email), slog.Bool("success", ok))
+// ✅ Good — an opaque internal ID, no personal data
+logger.Info("auth attempt", slog.String("user_id", userID), slog.Bool("success", ok))
 
-// ❌ Bad — leaks credentials
+// ❌ Bad — leaks a credential and a personal identifier
 logger.Info("auth attempt", slog.String("password", password))
+logger.Info("auth attempt", slog.String("user", email))
 ```
+
+Log the stable internal ID and join to personal data in the system that is
+allowed to hold it. Log retention, search access and third-party log sinks
+rarely meet the bar that applies to the user table.
 
 ## 2. Distributed Tracing with OpenTelemetry
 
