@@ -18,7 +18,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.3"
+  version: "1.5.1"
 ---
 
 # Go Test Quality
@@ -26,6 +26,9 @@ metadata:
 Tests are production code. They run in CI on every commit, they document behavior,
 and they're the first thing you read when a function breaks at 3am.
 Write them with the same care you'd give to code that handles money.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-test-quality` takes precedence over this one.
 
 Detailed reference material, loaded on demand:
 
@@ -79,6 +82,15 @@ func TestParseConfig_ReturnsErrorOnMissingRequiredField(t *testing.T) { ... }
 func TestCancel(t *testing.T) { ... }
 func TestRateLimiter_Success(t *testing.T) { ... }
 ```
+
+### Layout
+
+- One `_test.go` per source file (`parser.go` → `parser_test.go`), tests
+  in the order of the functions they cover — tools and reviewers navigate
+  by file.
+- Public-API tests live in the `pkg_test` package so they can only use
+  what callers can; white-box tests stay in `pkg`.
+- Integration tests sit behind `//go:build integration`.
 
 ## 2. Subtests for Organized Scenarios
 
@@ -144,15 +156,18 @@ func TestSlugify(t *testing.T) {
 ```
 
 Do NOT use `t.Parallel()` when tests share mutable state, databases,
-files, or process-level state (`os.Setenv`).
+files, or process-level state — `t.Setenv` and `t.Chdir` panic in a
+parallel test for exactly that reason.
 
 ```bash
-go test -race -coverprofile=coverage.out ./...
-go tool cover -func=coverage.out
+go test -race -coverprofile=coverage.out -coverpkg=./... ./...
+go tool cover -html=coverage.out   # read the red lines, not the percentage
 ```
 
-**Targets:** business logic 80%+, critical paths (auth, payments) 95%+,
-handlers 70%+. Don't chase 100% on generated code and simple getters.
+Coverage finds untested code; it does not measure whether the assertions
+are any good. Use it to locate gaps, and let CI enforce a floor that only
+ratchets up (the go-ci skill owns the gate). Without `-coverpkg`, a
+package exercised only by another package's tests reports 0%.
 
 ## 7. Testing Concurrent Code
 
@@ -162,7 +177,9 @@ handlers 70%+. Don't chase 100% on generated code and simple getters.
   fake clock advances instantly once every goroutine is blocked, and
   `synctest.Wait()` replaces "sleep until the background goroutine gets
   there". On Go 1.24 the API is `synctest.Run` behind
-  `GOEXPERIMENT=synctest`.
+  `GOEXPERIMENT=synctest`. Go 1.27 adds `synctest.Sleep(d)` (advance and
+  settle in one call) and `httptest.NewTestServer(t, h)`, an in-memory
+  server that works inside the bubble and closes itself.
 - Any package that starts goroutines verifies none leak:
   `goleak.VerifyTestMain(m)` in `TestMain`, or `defer goleak.VerifyNone(t)`.
   `-race` finds data races; it does not find a goroutine that never exits.
@@ -180,6 +197,19 @@ handlers 70%+. Don't chase 100% on generated code and simple getters.
   golden output or captured bodies outside the repository.
 
 Examples for both sections: `references/concurrency-and-benchmarks.md`.
+
+## 9. Assertion Library Traps
+
+- **Build `assert.New(t)` / `require.New(t)` inside each `t.Run`.** An
+  instance created from the parent `t` reports a subtest's failure against
+  the parent, and the failing subtest itself prints `PASS`.
+- **`require`, `t.Fatal` and `t.FailNow` only on the test goroutine.**
+  From a spawned goroutine they cannot stop the test. Send results back on
+  a channel and assert after receiving. `go vet`'s `testinggoroutine` and
+  golangci-lint's `testifylint` catch most cases.
+- **`require` for preconditions, `assert` for independent checks** — a
+  failed precondition should stop the test before it nil-panics.
+- **`assert.Eventually` hides timing bugs** in polling; prefer `synctest`.
 
 ## Anti-Patterns
 
@@ -210,4 +240,5 @@ Examples for both sections: `references/concurrency-and-benchmarks.md`.
 10. Benchmarks use `for b.Loop()` and call `b.ReportAllocs()`
 11. Edge cases covered: empty, nil, zero, boundary values
 12. `go test -race ./...` passes
-13. Coverage is meaningful, not just high numbers
+13. Coverage is used to find gaps; CI enforces a ratcheting floor, not a target
+14. testify instances are built per subtest; no `require` off the test goroutine
