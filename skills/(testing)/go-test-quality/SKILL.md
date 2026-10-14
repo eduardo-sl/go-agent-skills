@@ -18,7 +18,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # Go Test Quality
@@ -265,10 +265,10 @@ Two newer reporting hooks, when the toolchain supports them:
 - 🟡 Reaching into private fields — test through the public API
 - 🟡 No edge cases: empty, nil, zero, max values, unicode
 - 🟡 Giant shared setup — each test should set up only what it needs
-- 🟢 Fuzz anything that takes untrusted input
-- 🟢 Golden files for complex output comparisons
 - 🟡 `context.Background()` in a test — use `t.Context()`
 - 🟡 `for range b.N` on Go 1.24+ — use `for b.Loop()`
+- 🟢 Fuzz anything that takes untrusted input
+- 🟢 Golden files for complex output comparisons
 
 ## Verification Checklist
 
@@ -282,6 +282,6 @@ Two newer reporting hooks, when the toolchain supports them:
 8. No `time.Sleep` for synchronization anywhere in the suite
 9. Packages that start goroutines verify with `goleak`
 10. Benchmarks use `for b.Loop()` and call `b.ReportAllocs()`
-8. Edge cases covered: empty, nil, zero, boundary values
-9. `go test -race ./...` passes
-10. Coverage is meaningful, not just high numbers
+11. Edge cases covered: empty, nil, zero, boundary values
+12. `go test -race ./...` passes
+13. Coverage is meaningful, not just high numbers
