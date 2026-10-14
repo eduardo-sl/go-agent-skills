@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go Dependency Audit
@@ -28,14 +28,16 @@ Audit ruthlessly.
 ### govulncheck (official Go tool):
 
 ```bash
-# Install
-go install golang.org/x/vuln/cmd/govulncheck@latest
+# Ad hoc, without touching go.mod
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
-# Scan project
-govulncheck ./...
+# Pinned as a module tool (Go 1.24+) — recommend this to the project so
+# every developer and CI job runs the same version
+go get -tool golang.org/x/vuln/cmd/govulncheck
+go tool govulncheck ./...
 
-# Scan binary
-govulncheck -mode=binary ./cmd/api-server
+# Scan a built binary
+go tool govulncheck -mode=binary ./bin/api-server
 ```
 
 `govulncheck` checks against the Go vulnerability database and reports
@@ -192,21 +194,22 @@ Rules:
 
 | Domain | Package |
 |---|---|
-| Logging | `go.uber.org/zap`, `log/slog` (stdlib 1.21+) |
+| Logging | `log/slog` (stdlib 1.21+); `go.uber.org/zap` only behind a slog handler when profiling demands it |
 | HTTP Router | `github.com/go-chi/chi`, `net/http` (1.22+ routing) |
 | Config | `github.com/caarlos0/env`, `github.com/spf13/viper` |
 | Testing | `github.com/stretchr/testify`, stdlib `testing` |
 | Database | `github.com/jackc/pgx`, `github.com/jmoiron/sqlx` |
 | Validation | `github.com/go-playground/validator` |
-| UUID | `github.com/google/uuid` |
-| Errors | `go.uber.org/multierr`, stdlib `errors` (1.20+) |
+| UUID | stdlib `uuid` (Go 1.27+); `github.com/google/uuid` below 1.27 or for v3/v5 namespace UUIDs |
+| Errors | stdlib `errors` — `errors.Join` (1.20+) replaces `multierr` |
 
 ### Patterns to avoid:
 
 - ❌ Frameworks that take over `main()` (Go is not Java Spring)
 - ❌ ORMs that hide SQL (prefer `sqlx` or raw `database/sql`)
 - ❌ Code generators you don't understand
-- ❌ Packages with `v0.x` that have been v0 for 3+ years
+- ❌ Packages whose minor releases keep breaking callers. `v0` alone is not
+  the signal: the `golang.org/x/...` modules have always been v0
 
 ## Audit Output Format
 
