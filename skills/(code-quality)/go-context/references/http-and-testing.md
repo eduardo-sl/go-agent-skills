@@ -44,7 +44,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 ```go
 func TestSlowOperation(t *testing.T) {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    // t.Context() (Go 1.24+) is cancelled when the test ends; the timeout
+    // turns a hang into a failure instead of a stuck suite.
+    ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
     defer cancel()
 
     result, err := slowOperation(ctx)
@@ -59,7 +61,7 @@ func TestSlowOperation(t *testing.T) {
 
 ```go
 func TestCancellation(t *testing.T) {
-    ctx, cancel := context.WithCancel(context.Background())
+    ctx, cancel := context.WithCancel(t.Context())
     cancel() // cancel immediately
 
     _, err := operation(ctx)

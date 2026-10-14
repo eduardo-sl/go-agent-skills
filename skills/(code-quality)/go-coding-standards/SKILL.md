@@ -15,13 +15,16 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
   author: eduardo-sl
-  version: "1.3.3"
+  version: "1.4.1"
 ---
 
 # Go Coding Standards
 
 Idiomatic Go conventions grounded in Effective Go, Go Code Review Comments, and production-proven idioms.
 All code MUST pass `goimports`, `go vet`, and `staticcheck` (or `golangci-lint run`) without errors.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-coding-standards` takes precedence over this one.
 
 Detailed reference material, loaded on demand:
 
@@ -104,27 +107,16 @@ name := getUserName()
 
 ## 4. Struct Initialization
 
-ALWAYS use field names. Never rely on positional initialization:
+ALWAYS use field names, and omit zero-value fields unless they carry
+meaning — positional literals break silently when fields are added or
+reordered:
 
 ```go
 // ✅ Good
-user := User{
-    Name:  "Alice",
-    Email: "alice@example.com",
-    Age:   30,
-}
+user := User{Name: "Alice", Email: "alice@example.com"}
 
-// ❌ Bad — positional, breaks on field reordering
-user := User{"Alice", "alice@example.com", 30}
-```
-
-Omit zero-value fields unless clarity requires them:
-
-```go
-// ✅ Good — zero values omitted
-user := User{
-    Name: "Alice",
-}
+// ❌ Bad — positional
+user := User{"Alice", "alice@example.com", 0}
 ```
 
 ## 5. Reduce Nesting
@@ -173,9 +165,9 @@ defer mu.Unlock()
 
 f, err := os.Open(path)
 if err != nil {
-    return err
+    return fmt.Errorf("open %s: %w", path, err)
 }
-defer f.Close()
+defer f.Close() // read-only; check Close errors on files you write
 ```
 
 ## 9. Enums
@@ -197,7 +189,8 @@ const (
 
 - Use `time.Duration` for durations, NOT raw integers.
 - Use `time.Time` for instants. Use `time.Since(start)` instead of `time.Now().Sub(start)`.
-- External APIs: accept `int` or `float64` and convert internally.
+- When a format cannot carry a `time.Duration` (JSON, YAML), put the unit
+  in the field name — `TimeoutSeconds int` — and convert at the edge.
 
 ```go
 // ✅ Good
@@ -228,8 +221,20 @@ The compiler does not check tags, so a typo is silent.
 - `json:"-"` for anything that must never leave the process — an
   unexported field is skipped silently, which reads as an oversight.
 - `omitempty` cannot tell "absent" from "zero"; use a pointer or wrapper
-  when that distinction matters.
+  when that distinction matters. `omitempty` never omits a struct — use
+  `omitzero` (Go 1.24+), which honors the Go zero value and `IsZero()`, for
+  fields like `time.Time`.
 - Run `go vet` — its `structtag` check catches malformed tags.
+
+## 13. Function Shape
+
+- Name the parts of a condition with three or more operands (`isOwner`,
+  `isAdmin`) so the `if` reads as the business rule.
+- `ctx context.Context` first, then inputs, then options.
+- More than about four parameters, or several of one type next to each
+  other, means an options struct or functional options — the
+  go-design-patterns skill owns both.
+- Naked returns only in functions short enough to see every return value.
 
 ## Verification Checklist
 

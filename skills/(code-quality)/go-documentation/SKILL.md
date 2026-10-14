@@ -2,19 +2,18 @@
 name: go-documentation
 description: >
   Go documentation conventions: godoc comments, package docs, testable
-  Example functions, deprecation notices, and doc links. Use when: "add
-  godoc", "document this package", "write doc comments", "add examples to
-  docs", "deprecate a function", "package documentation", "improve the
-  docs".
-  Not for: commit messages (git-commit), README-level guides (plain writing
-  task), code style (go-coding-standards).
+  Example functions, deprecation notices, doc links, and project docs
+  (README, CHANGELOG, llms.txt). Use when: "add godoc", "document this
+  package", "write doc comments", "add examples to docs", "deprecate a
+  function", "write a README", "update the changelog", "improve the docs".
+  Not for: commit messages (git-commit), code style (go-coding-standards).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.1"
 ---
 
 # Go Documentation
@@ -22,6 +21,16 @@ metadata:
 Godoc is not free-form prose — it's a convention the toolchain renders.
 Comments that follow the convention become browsable documentation on
 pkg.go.dev; comments that don't become noise.
+
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-documentation` takes precedence over this one.
+
+Detailed reference material, loaded on demand:
+
+- `references/project-docs.md` — README templates for libraries and
+  services, CHANGELOG, llms.txt, CONTRIBUTING.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Doc Comment Form
 
@@ -138,6 +147,23 @@ If a doc comment can only restate the signature, improve the name until
 the comment says something the signature can't — or accept a minimal
 comment for symmetry in a fully documented API.
 
+## 7. Project-Level Documentation
+
+- **README** — a library leads with what it does, install, the minimal
+  working example, and a pkg.go.dev link instead of duplicating the API.
+  A service leads with how to run it, its configuration table (generated
+  from the config struct where possible), and where health, metrics and
+  runbooks live.
+- **CHANGELOG** — Keep a Changelog sections (Added, Changed, Deprecated,
+  Removed, Fixed, Security), written for the module's users, not as a
+  commit log.
+- **llms.txt** — a short Markdown index at the docs root pointing AI
+  assistants at the API reference and examples.
+- Go 1.27+: `go doc example.com/pkg@v1.2.3` reads another version's docs
+  without changing `go.mod`; `go doc -ex` lists executable examples.
+
+Templates: `references/project-docs.md`.
+
 ## Executable Verification
 
 ```bash
@@ -161,3 +187,4 @@ For a browsable preview, run a local pkgsite if available:
 7. Deprecations use the exact `Deprecated: ` form and name a replacement
 8. No comments restating signatures, tracking history, or holding dead code
 9. `go test ./...` passes with examples enabled
+10. README leads with purpose and a working example; CHANGELOG updated for user-visible changes
