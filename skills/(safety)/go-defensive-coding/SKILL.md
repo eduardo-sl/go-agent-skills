@@ -18,7 +18,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gosec:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.2"
+  version: "1.1.3"
 ---
 
 # Go Defensive Coding
@@ -32,6 +32,8 @@ Detailed reference material, loaded on demand:
   aliasing scenarios, and memory retention.
 - `references/numeric-safety.md` — conversion range checks, overflow
   detection, float and time comparison.
+- `references/copies-and-lifecycle.md` — `copylocks`/`noCopy`, `defer` in
+  loops, checking deferred `Close` errors, usable zero values.
 
 Read a reference file only when the section below is not enough.
 
@@ -157,32 +159,12 @@ copy a slice you only read inside the function; that is wasted allocation.
 
 ### Preventing accidental copies
 
-A struct containing a `sync.Mutex`, `sync.WaitGroup`, or `atomic.Int64` must
-never be copied — the copy gets its own independent lock, and both halves
-believe they are synchronised.
-
-```go
-// ❌ Bad — the receiver is a copy, so the mutex protects nothing
-func (c Counter) Value() int { ... }
-
-// ❌ Bad — passing by value copies the mutex
-func report(c Counter) { ... }
-```
-
-`go vet`'s `copylocks` analyzer catches these. For types that must not be
-copied but hold no lock, embed a `noCopy` marker so `vet` catches them too:
-
-```go
-type noCopy struct{}
-
-func (*noCopy) Lock()   {}
-func (*noCopy) Unlock() {}
-
-type Tracker struct {
-    noCopy noCopy
-    // ...
-}
-```
+A struct holding a `sync.Mutex`, `sync.WaitGroup` or `atomic.Int64` must
+never be copied — a value receiver or by-value parameter gives the copy an
+independent lock, and both halves believe they are synchronised. `go vet`'s
+`copylocks` catches these; for no-copy types without a lock, embed a
+`noCopy` marker so `vet` covers them too. Examples:
+`references/copies-and-lifecycle.md`.
 
 ## 5. Numeric Conversion and Comparison
 
@@ -202,83 +184,33 @@ count := int32(int64Total)
 The same applies to `int` → `uint` (negatives wrap to huge values) and to
 `len()` results assigned to sized types. `gosec` reports these as G115.
 
-Never compare floats with `==`; never compare `time.Time` with `==`.
-
-```go
-// ✅ Floats: compare against a tolerance
-if math.Abs(got-want) < 1e-9 { ... }
-
-// ✅ Times: Equal compares the instant, == also compares wall clock and location
-if t1.Equal(t2) { ... }
-```
+Never compare floats with `==` — compare against a tolerance. Never compare
+`time.Time` with `==` — `Equal` compares the instant, while `==` also
+compares the monotonic reading and location. Examples:
+`references/numeric-safety.md`.
 
 Integer division by zero panics; float division by zero yields `±Inf` or
 `NaN`, and `NaN != NaN`. Guard divisors that come from input.
 
 ## 6. Resource Lifecycle
 
-`defer` runs at **function** return, not at the end of the block.
+- `defer` runs at **function** return, not at the end of a loop body. A
+  `defer f.Close()` inside a loop keeps every file open until the loop
+  ends — give each iteration its own function scope. The same applies to
+  `resp.Body.Close`, `rows.Close`, `mu.Unlock` and `tx.Rollback`.
+- Check the error from a deferred `Close` on anything you wrote to: a
+  failed flush on close is silent data loss. Assign it to a named `err`
+  result when the body succeeded.
 
-```go
-// ❌ Bad — all files stay open until the loop finishes
-for _, name := range names {
-    f, err := os.Open(name)
-    if err != nil {
-        return err
-    }
-    defer f.Close()
-    process(f)
-}
-
-// ✅ Good — a function scope per iteration
-for _, name := range names {
-    if err := func() error {
-        f, err := os.Open(name)
-        if err != nil {
-            return err
-        }
-        defer f.Close()
-        return process(f)
-    }(); err != nil {
-        return err
-    }
-}
-```
-
-The same rule applies to `resp.Body.Close`, `rows.Close`, `mu.Unlock`, and
-`tx.Rollback` inside loops or long-lived functions.
-
-Check the error from a deferred `Close` on anything you wrote to — a failed
-flush on close is a silent data loss otherwise:
-
-```go
-defer func() {
-    if cerr := f.Close(); cerr != nil && err == nil {
-        err = fmt.Errorf("close %s: %w", name, cerr)
-    }
-}()
-```
+Examples: `references/copies-and-lifecycle.md`.
 
 ## 7. Zero-Value and Initialisation Safety
 
 Design types so the zero value works, then no constructor can be forgotten.
 
-```go
-// ✅ Usable zero value — sync.Mutex and the nil map read are both fine
-type Counter struct {
-    mu sync.Mutex
-    n  map[string]int
-}
-
-func (c *Counter) Inc(k string) {
-    c.mu.Lock()
-    defer c.mu.Unlock()
-    if c.n == nil { // lazily initialise on first write
-        c.n = make(map[string]int)
-    }
-    c.n[k]++
-}
-```
+A `sync.Mutex` zero value is ready, and a nil map can be read; initialise
+the map lazily on first write under the lock. Example:
+`references/copies-and-lifecycle.md`.
 
 When lazy init must happen exactly once and may race, use `sync.Once`.
 
@@ -302,9 +234,6 @@ go test -race ./...                           # aliasing bugs often surface as r
 Relevant golangci-lint linters: `errcheck`, `bodyclose`, `sqlclosecheck`,
 `rowserrcheck`, `makezero`, `nilerr`, `exhaustive`, and `govet` with the
 `nilness` analyzer enabled — `go vet` itself does not run `nilness`.
-
-Go 1.22 and later give each loop iteration its own variable. Do not add the
-old `v := v` shadow line; do not remove one from a module still on `go 1.21`.
 
 ## Verification Checklist
 
