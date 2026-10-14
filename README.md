@@ -195,25 +195,25 @@ All figures are approximate tokens (bytes ÷ 4).
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
 | [`go-code-review`](skills/(code-quality)/go-code-review/) | Structured review process with severity classification | "review this code", "check this PR" | 103 | 1,613 | 1,613 |
-| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" | 127 | 2,128 | 2,128 |
+| [`go-coding-standards`](skills/(code-quality)/go-coding-standards/) 📚 | Style conventions, naming, imports, struct init, formatting | "check Go style", "fix formatting" | 127 | 1,759 | 2,592 |
 | [`go-context`](skills/(code-quality)/go-context/) 📚 | Context propagation, cancellation, timeouts, values | "context usage", "timeout", "context cancellation" | 108 | 1,798 | 2,868 |
 | [`go-data-structures`](skills/(code-quality)/go-data-structures/) | Slices, maps, sets, aliasing, preallocation, nil vs empty | "nil slice", "map iteration", "slice aliasing" | 135 | 1,498 | 1,498 |
 | [`go-documentation`](skills/(code-quality)/go-documentation/) | Godoc conventions, testable examples, deprecation notices | "add godoc", "document this package" | 104 | 1,420 | 1,420 |
-| [`go-error-handling`](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" | 131 | 1,575 | 1,575 |
-| [`go-modernize`](skills/(code-quality)/go-modernize/) 📚 | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" | 127 | 2,262 | 4,458 |
+| [`go-error-handling`](skills/(code-quality)/go-error-handling/) | Error wrapping, sentinels, custom types, `errors.Is`/`As` | "handle errors", "error wrapping" | 131 | 1,728 | 1,728 |
+| [`go-modernize`](skills/(code-quality)/go-modernize/) 📚 | Generics, slog, errors.Join, slices/maps, range-over-func | "modernize", "use generics", "update Go" | 127 | 2,270 | 4,466 |
 
 ### Architecture & Design
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-api-design`](skills/(architecture)/go-api-design/) | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" | 146 | 1,964 | 1,964 |
-| [`go-architecture-review`](skills/(architecture)/go-architecture-review/) | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" | 130 | 2,116 | 2,116 |
+| [`go-api-design`](skills/(architecture)/go-api-design/) 📚 | REST/gRPC handlers, middleware, graceful shutdown, pagination | "design API", "HTTP handler" | 146 | 1,485 | 2,471 |
+| [`go-architecture-review`](skills/(architecture)/go-architecture-review/) 📚 | Package layout, dependency direction, layering, `internal/` | "review architecture", "project layout" | 130 | 1,832 | 2,363 |
 | [`go-cli`](skills/(architecture)/go-cli/) | Flags, subcommands, exit codes, signals, Cobra decision point | "build a CLI", "handle Ctrl+C", "exit codes" | 112 | 1,365 | 1,365 |
 | [`go-dependency-injection`](skills/(architecture)/go-dependency-injection/) | Constructor injection, composition root, wire/fx trade-offs | "dependency injection", "remove global state" | 115 | 1,526 | 1,526 |
-| [`go-design-patterns`](skills/(architecture)/go-design-patterns/) 📚 | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" | 118 | 1,553 | 3,456 |
-| [`go-graphql`](skills/(architecture)/go-graphql/) | gqlgen schema-first, resolvers, dataloaders, complexity limits, field auth | "GraphQL", "gqlgen", "N+1 queries", "dataloader" | 155 | 2,213 | 2,213 |
+| [`go-design-patterns`](skills/(architecture)/go-design-patterns/) 📚 | Functional options, factory, strategy, middleware/decorator | "design pattern", "functional options" | 118 | 1,553 | 3,547 |
+| [`go-graphql`](skills/(architecture)/go-graphql/) 📚 | gqlgen schema-first, resolvers, dataloaders, complexity limits, field auth | "GraphQL", "gqlgen", "N+1 queries", "dataloader" | 155 | 2,108 | 2,572 |
 | [`go-grpc`](skills/(architecture)/go-grpc/) | Proto design, status codes, interceptors, deadlines, streaming | "gRPC service", "interceptor", "proto design" | 114 | 1,705 | 1,705 |
-| [`go-interface-design`](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" | 143 | 1,968 | 1,968 |
+| [`go-interface-design`](skills/(architecture)/go-interface-design/) | Consumer-side interfaces, composition, compliance checks | "design interface", "accept interfaces" | 143 | 1,844 | 1,844 |
 | [`go-openapi`](skills/(architecture)/go-openapi/) | Spec-first REST with oapi-codegen, validation middleware, oasdiff, contract tests | "OpenAPI", "oapi-codegen", "generate a client from the spec" | 174 | 2,051 | 2,051 |
 | [`go-project-layout`](skills/(architecture)/go-project-layout/) | Scaffolding new projects: cmd/internal, module naming, thin main | "new Go project", "scaffold a service" | 114 | 1,533 | 1,533 |
 
@@ -228,17 +228,17 @@ All figures are approximate tokens (bytes ÷ 4).
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
 | [`go-concurrency-review`](skills/(safety)/go-concurrency-review/) 📚 | Goroutine lifecycle, channels, mutexes, race detection | "check thread safety", "goroutine leak" | 140 | 1,668 | 2,380 |
-| [`go-defensive-coding`](skills/(safety)/go-defensive-coding/) 📚 | Typed-nil interfaces, slice aliasing, integer overflow, defensive copying | "nil pointer panic", "integer overflow", "defensive copy" | 186 | 2,576 | 5,207 |
-| [`go-observability`](skills/(safety)/go-observability/) 📚 | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" | 109 | 1,422 | 3,033 |
-| [`go-performance-review`](skills/(safety)/go-performance-review/) | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" | 133 | 1,980 | 1,980 |
-| [`go-security-audit`](skills/(safety)/go-security-audit/) 📚 | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" | 136 | 1,807 | 3,110 |
+| [`go-defensive-coding`](skills/(safety)/go-defensive-coding/) 📚 | Typed-nil interfaces, slice aliasing, integer overflow, defensive copying | "nil pointer panic", "integer overflow", "defensive copy" | 186 | 2,379 | 5,564 |
+| [`go-observability`](skills/(safety)/go-observability/) 📚 | Structured logging (slog), tracing, metrics, OpenTelemetry | "add logging", "tracing", "metrics" | 109 | 1,528 | 3,138 |
+| [`go-performance-review`](skills/(safety)/go-performance-review/) 📚 | Allocations, benchmarking, pprof, hot path optimization | "check performance", "reduce allocations" | 133 | 1,679 | 2,198 |
+| [`go-security-audit`](skills/(safety)/go-security-audit/) 📚 | OWASP, SQL injection, auth, secrets, input validation | "security review", "check vulnerabilities" | 136 | 1,823 | 3,458 |
 | [`go-troubleshooting`](skills/(safety)/go-troubleshooting/) | Panics, deadlocks, memory/goroutine leaks, pprof diffing, delve | "debug this panic", "memory leak", "deadlock" | 127 | 1,633 | 1,633 |
 
 ### Testing
 
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
-| [`go-test-quality`](skills/(testing)/go-test-quality/) 📚 | Test philosophy, subtests, httptest, golden files, fuzz, testcontainers | "add tests", "improve coverage" | 186 | 2,628 | 4,624 |
+| [`go-test-quality`](skills/(testing)/go-test-quality/) 📚 | Test philosophy, subtests, httptest, golden files, fuzz, testcontainers | "add tests", "improve coverage" | 186 | 2,215 | 4,993 |
 | [`go-test-table-driven`](skills/(testing)/go-test-table-driven/) 📚 | Deep dive on table-driven tests: when to use, struct design, refactoring | "table-driven test", "test matrix" | 162 | 1,611 | 4,245 |
 
 ### Workflow
@@ -247,15 +247,15 @@ All figures are approximate tokens (bytes ÷ 4).
 | --- | --- | --- | ---: | ---: | ---: |
 | [`git-commit`](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" | 109 | 1,433 | 1,433 |
 | [`go-binary-size`](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" | 153 | 1,899 | 1,899 |
-| [`go-ci`](skills/(workflow)/go-ci/) | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 127 | 1,397 | 1,397 |
-| [`go-dependency-audit`](skills/(workflow)/go-dependency-audit/) | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" | 136 | 1,538 | 1,538 |
+| [`go-ci`](skills/(workflow)/go-ci/) | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 127 | 1,539 | 1,539 |
+| [`go-dependency-audit`](skills/(workflow)/go-dependency-audit/) | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" | 136 | 1,644 | 1,644 |
 | [`go-refactoring`](skills/(workflow)/go-refactoring/) | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" | 142 | 1,455 | 1,455 |
 | [`go-semantic-tools`](skills/(workflow)/go-semantic-tools/) | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" | 139 | 1,290 | 1,290 |
 | [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 166 | 2,115 | 2,115 |
 
 **Budget.** All 33 descriptions together are ~4,420 tokens at startup — the only
 figure paid on every request, Go work or not. A typical session fires 2–4
-skills, so ~5,300 tokens of body. The full tree is ~75,700 tokens and is never
+skills, so ~5,300 tokens of body. The full tree is ~79,000 tokens and is never
 loaded at once; that gap is the point of progressive disclosure.
 
 ---
