@@ -3,6 +3,17 @@
 Tracer setup, span creation, and telemetry shutdown. The SKILL.md section
 states the rules; this file has the code.
 
+## Contents
+
+- Tracer provider
+- Creating spans
+- Span naming
+- Propagating context
+- Sampling
+- Profiles as a signal
+- Trace IDs in log entries
+- Flushing on shutdown
+
 ## Tracer provider
 
 ```go
@@ -75,6 +86,36 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
     // ...
 }
 ```
+
+## Sampling
+
+```go
+tp := trace.NewTracerProvider(
+    // Keep 10% of new traces, and always follow the upstream caller's
+    // decision so a trace is never half-recorded across services.
+    trace.WithSampler(trace.ParentBased(trace.TraceIDRatioBased(0.1))),
+    trace.WithBatcher(exporter),
+)
+```
+
+Head sampling decides before the request runs, so it drops most errors and
+slow requests along with the noise. Keep them with tail sampling in the
+OpenTelemetry Collector (policies such as "status is error" or "latency
+above 1s"), and keep head sampling at 100% when the collector does the
+choosing.
+
+## Profiles as a signal
+
+```go
+// CPU and goroutine samples taken inside f carry these labels, so a
+// continuous profiler can split a hot function by tenant or route.
+pprof.Do(ctx, pprof.Labels("route", route), func(ctx context.Context) {
+    handle(ctx)
+})
+```
+
+Keep label values bounded, like metric labels. Since Go 1.27, tracebacks
+print them too.
 
 ## Trace IDs in log entries
 

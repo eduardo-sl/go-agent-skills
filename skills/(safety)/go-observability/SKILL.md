@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.5.1"
 ---
 
 # Go Observability
@@ -23,11 +23,18 @@ Observability is not optional for production services. Every service must produc
 structured logs, expose metrics, and propagate trace context. Use the stdlib
 `log/slog` for logging and OpenTelemetry for tracing and metrics.
 
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-observability` takes precedence over this one.
+
 Detailed reference material, loaded on demand:
 
-- `references/slog.md` — handler setup, logger injection, child loggers.
-- `references/tracing.md` — tracer provider, spans, propagation, shutdown.
+- `references/slog.md` — handler setup, logger injection, child loggers,
+  `LogValuer` redaction, trace-ID handler, hot paths, runtime levels.
+- `references/tracing.md` — tracer provider, spans, propagation, sampling,
+  profile labels, shutdown.
 - `references/metrics.md` — metric definitions, HTTP instrumentation.
+- `references/alerting.md` — RED/USE, histograms vs summaries, burn-rate
+  alerts, alert hygiene, exemplars.
 
 Read a reference file only when the section below is not enough.
 
@@ -80,6 +87,18 @@ Log the stable internal ID and join to personal data in the system that is
 allowed to hold it. Log retention, search access and third-party log sinks
 rarely meet the bar that applies to the user table.
 
+Make redaction a property of the type: implement `slog.LogValuer` on
+secrets and on structs that hold personal data, so `slog.Any(user)` logs
+only the safe fields everywhere.
+
+### Cost and control
+
+- Hot paths use `logger.LogAttrs` and guard expensive attributes with
+  `logger.Enabled`.
+- A `slog.LevelVar` in `HandlerOptions` lets the level change at run time
+  without a deploy.
+- `slog.NewMultiHandler` (Go 1.26+) fans out to several handlers.
+
 ## 2. Distributed Tracing with OpenTelemetry
 
 Start a span for every operation worth seeing on a waterfall — inbound
@@ -94,6 +113,10 @@ Rules the reference examples follow:
   or the trace shows a green span for a failed request.
 - Pass `ctx` down the whole chain. A `context.Background()` mid-chain silently
   starts a new trace and breaks the parent link.
+- Sample with `ParentBased(TraceIDRatioBased(r))` so services agree on a
+  trace; keep errors and slow requests with tail sampling in the collector.
+- Profiles are the fourth signal: continuous profiling in production, with
+  bounded `pprof.Labels` (route, tenant tier) to split a hot function.
 
 Setup and examples in `references/tracing.md`.
 
@@ -124,10 +147,25 @@ Definitions and middleware in `references/metrics.md`.
 ## 4. Connecting Logs, Traces, and Metrics
 
 A log line without a trace ID cannot be joined to the request that produced
-it. Pull `trace.SpanContextFromContext(ctx)` and attach `trace_id` and
-`span_id` to the logger at the top of each handler or service method.
+it. Wrap the handler once so every `*Context` log call adds `trace_id` and
+`span_id` from `ctx` — the wrapper must also override `WithAttrs` and
+`WithGroup`, or child loggers lose it. Attach exemplars (trace IDs) to
+latency histograms to jump from a p99 spike to an offending trace.
 
-## 5. Graceful Shutdown of Telemetry
+## 5. Alerting and SLOs
+
+- Measure RED (rate, errors, duration) per route for services and USE
+  (utilization, saturation, errors) for pools and queues.
+- Latency is a **Histogram**, never a Summary — summary quantiles cannot be
+  aggregated across instances. Put buckets around the SLO threshold.
+- Page on SLO **burn rate** over a long and a short window together; send
+  slower burns to a ticket.
+- Alert on symptoms, not causes; `rate()` not `irate()`; `absent()` for
+  series that must exist; a runbook link on every page.
+
+Queries and exemplar wiring: `references/alerting.md`.
+
+## 6. Graceful Shutdown of Telemetry
 
 The batch span processor holds spans in memory. Call `tp.Shutdown(ctx)` with
 its own timeout on the way out, or the last seconds before a crash — the
@@ -147,3 +185,4 @@ Both examples in `references/tracing.md`.
 8. No high-cardinality labels (user IDs, request IDs) in metrics
 9. Telemetry providers are shut down gracefully on service exit
 10. Trace IDs are included in log entries for correlation
+11. Latency recorded as histograms; paging alerts are SLO burn-rate alerts with runbooks
