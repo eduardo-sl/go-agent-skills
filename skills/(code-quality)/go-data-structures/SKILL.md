@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Go Data Structures
@@ -24,6 +24,13 @@ metadata:
 Slices and maps look simple and hide the sharpest edges in the language.
 These rules prevent the aliasing, nil, and iteration bugs that survive
 code review.
+
+Detailed reference material, loaded on demand:
+
+- `references/containers.md` — `container/heap` priority queue, LRU with
+  `container/list`, reclaiming map memory, a `weak.Pointer` cache.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Nil Slice vs Empty Slice
 
@@ -36,8 +43,9 @@ c := make([]int, 0)  // empty slice — same as b
 - `len`, `cap`, `range`, and `append` treat all three identically.
 - **Prefer the nil slice** as the "no elements" value; don't allocate
   just to return "empty".
-- Exception: JSON. `nil` marshals to `null`, empty marshals to `[]`.
-  If the API contract requires `[]`, return an empty slice explicitly.
+- Exception: JSON. With `encoding/json`, `nil` marshals to `null` and empty
+  to `[]`; if the contract requires `[]`, return an empty slice. The Go
+  1.27 `encoding/json/v2` API marshals nil as `[]` by default.
 - Never distinguish nil from empty in logic — check `len(s) == 0`.
 
 ## 2. Append Semantics and Aliasing
@@ -159,10 +167,42 @@ better when you'll test membership with `if seen[id]`.
 | FIFO queue (single goroutine) | slice with head index, or `container/list` for heavy churn |
 | Stack | slice + `append` / `s[:len(s)-1]` |
 | Concurrent map, write-once read-many keys | `sync.Map` — otherwise mutex + map |
+| Priority queue, top-K, scheduler | `container/heap` |
+| Fixed-size rolling window | slice used as a ring (index mod len), or `container/ring` |
+| LRU cache | `map[K]*list.Element` + `container/list` |
+| Cache that must not keep values alive | `map[K]weak.Pointer[V]` (Go 1.24+) |
+| Deduplicate many equal strings | `unique.Make` (Go 1.23+) |
+| Key type for a custom hash table | `maphash.Comparable` / `maphash.Hasher` (1.24 / 1.27) |
 
 `sync.Map` is a special-case tool (append-only caches, disjoint key
 sets). Default to `map` + `sync.RWMutex`; see the concurrency skill for
 locking patterns.
+
+## 8. Memory Behaviour
+
+- **Maps never shrink.** `delete` and `clear` keep the buckets. After a
+  map that once held millions of entries is mostly empty, rebuild it
+  (`m = maps.Clone(m)`) to give the memory back.
+- **`clear(s)`** zeroes a slice's elements but keeps its length; `s = s[:0]`
+  keeps the backing array for reuse. Neither frees memory.
+- **Popping from a slice of pointers** — nil the vacated slot
+  (`s[n-1] = nil`) or the GC still sees the object as reachable.
+- **`strings.Builder`** builds strings without a final copy; it must not be
+  copied once written to. **`bytes.Buffer`** is the type for byte-oriented
+  I/O (it is both an `io.Reader` and an `io.Writer`); its `String()` copies.
+
+## 9. Copy Semantics
+
+| Type | Assignment copies | Independent copy |
+|---|---|---|
+| Basic types, arrays, structs of values | Everything | Already independent |
+| Slice | Header (ptr, len, cap) | `slices.Clone` |
+| Map | Reference | `maps.Clone` (shallow) |
+| Pointer, channel, func | Reference | — |
+| Interface | Type + value word | Depends on the dynamic type |
+
+Clones are shallow: a cloned `[]*User` still shares every `User`.
+Examples for sections 7-9: `references/containers.md`.
 
 ## Verification Checklist
 
@@ -176,3 +216,5 @@ locking patterns.
 8. Deterministic output paths sort map keys before iteration
 9. Sets built as `map[K]struct{}` (or `map[K]bool` for readability)
 10. Arrays only where value semantics or comparability is the point
+11. Long-lived maps that shrink drastically are rebuilt, not just deleted from
+12. Priority queues and LRUs use `container/heap` / `container/list`, not ad-hoc sorting

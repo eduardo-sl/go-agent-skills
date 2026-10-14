@@ -62,5 +62,8 @@ Rules:
 - `omitempty` omits zero values, so it cannot distinguish "absent" from
   "explicitly zero". Use a pointer or a wrapper type when that distinction
   carries meaning.
+- `omitempty` never omits a struct value. `omitzero` (Go 1.24+) omits the Go
+  zero value, or whatever a type's `IsZero()` method reports — the right
+  tag for `time.Time` and other struct fields.
 - `go vet` includes a `structtag` check. Run it — it catches the malformed
   cases above.
