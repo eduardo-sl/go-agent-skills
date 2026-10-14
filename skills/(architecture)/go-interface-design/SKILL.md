@@ -16,7 +16,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go Interface Design
@@ -167,40 +167,11 @@ func Map[T, U any](slice []T, fn func(T) U) []U { ... }
 func Process(data any) any { ... } // what does this even do?
 ```
 
-## 7. Functional Options Pattern
+## 7. Optional Configuration Is Not an Interface Problem
 
-When a constructor needs optional configuration, use functional options
-instead of a config struct with an interface:
-
-```go
-type Option func(*Server)
-
-func WithTimeout(d time.Duration) Option {
-    return func(s *Server) { s.timeout = d }
-}
-
-func WithLogger(l Logger) Option {
-    return func(s *Server) { s.logger = l }
-}
-
-func NewServer(addr string, opts ...Option) *Server {
-    s := &Server{
-        addr:    addr,
-        timeout: 30 * time.Second,  // sensible default
-        logger:  slog.Default(),    // default stdlib logger
-    }
-    for _, opt := range opts {
-        opt(s)
-    }
-    return s
-}
-
-// Usage
-srv := NewServer(":8080",
-    WithTimeout(60 * time.Second),
-    WithLogger(logger),
-)
-```
+Optional constructor settings are not a reason to introduce an interface.
+Use functional options or a config struct — the go-design-patterns skill
+owns both and the trade-off between them.
 
 ## 8. Common Interface Anti-Patterns
 
