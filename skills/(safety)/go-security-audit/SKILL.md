@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*) Bash(gosec:*) Bash(gitleaks:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # Go Security Audit
@@ -141,7 +141,8 @@ Examples in `references/auth-and-transport.md`.
 
 - Set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a
   `Content-Security-Policy`, and HSTS on every response.
-- TLS: `MinVersion: tls.VersionTLS12` and an explicit cipher suite list.
+- TLS: raise `MinVersion` to `tls.VersionTLS12` (or 1.3) and keep Go's
+  default cipher suites — a hand-picked list only goes stale.
   NEVER `InsecureSkipVerify: true` outside a test.
 - Rate limit auth endpoints, public APIs, and anything expensive, keyed per
   client rather than globally.

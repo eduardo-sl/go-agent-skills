@@ -93,20 +93,27 @@ func SecurityHeaders(next http.Handler) http.Handler {
 ## TLS configuration
 
 ```go
+// ✅ Raise the floor; let Go choose the suites
 tlsConfig := &tls.Config{
-    MinVersion: tls.VersionTLS12,
-    CipherSuites: []uint16{
-        tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-        tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    },
-    PreferServerCipherSuites: true,
+    MinVersion: tls.VersionTLS12, // tls.VersionTLS13 if every client supports it
 }
 
 srv := &http.Server{
     TLSConfig: tlsConfig,
     // ...
 }
+
+// ❌ Stale hardening
+tlsConfig := &tls.Config{
+    CipherSuites: []uint16{ /* RSA-only list: breaks ECDSA certificates */ },
+    PreferServerCipherSuites: true, // deprecated and ignored since Go 1.18
+}
 ```
+
+Go's defaults already drop RSA key exchange (Go 1.22) and 3DES (Go 1.23),
+and enable the hybrid post-quantum `X25519MLKEM768` key exchange (Go 1.24).
+TLS 1.3 suites cannot be configured at all. Set `CipherSuites` only when a
+named compliance regime requires a specific list, and record which one.
 
 ## Rate limiting
 
