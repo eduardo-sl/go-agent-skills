@@ -1,0 +1,33 @@
+{
+  "skill": "go-grpc",
+  "cases": [
+    {
+      "id": "newclient-shared",
+      "prompt": "Write the Go code to create a gRPC client for payments.internal:443 that our service will use for every request.",
+      "expect_all": [
+        "grpc\\.NewClient\\("
+      ],
+      "expect_none": [
+        "grpc\\.Dial\\(|grpc\\.DialContext\\("
+      ],
+      "judge": [
+        "the connection is created once and reused, not per request"
+      ]
+    },
+    {
+      "id": "bufconn-passthrough",
+      "prompt": "Write an in-memory test for my gRPC service using bufconn and grpc.NewClient.",
+      "expect_all": [
+        "bufconn",
+        "passthrough:///"
+      ]
+    },
+    {
+      "id": "status-codes",
+      "prompt": "My gRPC handler returns errors.New(\"not found\") when a payment is missing. Clients can't tell it apart from other failures. Fix it.",
+      "expect_all": [
+        "codes\\.NotFound"
+      ]
+    }
+  ]
+}

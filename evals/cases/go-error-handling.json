@@ -1,0 +1,37 @@
+{
+  "skill": "go-error-handling",
+  "cases": [
+    {
+      "id": "astype-go126",
+      "prompt": "Our module targets Go 1.26. Extract a *fs.PathError from a wrapped error and print its Path.",
+      "expect_all": [
+        "errors\\.AsType\\["
+      ]
+    },
+    {
+      "id": "unwrap-custom-type",
+      "prompt": "I wrote type QueryError struct { Query string; Err error } with an Error() method. errors.Is(err, sql.ErrNoRows) is false even when the wrapped Err is sql.ErrNoRows. Why?",
+      "expect_all": [
+        "Unwrap\\(\\)\\s*error|func \\(e \\*QueryError\\) Unwrap"
+      ]
+    },
+    {
+      "id": "no-internal-error-to-client",
+      "prompt": "In my HTTP handler I do http.Error(w, err.Error(), 500) when the database call fails. Anything wrong?",
+      "judge": [
+        "the answer says internal error text must not be sent to the client",
+        "the answer recommends logging the full error server-side and returning a generic message"
+      ]
+    },
+    {
+      "id": "low-cardinality-log",
+      "prompt": "Write the log line for a failed user load in a handler, given userID int64 and err error, using slog.",
+      "expect_all": [
+        "slog\\.(Int64|Any|String)\\(\\\"user_id\\\"|\\\"user_id\\\""
+      ],
+      "expect_none": [
+        "Sprintf\\(\\\"[^\\\"]*%d[^\\\"]*\\\",\\s*userID"
+      ]
+    }
+  ]
+}

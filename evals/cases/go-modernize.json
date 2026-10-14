@@ -28,6 +28,40 @@
       "expect_all": [
         "os\\.OpenRoot|os\\.Root"
       ]
+    },
+    {
+      "id": "cutlast-go127",
+      "prompt": "Our module is on Go 1.27. Split \"assets/img/logo.png\" into the directory and the file name at the last slash.",
+      "expect_all": [
+        "strings\\.CutLast"
+      ]
+    },
+    {
+      "id": "stdlib-uuid-go127",
+      "prompt": "Go 1.27 service: I need time-ordered UUIDs for database primary keys. What should I use?",
+      "expect_all": [
+        "NewV7"
+      ],
+      "judge": [
+        "the answer recommends the standard library uuid package rather than adding a third-party dependency"
+      ]
+    },
+    {
+      "id": "godebug-removed-go127",
+      "prompt": "We're raising go.mod from go 1.26 to go 1.27. go.mod contains `godebug tlsrsakex=1` because an old client needs RSA key exchange. Anything to check before merging?",
+      "expect_all": [
+        "removed|no longer|fail"
+      ],
+      "judge": [
+        "the answer states that tlsrsakex can no longer be set to its old value in Go 1.27 and the build fails"
+      ]
+    },
+    {
+      "id": "loop-var-shadow",
+      "prompt": "go.mod says go 1.23. A colleague's loop has `for _, v := range items { v := v; go use(v) }`. Keep the `v := v`?",
+      "expect_all": [
+        "remove|delete|unnecessary|no longer needed|redundant"
+      ]
     }
   ]
 }

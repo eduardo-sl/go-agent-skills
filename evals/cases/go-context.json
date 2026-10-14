@@ -1,0 +1,31 @@
+{
+  "skill": "go-context",
+  "cases": [
+    {
+      "id": "without-cancel-audit",
+      "prompt": "After writing the HTTP response I start a goroutine that records an audit event using r.Context(). The audit writes keep failing with context canceled. Fix it.",
+      "expect_all": [
+        "WithoutCancel"
+      ],
+      "judge": [
+        "the detached context also gets its own timeout"
+      ]
+    },
+    {
+      "id": "cancel-cause",
+      "prompt": "When one of several workers fails I cancel a shared context, but later logs only say 'context canceled'. How can I record which worker failed and why?",
+      "expect_all": [
+        "WithCancelCause",
+        "context\\.Cause"
+      ]
+    },
+    {
+      "id": "afterfunc-read",
+      "prompt": "net.Conn.Read takes no context. How do I make a blocking Read return when my ctx is cancelled, without leaking a goroutine?",
+      "expect_all": [
+        "AfterFunc",
+        "SetReadDeadline|SetDeadline"
+      ]
+    }
+  ]
+}

@@ -48,6 +48,21 @@
       "expect_all": [
         "t\\.TempDir\\(\\)|t\\.Cleanup"
       ]
+    },
+    {
+      "id": "assert-scope-subtest",
+      "prompt": "Write a table-driven test using testify's assert package for func Price(qty, unit int) int.",
+      "judge": [
+        "any assert.New(t)/require.New(t) instance is created inside each t.Run closure from the subtest's t, not in the parent"
+      ]
+    },
+    {
+      "id": "require-off-goroutine",
+      "prompt": "In my test I start a goroutine that calls require.NoError(t, err) on the result of a background job. Is that ok?",
+      "judge": [
+        "the answer says require/t.FailNow must not be called from a goroutine other than the test goroutine",
+        "the answer suggests sending the result back on a channel and asserting in the test goroutine"
+      ]
     }
   ]
 }

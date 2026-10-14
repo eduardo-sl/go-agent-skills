@@ -7,7 +7,12 @@ pass, so it works with any CLI that takes a prompt and prints an answer.
 
     scripts/run-evals.py --cmd 'claude -p "{prompt}"'
     scripts/run-evals.py --cmd 'claude -p "{prompt}"' --skill go-defensive-coding
+    scripts/run-evals.py --cmd 'claude -p "{prompt}"' --judge-cmd 'claude -p "{prompt}"'
     scripts/run-evals.py --dry-run
+
+Cases assert with regexes (expect_all / expect_none) and, optionally, with
+a rubric (judge): statements another model call grades as true or false.
+Without --judge-cmd, rubric items are skipped and reported as such.
 
 Compare a run with the skills installed against a run without them. A skill
 that does not move the score is a skill that is not earning its context.
@@ -55,6 +60,43 @@ def run_prompt(cmd_template, prompt, timeout):
     return proc.stdout + proc.stderr
 
 
+JUDGE_TEMPLATE = """You are grading an answer to a Go programming task against a rubric.
+
+<task>
+{task}
+</task>
+
+<answer>
+{answer}
+</answer>
+
+Rubric — each item is a statement that must be true of the answer:
+{items}
+
+Judge each item strictly from the answer's content. Reply with ONLY a JSON
+array of booleans, one per rubric item, in order. Example: [true, false]"""
+
+
+def judge(answer, case, judge_cmd, timeout):
+    items = case.get("judge", [])
+    if not items:
+        return []
+    if not judge_cmd:
+        return [f"judge skipped (no --judge-cmd): {len(items)} rubric item(s)"]
+    prompt = JUDGE_TEMPLATE.format(
+        task=case["prompt"], answer=answer,
+        items="\n".join(f"{i + 1}. {it}" for i, it in enumerate(items)))
+    out = run_prompt(judge_cmd, prompt, timeout)
+    match = re.search(r"\[[^\[\]]*\]", out)
+    try:
+        verdicts = json.loads(match.group(0)) if match else None
+    except json.JSONDecodeError:
+        verdicts = None
+    if not isinstance(verdicts, list) or len(verdicts) != len(items):
+        return [f"judge returned no usable verdict: {out.strip()[:120]!r}"]
+    return [f"rubric: {it}" for it, ok in zip(items, verdicts) if ok is not True]
+
+
 def grade(answer, case):
     flags = 0 if case.get("case_sensitive") else re.IGNORECASE
     failures = []
@@ -75,6 +117,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="print the prompts, run nothing")
     ap.add_argument("--json", dest="as_json", action="store_true", help="emit machine-readable results")
     ap.add_argument("--label", default="run", help="label for this run, e.g. with-skills / baseline")
+    ap.add_argument("--judge-cmd", help="command that grades rubric items; same {prompt} convention as --cmd")
     args = ap.parse_args()
 
     if not args.cmd and not args.dry_run:
@@ -92,9 +135,13 @@ def main():
             if args.dry_run:
                 print(f"  {DIM}[{case['id']}]{NC} {case['prompt']}")
                 continue
+            skipped = []
             try:
                 answer = run_prompt(args.cmd, case["prompt"], args.timeout)
                 failures = grade(answer, case)
+                verdicts = judge(answer, case, args.judge_cmd, args.timeout)
+                skipped = [v for v in verdicts if v.startswith("judge skipped")]
+                failures += [v for v in verdicts if not v.startswith("judge skipped")]
             except subprocess.TimeoutExpired:
                 failures = [f"timeout after {args.timeout}s"]
             ok = not failures
@@ -105,6 +152,8 @@ def main():
                 print(f"  {mark} {case['id']}")
                 for f in failures:
                     print(f"       {YELLOW}{f}{NC}")
+                for sk in skipped:
+                    print(f"       {DIM}{sk}{NC}")
 
     if args.dry_run:
         print(f"\n{total} case(s) across {len(suites)} suite(s).")

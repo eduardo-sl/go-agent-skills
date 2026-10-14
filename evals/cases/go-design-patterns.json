@@ -1,0 +1,32 @@
+{
+  "skill": "go-design-patterns",
+  "cases": [
+    {
+      "id": "retry-jitter",
+      "prompt": "Write a retry helper for calls to a flaky upstream API in Go.",
+      "expect_all": [
+        "ctx\\.Done\\(\\)|context",
+        "jitter|rand\\."
+      ],
+      "judge": [
+        "the number of attempts or total delay is capped",
+        "the delay grows between attempts (backoff)"
+      ]
+    },
+    {
+      "id": "status-not-booleans",
+      "prompt": "Our Order struct has IsPaid, IsShipped, IsDelivered and IsCancelled booleans and we keep finding orders that are shipped but not paid. Redesign it.",
+      "judge": [
+        "the answer replaces the booleans with a single status type",
+        "state transitions are checked in methods that return an error on invalid transitions"
+      ]
+    },
+    {
+      "id": "functional-options",
+      "prompt": "NewServer has 9 parameters, 7 of them optional. Redesign the constructor.",
+      "expect_all": [
+        "type Option func|func With[A-Z]\\w*\\(|Config struct"
+      ]
+    }
+  ]
+}

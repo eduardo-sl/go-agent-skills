@@ -1,0 +1,29 @@
+{
+  "skill": "go-semantic-tools",
+  "cases": [
+    {
+      "id": "references-not-grep",
+      "prompt": "Before changing the signature of (*Store).Get in our Go repo, how do I find every call site?",
+      "expect_all": [
+        "gopls|go_symbol_references|references"
+      ],
+      "judge": [
+        "the answer prefers a type-aware tool over plain text search"
+      ]
+    },
+    {
+      "id": "gopls-mcp",
+      "prompt": "How can an AI coding agent use gopls without an editor?",
+      "expect_all": [
+        "gopls mcp"
+      ]
+    },
+    {
+      "id": "build-tags-gotcha",
+      "prompt": "gopls references shows no callers of a function, but I know it's used in a _windows.go file. Why?",
+      "expect_all": [
+        "GOOS|build tag|build constraint"
+      ]
+    }
+  ]
+}

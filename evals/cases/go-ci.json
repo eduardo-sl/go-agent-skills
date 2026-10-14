@@ -1,0 +1,31 @@
+{
+  "skill": "go-ci",
+  "cases": [
+    {
+      "id": "golangci-v2-config",
+      "prompt": "Write a .golangci.yml for golangci-lint v2 that enables errorlint and gosec and skips gosec in test files.",
+      "expect_all": [
+        "version:\\s*\\\"?2\\\"?",
+        "exclusions"
+      ],
+      "expect_none": [
+        "exclude-rules:\\s*\\n\\s*-\\s*path"
+      ]
+    },
+    {
+      "id": "dependabot-actions",
+      "prompt": "Set up Dependabot for a Go repository that uses GitHub Actions.",
+      "expect_all": [
+        "gomod",
+        "github-actions"
+      ]
+    },
+    {
+      "id": "go-version-matrix",
+      "prompt": "Write the GitHub Actions matrix to test a Go library on the Go versions the Go team supports.",
+      "expect_all": [
+        "oldstable|stable"
+      ]
+    }
+  ]
+}
