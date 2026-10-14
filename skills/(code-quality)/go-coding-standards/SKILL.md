@@ -3,19 +3,20 @@ name: go-coding-standards
 description: >
   Go coding standards and style conventions grounded in Effective Go, Go
   Code Review Comments, and production-proven idioms. Use when writing or
-  reviewing Go code, enforcing naming conventions, import ordering, variable
-  declarations, struct initialization, or formatting rules. Trigger
-  examples: "check Go style", "fix formatting", "review naming", "Go
-  conventions".
-  Not for: architecture (go-architecture-review), concurrency
-  (go-concurrency-review), performance tuning (go-performance-review).
+  reviewing Go code for import ordering, variable declarations, struct
+  initialization, nesting, receivers, struct tags, or formatting rules.
+  Trigger examples: "check Go style", "fix formatting", "Go conventions",
+  "struct initialization".
+  Not for: naming (go-naming), architecture (go-architecture-review),
+  concurrency (go-concurrency-review), performance tuning
+  (go-performance-review).
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. golangci-lint is optional.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.1"
+  version: "2.0.0"
 ---
 
 # Go Coding Standards
@@ -57,27 +58,14 @@ import (
 
 NEVER use dot imports. Use aliasing only to resolve conflicts.
 
-## 2. Naming Conventions
+## 2. Naming
 
-### Packages
-- Short, lowercase, single-word names. No underscores, no camelCase.
-- Name should describe what the package *provides*, not what it *contains*.
-- Avoid generic names: `util`, `common`, `helpers`, `misc`, `base`.
-
-### Functions & Methods
-- MixedCaps (exported) or mixedCaps (unexported). No underscores except in test files.
-- Getters: use `Name()`, NOT `GetName()`. Setters: use `SetName()`.
-- Constructors: `NewFoo()` returns `*Foo`. If only one type in package: `New()`.
-
-### Variables
-- Short names in tight scopes: `i`, `n`, `err`, `ctx`.
-- Descriptive names for wider scopes: `userCount`, `retryTimeout`.
-- Prefix unexported package-level globals with `_`: `var _defaultTimeout = 5 * time.Second`.
-- Do NOT shadow built-in identifiers (`error`, `len`, `cap`, `new`, `make`, `close`).
-
-### Interfaces
-- Single-method interfaces: method name + `-er` suffix (`Reader`, `Writer`, `Closer`).
-- Define interfaces where they are *consumed*, not where they are *implemented*.
+Naming is owned by the go-naming skill: packages, stuttering, initialisms,
+getters, receivers, error and test names. Two rules stay here because they
+are about declarations: do not shadow predeclared identifiers (`len`,
+`new`, `error`, `min`, `max`), and unexported package-level variables may
+carry a `_` prefix (`_defaultTimeout`) when the codebase uses that
+convention.
 
 ## 3. Variable Declarations
 
