@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(git:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go CI
@@ -39,8 +39,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod   # single source of truth
           cache: true               # caches module + build cache
@@ -51,23 +51,25 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v9  # v7+ runs golangci-lint v2
         with:
-          version: latest
+          version: v2.6                         # pin a minor; v2.6+ has `modernize`
 
   vuln:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: golang/govulncheck-action@v1
         with:
           go-version-file: go.mod
-      - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 ```
+
+Action major versions move several times a year. Treat the ones above as
+a snapshot, and let Dependabot's `github-actions` ecosystem keep them
+current rather than editing them by hand.
 
 Key decisions baked in:
 
@@ -84,20 +86,24 @@ Key decisions baked in:
 Commit a `.golangci.yml`; an unconfigured linter is noise:
 
 ```yaml
+version: "2"            # required: golangci-lint v2 rejects v1 files
+
 linters:
+  default: standard     # errcheck, govet, ineffassign, staticcheck, unused
   enable:
-    - errcheck      # unchecked errors
-    - govet
-    - staticcheck
-    - errorlint     # %w misuse, == on errors
-    - gosec         # security patterns
-    - revive        # style, replaces golint
+    - errorlint         # %w misuse, == on errors
+    - gosec             # security patterns
+    - revive            # style, replaces golint
     - misspell
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters: [gosec]  # test code may use weak randomness etc.
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters: [gosec]  # test code may use weak randomness etc.
 ```
+
+golangci-lint v2 moved exclusions from `issues.exclude-rules` to
+`linters.exclusions.rules` and made the `version` key mandatory. A v1 file
+fails to load, and `golangci-lint migrate` converts one in place.
 
 Start from this small set and add linters deliberately. Enabling
 everything produces hundreds of findings nobody triages. `nolint`
@@ -108,11 +114,12 @@ directives require a reason: `//nolint:gosec // G404: jitter, not crypto`.
 ```yaml
 strategy:
   matrix:
-    go: ['1.23', '1.24']         # only versions you support
+    go: [oldstable, stable]      # the two releases the Go team supports
     os: [ubuntu-latest, macos-latest, windows-latest]
 ```
 
-Libraries: test the two newest Go versions (the Go team supports two).
+Libraries: test the two supported Go releases. setup-go resolves
+`stable`/`oldstable` at run time, so the matrix never goes stale.
 Services deployed on Linux: skip the OS matrix — it doubles cost for
 platforms you never ship. Cross-compilation is cheaper than emulation:
 `GOOS=windows go build ./...` catches most portability breaks.
@@ -149,7 +156,7 @@ test:
 	go test -race -shuffle=on -coverprofile=coverage.out ./...
 
 vuln:
-	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+	go tool govulncheck ./...   # pinned via `go get -tool` (Go 1.24+)
 
 ci: build lint test vuln
 ```
