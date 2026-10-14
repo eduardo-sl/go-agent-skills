@@ -18,12 +18,12 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep
 metadata:
   author: eduardo-sl
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Go Skills Router
 
-This repository publishes 34 Go skills. Their triggers necessarily overlap —
+This repository publishes 35 Go skills. Their triggers necessarily overlap —
 "this is slow" could be performance, concurrency, database, or a leak. Use the
 tables below to pick the owner, then load the secondary skills in the same
 pass rather than discovering them one at a time.
@@ -59,6 +59,7 @@ this one.
 | Audit for vulnerabilities | `go-security-audit` | `go-dependency-audit`, `go-defensive-coding` |
 | Reduce allocations, optimise a hot path | `go-performance-review` | `go-data-structures` |
 | Shrink a binary or image | `go-binary-size` | `go-ci` |
+| Cut a release: GoReleaser, signing, SBOMs, provenance | `go-build-release` | `go-ci`, `go-binary-size` |
 | Add logs, metrics, traces | `go-observability` | `go-context` |
 | Debug a panic, leak, or deadlock | `go-troubleshooting` | `go-concurrency-review`, `go-performance-review` |
 | Write or improve tests | `go-test-quality` | `go-test-table-driven` |
@@ -131,6 +132,12 @@ a keyword in the code.
 - `go-modernize` — rules that changed because the language moved.
 - `go-ci` — making a machine enforce them.
 
+**"Ship it."**
+
+- `go-ci` — the pipeline that gates every change: build, lint, test, scan.
+- `go-build-release` — turning a tag into signed, reproducible artifacts.
+- `go-binary-size` — making those artifacts smaller.
+
 ## Which Tool Answers the Question
 
 | Question | Tool | Skill |
@@ -186,7 +193,7 @@ Asked to make a project load these skills automatically:
 | Data | `go-database` |
 | Safety & Performance | `go-concurrency-review` `go-security-audit` `go-defensive-coding` `go-performance-review` `go-observability` `go-troubleshooting` |
 | Testing | `go-test-quality` `go-test-table-driven` |
-| Workflow | `go-dependency-audit` `go-ci` `go-refactoring` `go-semantic-tools` `go-binary-size` `git-commit` `go-skills-router` |
+| Workflow | `go-dependency-audit` `go-ci` `go-refactoring` `go-semantic-tools` `go-binary-size` `go-build-release` `git-commit` `go-skills-router` |
 
 ## Verification Checklist
 
