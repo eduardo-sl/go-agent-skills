@@ -18,12 +18,12 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep
 metadata:
   author: eduardo-sl
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Go Skills Router
 
-This repository publishes 33 Go skills. Their triggers necessarily overlap —
+This repository publishes 34 Go skills. Their triggers necessarily overlap —
 "this is slow" could be performance, concurrency, database, or a leak. Use the
 tables below to pick the owner, then load the secondary skills in the same
 pass rather than discovering them one at a time.
@@ -35,7 +35,8 @@ this one.
 
 | Task | Primary | Also load |
 |---|---|---|
-| Format, name, or lay out code | `go-coding-standards` | `go-documentation` |
+| Format code, order imports, declare and initialise | `go-coding-standards` | `go-documentation` |
+| Name a package, type, function, receiver or error | `go-naming` | `go-coding-standards` |
 | Review a diff or a PR | `go-code-review` | the skill owning the domain under review |
 | Return, wrap, or inspect errors | `go-error-handling` | `go-defensive-coding` for nil-heavy code |
 | Pass deadlines, cancel work | `go-context` | `go-concurrency-review` if goroutines are involved |
@@ -124,6 +125,8 @@ a keyword in the code.
 **"Style."**
 
 - `go-coding-standards` — the rules the code should follow.
+- `go-naming` — what things are called: packages, types, functions,
+  receivers, errors.
 - `go-code-review` — applying rules to someone else's change, with severity.
 - `go-modernize` — rules that changed because the language moved.
 - `go-ci` — making a machine enforce them.
@@ -178,7 +181,7 @@ Asked to make a project load these skills automatically:
 
 | Category | Skills |
 |---|---|
-| Code Quality | `go-coding-standards` `go-code-review` `go-error-handling` `go-context` `go-modernize` `go-data-structures` `go-documentation` |
+| Code Quality | `go-coding-standards` `go-naming` `go-code-review` `go-error-handling` `go-context` `go-modernize` `go-data-structures` `go-documentation` |
 | Architecture | `go-architecture-review` `go-project-layout` `go-interface-design` `go-api-design` `go-openapi` `go-graphql` `go-grpc` `go-design-patterns` `go-dependency-injection` `go-cli` |
 | Data | `go-database` |
 | Safety & Performance | `go-concurrency-review` `go-security-audit` `go-defensive-coding` `go-performance-review` `go-observability` `go-troubleshooting` |

@@ -204,6 +204,13 @@
         "go-code-review",
         "go-concurrency-review"
       ]
+    },
+    {
+      "id": "naming-not-style",
+      "prompt": "In package order I have a type called OrderService and a constructor NewOrderService. Is that idiomatic? Which Go skill covers this?",
+      "expect_all": [
+        "go-naming"
+      ]
     }
   ]
 }
