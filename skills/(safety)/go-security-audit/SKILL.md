@@ -1,9 +1,9 @@
 ---
 name: go-security-audit
 description: >
-  Security review for Go applications: input validation, SQL injection,
-  authentication/authorization, secrets management, TLS, OWASP Top 10, and
-  secure coding patterns. Use when performing security reviews, checking for
+  Security review for Go applications: input validation, SQL and command
+  injection, SSRF, path traversal, auth, secrets, cryptography, TLS, CSRF and
+  cookies, OWASP Top 10. Use when performing security reviews, checking for
   vulnerabilities, hardening Go services, or reviewing auth implementations.
   Trigger examples: "security review", "check vulnerabilities", "OWASP",
   "SQL injection", "input validation", "secrets management", "auth review".
@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*) Bash(govulncheck:*) Bash(gosec:*) Bash(gitleaks:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.2"
+  version: "1.8.0"
 ---
 
 # Go Security Audit
@@ -33,6 +33,21 @@ Pick the mode that matches the request before starting:
   every concern below.
 - **Full audit** (default for "security review the service") — sweep the
   codebase using the parallel passes in "Auditing Large Codebases".
+
+## Research Before Reporting
+
+- Trace each suspicious sink back to an entry point (go-semantic-tools:
+  references, call hierarchy). A sink fed only by constants or internal
+  values is not a vulnerability.
+- Check what upstream already enforces — type parsing, allowlists,
+  middleware. It lowers severity; it does not delete the finding.
+- 🔴 BLOCKER: exploitable today by whoever controls the input. 🟡 WARNING:
+  needs a second failure or a privileged caller. 🟢 SUGGESTION: hardening.
+- Every finding states file:line, the entry → sink path, a one-sentence
+  exploit, and the fix.
+
+Trust boundaries, STRIDE checks and the finding template:
+`references/threat-model.md`.
 
 ## Run the Scanners First
 
@@ -55,7 +70,8 @@ beyond ~20 files:
 
 1. Locate the attack surface first: HTTP/gRPC handlers, CLI entry
    points, queue consumers, and anything parsing external input.
-2. Run one pass per concern: (a) input validation + injection,
+2. Run one pass per concern: (a) input validation + SQL and other
+   injection (command, SSRF, paths, archives, templates),
    (b) authentication/authorization, (c) secrets + crypto,
    (d) TLS + security headers + rate limiting, (e) logging hygiene.
 3. If your environment supports delegating work to parallel sub-agents
@@ -67,9 +83,14 @@ beyond ~20 files:
 Detailed reference material, loaded on demand:
 
 - `references/injection.md` — boundary validation, sanitization,
-  parameterized and dynamic queries.
+  parameterized and dynamic queries, command injection, SSRF, path
+  traversal, archives, templates, open redirects, log injection.
 - `references/auth-and-transport.md` — passwords, JWT, authorization
-  middleware, secrets, TLS, headers, rate limiting.
+  middleware, secrets, headers, cookies, CSRF, CORS, TLS, rate limiting.
+- `references/threat-model.md` — trust boundaries, STRIDE per boundary,
+  severity definitions, finding template.
+- `references/crypto.md` — randomness, constant-time comparison, password
+  hashing, AEAD encryption, hashes and KDFs, signatures, FIPS mode.
 
 Read a reference file only when the section below is not enough.
 
@@ -109,7 +130,23 @@ against a fixed set.
 
 Examples in `references/injection.md`.
 
-## 3. Authentication & Authorization
+## 3. Injection Beyond SQL
+
+- **Command** — `exec.CommandContext(ctx, "tool", "--", arg)`: no shell,
+  `--` before input. Input never selects the binary.
+- **SSRF** — server-side fetches of caller URLs go through a client whose
+  dialer rejects loopback, private, link-local and metadata addresses
+  *after* DNS resolution, with proxies disabled.
+- **Paths** — `os.Root` (Go 1.24+) for any user-influenced path;
+  `filepath.Join` + `HasPrefix` misses symlinks.
+- **Archives** — reject non-local entry names (zip slip), cap entry count,
+  declared size and bytes actually read (decompression bombs).
+- **HTML** — `html/template` only; `template.HTML(input)` disables escaping.
+- **Redirects** — only same-site relative paths or allowlisted hosts.
+
+Examples in `references/injection.md`.
+
+## 4. Authentication & Authorization
 
 - Hash passwords with `bcrypt` (or argon2id). NEVER store plaintext, NEVER
   use MD5/SHA — they are fast, which is the wrong property here.
@@ -125,7 +162,7 @@ Examples in `references/injection.md`.
 
 Examples in `references/auth-and-transport.md`.
 
-## 4. Secrets Management
+## 5. Secrets Management
 
 - 🔴 NEVER hardcode secrets, tokens, or API keys in source code
 - 🔴 NEVER commit secrets to git (even in "test" files)
@@ -137,7 +174,20 @@ CI so a leak fails the build instead of ageing in history.
 
 Examples in `references/auth-and-transport.md`.
 
-## 5. Transport, Headers and Rate Limiting
+## 6. Cryptography and Randomness
+
+- `crypto/rand` for anything that must not be guessed — tokens (`rand.Text`,
+  Go 1.24+), nonces, salts. `math/rand` never.
+- Compare secrets with `subtle.ConstantTimeCompare` / `hmac.Equal`.
+- Encrypt with AES-GCM via `cipher.NewGCMWithRandomNonce` (Go 1.24+), so
+  no nonce is ever reused. No ECB, no unauthenticated modes.
+- SHA-256/SHA-3 for integrity, HMAC for authentication, HKDF to derive keys,
+  Ed25519 for signatures. MD5 and SHA-1 never protect anything.
+- FIPS environments build with `GOFIPS140` (Go 1.24+).
+
+Examples in `references/crypto.md`.
+
+## 7. Transport, Headers and Rate Limiting
 
 - Set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a
   `Content-Security-Policy`, and HSTS on every response.
@@ -146,10 +196,15 @@ Examples in `references/auth-and-transport.md`.
   NEVER `InsecureSkipVerify: true` outside a test.
 - Rate limit auth endpoints, public APIs, and anything expensive, keyed per
   client rather than globally.
+- Browser-facing: session cookies `Secure`, `HttpOnly`, `SameSite`, with a
+  `__Host-` prefix; CSRF via `http.CrossOriginProtection` (Go 1.25+), with
+  no state change on GET; CORS from an exact-origin allowlist, never `*`
+  on authenticated APIs.
+- pprof and other debug handlers only on an internal listener.
 
 Examples in `references/auth-and-transport.md`.
 
-## 6. Logging Security
+## 8. Logging Security
 
 Log the identifier, never the credential:
 
@@ -169,8 +224,11 @@ whatever field someone adds next sprint.
 
 ### Critical (🔴 BLOCKER)
 - No SQL injection vectors (all queries parameterized)
+- No shell invocation with input; no user-controlled path outside an `os.Root`
+- Server-side fetches of user URLs blocked from private/metadata addresses
 - No hardcoded secrets/keys/tokens
 - No plaintext password storage
+- No `math/rand` for tokens, IDs or nonces; no `==` on secrets
 - No disabled TLS certificate verification
 - Request body size limited
 - JWT signature verified, `alg: none` rejected

@@ -3,6 +3,19 @@
 Passwords, JWTs, authorization middleware, secret handling, TLS, headers and
 rate limiting. The SKILL.md sections state the rules; this file has the code.
 
+## Contents
+
+- Password hashing
+- JWT validation
+- Authorization middleware
+- Secrets
+- Security headers
+- Cookies
+- CSRF (Go 1.25+)
+- CORS
+- TLS configuration
+- Rate limiting
+
 ## Password hashing
 
 ```go
@@ -89,6 +102,44 @@ func SecurityHeaders(next http.Handler) http.Handler {
     })
 }
 ```
+
+## Cookies
+
+```go
+http.SetCookie(w, &http.Cookie{
+    Name:     "__Host-session", // __Host-: Secure, Path=/, no Domain — cannot be set by a subdomain
+    Value:    sessionID,         // opaque, from crypto/rand; never user data
+    Path:     "/",
+    Secure:   true,              // HTTPS only
+    HttpOnly: true,              // invisible to JavaScript (XSS cannot read it)
+    SameSite: http.SameSiteLaxMode,
+    MaxAge:   int((8 * time.Hour).Seconds()),
+})
+```
+
+Rotate the session ID on login and privilege change (session fixation).
+
+## CSRF (Go 1.25+)
+
+```go
+cop := http.NewCrossOriginProtection()
+if err := cop.AddTrustedOrigin("https://admin.example.com"); err != nil {
+    return err
+}
+srv := &http.Server{Handler: cop.Handler(mux)}
+```
+
+It rejects non-safe cross-origin browser requests using `Sec-Fetch-Site`
+(and `Origin` vs `Host`), and always allows GET, HEAD and OPTIONS — so
+those methods must never change state.
+
+## CORS
+
+- Allowlist exact origins; never reflect the request's `Origin` blindly.
+- `Access-Control-Allow-Origin: *` is incompatible with credentials — and
+  a wildcard on an authenticated API is a finding even without them.
+- CORS relaxes the browser's protection. It is not an access control on
+  the server.
 
 ## TLS configuration
 
