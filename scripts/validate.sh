@@ -184,6 +184,57 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
     echo ""
 done
 
+# Validate cross-references, reference-file navigation and unsafe patterns
+echo "Validating cross-references and reference files..."
+echo ""
+if python3 - "$SKILLS_DIR" <<'PYEOF'
+import pathlib, re, sys
+skills_dir = pathlib.Path(sys.argv[1])
+skills = {p.parent.name for p in skills_dir.glob("*/*/SKILL.md")}
+# Backticked tokens that look like skill names but are not skills.
+NON_SKILL_TOKENS = {"go-bindata", "go-version-file"}
+ref_pattern = re.compile(r"`(go-[a-z0-9-]+)`|\b(go-[a-z0-9-]+) skill\b|\((go-[a-z0-9-]+)[,)]")
+errors, warnings = [], []
+files = sorted(skills_dir.glob("*/*/SKILL.md")) + sorted(skills_dir.glob("*/*/references/*.md"))
+for f in files:
+    rel = f.relative_to(skills_dir.parent)
+    text = f.read_text()
+    fence = False
+    for n, line in enumerate(text.splitlines(), 1):
+        if line.startswith("```"):
+            fence = not fence
+            continue
+        if not fence:
+            for m in ref_pattern.finditer(line):
+                name = next(g for g in m.groups() if g)
+                if name not in skills and name not in NON_SKILL_TOKENS:
+                    errors.append(f"{rel}:{n}: references unknown skill '{name}'")
+            # A bare @skill-name force-loads the whole skill in some harnesses.
+            if re.search(r"(^|[\s(])@go-[a-z]", line):
+                errors.append(f"{rel}:{n}: '@go-...' force-loads a skill; cite it by name instead")
+        # Piping a download into a shell runs unreviewed code.
+        if re.search(r"\b(curl|wget)\b[^|]*\|\s*(sudo\s+)?(sh|bash|zsh)\b", line):
+            errors.append(f"{rel}:{n}: pipes a download into a shell")
+    if "/references/" in str(f) and len(text.splitlines()) > 100 and not re.search(r"^## (Contents|Table of Contents)\s*$", text, re.M):
+        warnings.append(f"{rel}: over 100 lines without a '## Contents' list")
+for w in warnings:
+    print(f"  WARN: {w}")
+for e in errors:
+    print(f"  ERROR: {e}")
+sys.exit(2 if errors else (1 if warnings else 0))
+PYEOF
+then
+    ok "Cross-references resolve; reference files navigable; no unsafe patterns"
+else
+    rc=$?
+    if [[ $rc -eq 2 ]]; then
+        error "Cross-reference or unsafe-pattern check failed (see above)"
+    else
+        warn "Reference files missing a contents list (see above)"
+    fi
+fi
+echo ""
+
 # Validate _category.json files
 echo "Validating category metadata..."
 echo ""
@@ -257,9 +308,13 @@ if not list(skills_dir.glob(f"*/{skill}/SKILL.md")):
     raise SystemExit(f"no such skill: {skill}")
 ids = set()
 for c in data["cases"]:
-    for field in ("id", "prompt", "expect_all"):
+    for field in ("id", "prompt"):
         if not c.get(field):
             raise SystemExit(f"case {c.get('id', '?')}: missing {field}")
+    if not c.get("expect_all") and not c.get("judge"):
+        raise SystemExit(f"case {c['id']}: needs expect_all or judge")
+    if not all(isinstance(j, str) and j.strip() for j in c.get("judge", [])):
+        raise SystemExit(f"case {c['id']}: judge items must be non-empty strings")
     if c["id"] in ids:
         raise SystemExit(f"duplicate case id: {c['id']}")
     ids.add(c["id"])
