@@ -15,7 +15,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gopls:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # Go Modernize
@@ -46,8 +46,8 @@ Read a reference file only when the summary below is not enough.
    # Go 1.26+ — the modernizers now live in go fix
    go fix ./...
 
-   # Go 1.25 and earlier
-   go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
+   # Go 1.25 and earlier, or a modernizer newer than your toolchain
+   go run golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize@latest -fix ./...
    ```
 
    Both rewrite source in place. Commit before running, and review the diff.
