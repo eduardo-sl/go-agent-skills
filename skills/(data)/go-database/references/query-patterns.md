@@ -2,6 +2,17 @@
 
 Full examples for the query rules summarized in SKILL.md.
 
+## Contents
+
+- Parameterized Queries — NEVER String Concatenation
+- Context Propagation
+- Multi-Row Iteration
+- Single-Row Queries
+- Transaction Usage
+- Null Handling
+- Avoiding N+1 Queries
+- Connection Leak Prevention
+
 ## Parameterized Queries — NEVER String Concatenation
 
 ```go

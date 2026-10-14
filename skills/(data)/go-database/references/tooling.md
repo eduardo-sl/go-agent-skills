@@ -2,6 +2,12 @@
 
 Full examples for the structure/tooling rules summarized in SKILL.md.
 
+## Contents
+
+- Repository Pattern
+- sqlc — Type-Safe SQL
+- Migrations
+
 ## Repository Pattern
 
 Define a repository interface at the consumer side:

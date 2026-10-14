@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.1"
+  version: "1.5.1"
 ---
 
 # Go Database Patterns
@@ -22,12 +22,21 @@ metadata:
 Database access is where most Go services spend their complexity budget.
 Get connection management, transactions, and query patterns right.
 
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-database` takes precedence over this one.
+
 Detailed reference material, loaded on demand:
 
 - `references/query-patterns.md` — full query/scan/rows patterns, null
   handling, N+1 avoidance, connection-leak examples.
 - `references/tooling.md` — repository pattern implementation, sqlc
   annotated queries, migration tooling and rules.
+- `references/locking-and-retries.md` — `FOR UPDATE`/`SKIP LOCKED`,
+  optimistic versioning, retrying `40001`/`40P01`, constraint errors.
+- `references/performance.md` — COPY and batched inserts, keyset
+  pagination, pool statistics, `sql.Null[T]`.
+- `references/testing.md` — choosing fakes vs a real database,
+  testcontainers setup, isolation strategies.
 
 Read a reference file only when the summary below is not enough.
 
@@ -95,19 +104,26 @@ Multi-row iteration patterns: `references/query-patterns.md`.
 Use a helper that guarantees rollback on error:
 
 ```go
-func WithTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) error {
+func WithTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) (err error) {
     tx, err := db.BeginTx(ctx, nil)
     if err != nil {
         return fmt.Errorf("begin tx: %w", err)
     }
+    defer func() {
+        if p := recover(); p != nil {
+            _ = tx.Rollback() // release the connection, then keep panicking
+            panic(p)
+        }
+        if err != nil {
+            if rbErr := tx.Rollback(); rbErr != nil && !errors.Is(rbErr, sql.ErrTxDone) {
+                err = errors.Join(err, fmt.Errorf("rollback: %w", rbErr))
+            }
+        }
+    }()
 
     if err := fn(tx); err != nil {
-        if rbErr := tx.Rollback(); rbErr != nil {
-            return fmt.Errorf("rollback failed: %v (original: %w)", rbErr, err)
-        }
         return err
     }
-
     if err := tx.Commit(); err != nil {
         return fmt.Errorf("commit tx: %w", err)
     }
@@ -115,10 +131,30 @@ func WithTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) error {
 }
 ```
 
+The deferred rollback covers a panic inside `fn`, which would otherwise
+leave the transaction open and its connection out of the pool until the
+context ends. `errors.Join` keeps both errors inspectable.
+
 Set isolation explicitly for critical operations:
 `sql.TxOptions{Isolation: sql.LevelSerializable}`.
 
-## 4. Structure and Tooling
+## 4. Concurrency Control and Errors
+
+- Read-then-write in one transaction with `SELECT ... FOR UPDATE`; job
+  queues claim rows with `FOR UPDATE SKIP LOCKED`; lock rows in a
+  consistent order to avoid deadlocks.
+- For user-facing edits, optimistic concurrency: a `version` column in the
+  `WHERE`, and zero rows affected means conflict.
+- `40001` (serialization failure) and `40P01` (deadlock) are retryable:
+  retry the whole transaction function with jittered backoff and a cap.
+  The function must have no side effects outside the transaction.
+- Map constraint violations to domain errors (`23505` unique →
+  `ErrEmailTaken` → 409). Let the database enforce uniqueness; check-then-
+  insert races.
+
+Code: `references/locking-and-retries.md`.
+
+## 5. Structure and Tooling
 
 - **Repository pattern:** define the interface at the consumer side,
   implement it with concrete database access, map driver errors to
@@ -131,7 +167,7 @@ Set isolation explicitly for critical operations:
 
 Implementations and examples: `references/tooling.md`.
 
-## 5. Common Pitfalls
+## 6. Common Pitfalls
 
 - **Null columns:** use `sql.NullString`/`sql.NullInt64` or pointer
   fields (`*string`, nil = SQL NULL). Scanning NULL into a plain string
@@ -139,9 +175,30 @@ Implementations and examples: `references/tooling.md`.
 - **N+1 queries:** a query inside a loop over query results. Replace
   with a JOIN or a batch query (`WHERE id = ANY($1)`).
 - **Connection leaks:** any early `return` between `Query` and
-  `defer rows.Close()` leaks a connection from the pool.
+  `defer rows.Close()` leaks a connection from the pool — and so does
+  `db.Query` for a statement that returns no rows; use `ExecContext`.
 
 Worked examples of each pitfall: `references/query-patterns.md`.
+
+## 7. Performance
+
+- Bulk writes: pgx `CopyFrom`, or multi-row `INSERT` in batches of a few
+  hundred rows — never one round trip per row.
+- Paginate with a keyset cursor (`WHERE (created_at, id) < ($1, $2)`), not
+  `OFFSET`, which scans skipped rows and shifts under inserts.
+- Export `db.Stats()`: a rising `WaitCount` means the pool, or something
+  holding connections, is the bottleneck.
+- `sql.Null[T]` (Go 1.22+) replaces the per-type `NullString` family.
+
+Examples: `references/performance.md`.
+
+## 8. Testing
+
+Fake the consumer-side repository interface for service logic; test SQL
+against a real database in a container (testcontainers, behind
+`//go:build integration`), running the production migrations. Isolate
+tests with a transaction per test, a template database, or truncation.
+Examples: `references/testing.md`.
 
 ## Verification Checklist
 
@@ -155,3 +212,5 @@ Worked examples of each pitfall: `references/query-patterns.md`.
 8. Nullable columns use `sql.NullString` / `sql.NullInt64` or pointer types
 9. No N+1 query patterns — use JOINs or batch queries
 10. Migrations are versioned, reversible, and run separately from app startup
+11. No `OFFSET` pagination on large tables; bulk writes batched
+12. SQL is tested against a real database, not mocked query strings
