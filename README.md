@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://skills.sh/eduardo-sl/go-agent-skills"><img alt="skills" src="https://img.shields.io/badge/skills-33-00ADD8?style=for-the-badge&labelColor=06202B"></a>
+  <a href="https://skills.sh/eduardo-sl/go-agent-skills"><img alt="skills" src="https://img.shields.io/badge/skills-35-00ADD8?style=for-the-badge&labelColor=06202B"></a>
   <a href="https://agentskills.io/specification.md"><img alt="spec" src="https://img.shields.io/badge/Agent%20Skills-spec%20compliant-7FE7C4?style=for-the-badge&labelColor=06202B"></a>
   <a href="https://github.com/eduardo-sl/go-agent-skills/actions/workflows/validate.yml"><img alt="ci" src="https://img.shields.io/github/actions/workflow/status/eduardo-sl/go-agent-skills/validate.yml?style=for-the-badge&labelColor=06202B&label=validate"></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-8FC7D8?style=for-the-badge&labelColor=06202B"></a>
@@ -20,7 +20,7 @@ npx skills add eduardo-sl/go-agent-skills
 > guidance it writes Java-flavoured Go: naked `err` returns, producer-side
 > interfaces, goroutines nobody stops, `interface{}` where generics belong.
 >
-> These 33 skills encode how experienced Go engineers actually work — grounded in
+> These 35 skills encode how experienced Go engineers actually work — grounded in
 > the [Uber Go Style Guide](https://github.com/uber-go/guide),
 > [Effective Go](https://go.dev/doc/effective_go), and
 > [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments) — and they load
@@ -247,17 +247,17 @@ All figures are approximate tokens (bytes ÷ 4).
 | Skill | What it does | Triggers | Desc | SKILL.md | Tree |
 | --- | --- | --- | ---: | ---: | ---: |
 | [`git-commit`](skills/(workflow)/git-commit/) | Conventional Commits, atomic commits, pre-commit verification | "commit changes", "commit message" | 109 | 1,466 | 1,466 |
-| [`go-binary-size`](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" | 153 | 1,899 | 1,899 |
+| [`go-binary-size`](skills/(workflow)/go-binary-size/) | Linker flags, inlining, CGO, build tags, embedded assets, image size | "binary is too big", "shrink the binary", "reduce image size" | 166 | 1,912 | 1,912 |
 | [`go-build-release`](skills/(workflow)/go-build-release/) 📚 | Reproducible builds, GoReleaser, SBOMs, cosign signing, provenance, images | "release a Go binary", "set up GoReleaser", "sign the release" | 156 | 1,734 | 3,358 |
-| [`go-ci`](skills/(workflow)/go-ci/) 📚 | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 139 | 1,934 | 3,112 |
+| [`go-ci`](skills/(workflow)/go-ci/) 📚 | GitHub Actions, golangci-lint, coverage gates, Makefile parity | "set up CI", "add lint to pipeline" | 149 | 1,972 | 3,150 |
 | [`go-dependency-audit`](skills/(workflow)/go-dependency-audit/) 📚 | Module hygiene, `govulncheck`, dep evaluation, go.mod review | "check dependencies", "audit deps" | 136 | 1,843 | 2,356 |
 | [`go-refactoring`](skills/(workflow)/go-refactoring/) 📚 | Behavior-preserving steps, extract package, strangler migrations | "refactor this", "break circular dependency" | 142 | 1,958 | 2,563 |
 | [`go-semantic-tools`](skills/(workflow)/go-semantic-tools/) 📚 | gopls navigation, go list dependency graphs, semantic rename | "find all callers", "who implements this" | 155 | 1,727 | 2,507 |
-| [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 175 | 2,569 | 2,569 |
+| [`go-skills-router`](skills/(workflow)/go-skills-router/) | Routes a task to the skill that owns it, plus the secondary skills to load | "which skill should I use", "what Go skills do you have" | 175 | 2,657 | 2,657 |
 
-**Budget.** All 35 descriptions together are ~4,770 tokens at startup — the only
+**Budget.** All 35 descriptions together are ~4,790 tokens at startup — the only
 figure paid on every request, Go work or not. A typical session fires 2–4
-skills, so ~5,300 tokens of body. The full tree is ~124,900 tokens and is never
+skills, so ~5,300 tokens of body. The full tree is ~125,100 tokens and is never
 loaded at once; that gap is the point of progressive disclosure.
 
 ---
@@ -276,7 +276,7 @@ Same suite, run in a project with the skills and in one without. The delta is
 the measurement.
 
 One suite measures something else: `go-skills-router` asserts which skill a
-task should route to. With 33 overlapping triggers, picking the wrong skill
+task should route to. With 35 overlapping triggers, picking the wrong skill
 costs more than any description does. Case format and guidance:
 [`evals/README.md`](evals/README.md).
 
