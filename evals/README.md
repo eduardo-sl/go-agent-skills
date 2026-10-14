@@ -72,7 +72,7 @@ are passed to both commands as arguments, never through a shell.
 
 `evals/cases/go-skills-router.json` measures something different from the
 other suites: not whether an answer is good, but whether the agent picks the
-right skill. That is the failure mode that grows with the catalogue — at 33
+right skill. That is the failure mode that grows with the catalogue — at 35
 skills the triggers overlap, and loading the wrong one costs context and
 gives a confidently off-target answer.
 
