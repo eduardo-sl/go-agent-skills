@@ -1,6 +1,6 @@
 # High-Throughput Logging
 
-Worked examples for SKILL.md section 6.
+Worked examples for the SKILL.md High-Throughput Logging section.
 
 `log/slog` is the right default for most services. But when benchmarks show
 logging is a bottleneck (high-frequency hot paths, >100k log lines/sec),
