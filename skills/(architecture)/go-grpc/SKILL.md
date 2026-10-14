@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(protoc:*) Bash(buf:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.4.0"
 ---
 
 # Go gRPC Services
@@ -22,6 +22,15 @@ metadata:
 gRPC's contract-first model only pays off if the contract is treated as
 an API: versioned packages, deliberate error codes, deadlines
 everywhere, and interceptors for everything cross-cutting.
+
+Detailed reference material, loaded on demand:
+
+- `references/clients.md` — `NewClient`, service-config retries and load
+  balancing, keepalive on both sides, reading status codes.
+- `references/testing.md` — in-memory `bufconn` server and client,
+  asserting status codes.
+
+Read a reference file only when the summary below is not enough.
 
 ## 1. Proto Design Rules
 
@@ -51,6 +60,10 @@ message CreatePaymentResponse {
   free; changing a shared message breaks every RPC using it.
 - Generate with buf or a pinned protoc in `make generate`; commit
   generated code so builds don't depend on toolchain drift.
+- In CI, `buf lint` and `buf breaking --against '.git#branch=main'` stop
+  renumbered fields and removed RPCs before they reach a client.
+  Field rules (lengths, ranges, formats) belong in protovalidate
+  annotations, enforced by an interceptor.
 
 ## 2. Errors: Status Codes, Not Strings
 
@@ -156,7 +169,29 @@ func (s *Server) WatchPayments(req *pb.WatchRequest, stream pb.PaymentService_Wa
 }
 ```
 
-## 6. Production Server Setup
+## 6. Clients
+
+- `grpc.NewClient` (it replaces the deprecated `Dial`) once per target at
+  startup; share the `*grpc.ClientConn` — it multiplexes and reconnects.
+- Retries, timeouts and load balancing in the service config: retry
+  `UNAVAILABLE` on idempotent methods only, and use `round_robin` (the
+  default `pick_first` sends everything to one backend).
+- Client keepalive pings must be allowed by the server's
+  `EnforcementPolicy` (default `MinTime` 5 minutes), or the server closes
+  the connection with `too_many_pings`.
+- Branch on `status.Code(err)`, never on the message.
+
+Examples: `references/clients.md`.
+
+## 7. Testing
+
+Test through the generated client over `bufconn`: a real server with the
+production interceptors, no network. Dial `passthrough:///bufnet` with
+`WithContextDialer` — `NewClient`'s default `dns` resolver would try to
+resolve the name. Assert with `status.Code(err)`. Example:
+`references/testing.md`.
+
+## 8. Production Server Setup
 
 ```go
 lis, err := net.Listen("tcp", cfg.Addr)
@@ -164,7 +199,11 @@ if err != nil {
     return fmt.Errorf("listen: %w", err)
 }
 
-srv := grpc.NewServer(grpc.ChainUnaryInterceptor(...))
+srv := grpc.NewServer(
+    grpc.Creds(creds),                // TLS; mTLS for service-to-service
+    grpc.MaxRecvMsgSize(4<<20),       // explicit; size it to the largest valid request
+    grpc.ChainUnaryInterceptor(...),
+)
 pb.RegisterPaymentServiceServer(srv, server)
 
 healthSrv := health.NewServer() // grpc.health.v1 — load balancers need it
@@ -185,15 +224,21 @@ go func() {
 return srv.Serve(lis)
 ```
 
+For mTLS, the server's `tls.Config` sets `ClientCAs` and
+`ClientAuth: tls.RequireAndVerifyClientCert`; handlers read the caller's
+verified identity from `peer.FromContext(ctx)` rather than trusting
+metadata.
+
 ## Verification Checklist
 
 1. Proto packages versioned (`*.v1`); no tag reuse; `reserved` for removals
 2. Dedicated Request/Response message per RPC
-3. Generated code produced by a pinned tool (buf/protoc) and committed
+3. Generated code produced by a pinned tool (buf/protoc) and committed; `buf breaking` runs in CI
 4. All handler errors are `status.Error` with semantically correct codes
 5. `codes.Internal` responses never leak internal error text
 6. Every client call has a deadline; ctx propagated through all layers
 7. Recovery, logging, auth implemented as chained interceptors (unary + stream)
 8. Streams select on `stream.Context().Done()`
-9. Health service registered; graceful stop with forced fallback
+9. Health service registered; graceful stop with forced fallback; TLS (mTLS internally) and an explicit receive limit
 10. `grpcurl` smoke test (or generated client test) passes against the running server
+11. One shared `ClientConn` per target, built with `grpc.NewClient`; retries limited to `UNAVAILABLE`

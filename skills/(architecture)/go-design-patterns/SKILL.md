@@ -14,7 +14,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
-  version: "1.2.2"
+  version: "1.3.1"
 ---
 
 # Go Design Patterns
@@ -22,12 +22,17 @@ metadata:
 Go favors composition over inheritance and simplicity over abstraction.
 These patterns are idiomatic Go — not Java patterns ported to Go.
 
+> Community default. A project skill or agent-config rule that explicitly
+> supersedes `go-design-patterns` takes precedence over this one.
+
 Detailed reference material, loaded on demand:
 
 - `references/creation-patterns.md` — functional options (full example),
   options vs config struct, constructors, factory.
 - `references/behavioral-patterns.md` — strategy, middleware/decorator,
   result type, defer cleanup, sentinel vs zero values.
+- `references/resilience-and-types.md` — retry with jitter, circuit
+  breaker, bulkhead, parse-don't-validate types, status types.
 
 Read a reference file only when the summary below is not enough.
 
@@ -43,6 +48,10 @@ Read a reference file only when the summary below is not enough.
 | Swap complex behavior at runtime | Strategy via interface | behavioral-patterns.md |
 | Wrap cross-cutting concerns (log, cache, metrics) | Middleware / decorator | behavioral-patterns.md |
 | Value-or-error in concurrent pipelines | `Result[T]` struct | behavioral-patterns.md |
+| Transient failures of a dependency | Retry with backoff and jitter | resilience-and-types.md |
+| A dependency that is down | Circuit breaker, bulkhead | resilience-and-types.md |
+| Validate once, trust afterwards | Parse into a type with unexported fields | resilience-and-types.md |
+| Several booleans describing one lifecycle | A status type with explicit transitions | resilience-and-types.md |
 
 ## 1. Functional Options (essentials)
 
@@ -136,6 +145,25 @@ Prefer types whose zero value is useful (`sync.Mutex`, `bytes.Buffer`,
 nil slices). Reach for sentinel wrappers or pointers only when the zero
 value is ambiguous as an input (`nil *float64` = "not configured").
 
+## 6. Resilience
+
+- Every outbound call has a deadline from `ctx` (go-context owns budgets).
+- Retry only what is safe to repeat, with exponential backoff and full
+  jitter, a cap, and at **one** layer — nested retries multiply.
+- A circuit breaker fails fast while a dependency is down; use a maintained
+  implementation, and degrade (cached value, partial response) when open.
+- A bulkhead (a semaphore per dependency) stops one slow dependency from
+  absorbing every goroutine and connection.
+
+## 7. Make Illegal States Unrepresentable
+
+Parse input once into a type with unexported fields (`ParseEmail` →
+`Email`), so every function that receives it can trust it. Replace
+clusters of booleans (`Paid`, `Shipped`, `Cancelled`) with one status type
+and methods that check the transition.
+
+Examples for sections 6-7: `references/resilience-and-types.md`.
+
 ## Anti-Patterns to Avoid
 
 ```go
@@ -175,3 +203,5 @@ type UserService struct{ BaseService } // embedding is NOT inheritance
 8. Zero values are meaningful — no unnecessary initialization
 9. No premature abstractions — interfaces extracted only when needed
 10. Composition used instead of embedding for code reuse
+11. Outbound calls have deadlines; retries are jittered, capped and at one layer
+12. Validated values and lifecycles are encoded in types, not re-checked or spread over booleans
