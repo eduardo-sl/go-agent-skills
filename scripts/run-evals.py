@@ -43,12 +43,15 @@ def load_cases(skill_filter):
 
 
 def run_prompt(cmd_template, prompt, timeout):
-    if "{prompt}" in cmd_template:
-        cmd = cmd_template.replace("{prompt}", prompt.replace('"', '\\"'))
-        proc = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
+    # Split the template first and substitute into the argument list, so the
+    # prompt is passed verbatim and never parsed by a shell: a prompt (or, in
+    # judge mode, a model's answer) containing $(...) or backticks must not run.
+    argv = shlex.split(cmd_template)
+    if any("{prompt}" in a for a in argv):
+        argv = [a.replace("{prompt}", prompt) for a in argv]
+        proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
     else:
-        proc = subprocess.run(shlex.split(cmd_template), input=prompt,
-                              capture_output=True, text=True, timeout=timeout)
+        proc = subprocess.run(argv, input=prompt, capture_output=True, text=True, timeout=timeout)
     return proc.stdout + proc.stderr
 
 
