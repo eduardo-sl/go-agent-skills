@@ -2,8 +2,9 @@
 name: go-semantic-tools
 description: >
   Navigate and analyze Go codebases semantically with the toolchain instead
-  of text search: gopls (references, implementations, call hierarchy,
-  rename), go list for the dependency graph, and go doc for APIs. Use when:
+  of text search: gopls via its MCP server or CLI (references,
+  implementations, call hierarchy, rename, extract/inline code actions,
+  diagnostics), go list for the dependency graph, go doc for APIs. Use when:
   "find all callers", "who implements this interface", "where is this used",
   "trace the dependency graph", "explore this codebase", "find usages before
   changing", "map the module".
@@ -12,11 +13,11 @@ description: >
   (go-documentation).
 user-invocable: true
 license: MIT
-compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires gopls (go install golang.org/x/tools/gopls@latest).
+compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Requires gopls (go install golang.org/x/tools/gopls@latest); v0.20+ for the MCP server.
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(gopls:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Go Semantic Tools
@@ -25,6 +26,26 @@ grep finds strings; the toolchain finds meaning. Method names repeat
 across types, interfaces are satisfied implicitly, and dot-imports lie
 to text search. Before changing shared code, get the truth from tools
 that understand types.
+
+Detailed reference material, loaded on demand:
+
+- `references/mcp-and-code-actions.md` — `gopls mcp` setup and tools, the
+  read/edit loop, CLI code actions, build-tag gotchas.
+
+Read a reference file only when the summary below is not enough.
+
+## 0. Pick the Interface
+
+| Interface | Prefer it when |
+|---|---|
+| gopls MCP server (`gopls mcp`, v0.20+) | Working as an agent — tools take symbol names and file paths, not cursor positions |
+| The harness's built-in LSP integration, if enabled | You already have a position, and want diagnostics pushed after every edit |
+| `gopls` CLI (below) | Scripts and one-off checks; the Go team documents it as a debugging interface |
+
+With the MCP server, follow its loop: `go_symbol_references` before
+changing a definition, `go_diagnostics` after every edit until clean,
+`go_vulncheck` after `go.mod` changes, then `go test` on the changed
+packages only. Setup and the tool list: `references/mcp-and-code-actions.md`.
 
 ## 1. Choose the Tool
 
@@ -113,7 +134,20 @@ go vet ./...                 # the vet suite standalone
 `gopls check` surfaces the same diagnostics an IDE user sees — run it
 when reviewing code you haven't opened in an editor.
 
-## 5. When grep Is Still Right
+## 5. Refactoring Code Actions
+
+```bash
+gopls codeaction internal/order/service.go:42:2-58:3                     # list
+gopls codeaction -kind=refactor.extract.function -exec -diff \
+    internal/order/service.go:42:2-58:3                                  # preview
+```
+
+Extract (function, method, variable, constant, to new file), inline call,
+fill struct/switch, invert `if`, remove an unused parameter at every call
+site — each type-aware, unlike a hand edit. Diff before writing; extract
+and inline are best-effort with comments.
+
+## 6. When grep Is Still Right
 
 - String literals: log messages, SQL, config keys, error text.
 - Comments, TODOs, documentation.
@@ -132,3 +166,5 @@ Rule of thumb: identifiers → gopls; literals and prose → grep.
 5. Unfamiliar packages explored via `go doc` before reading implementations
 6. `gopls check` / `go vet` run when reviewing without an editor
 7. grep reserved for literals, comments, and non-compiling code
+8. Diagnostics checked after every edit (MCP `go_diagnostics` or `gopls check`)
+9. Cross-platform symbols queried with the matching `GOOS`/build tags
