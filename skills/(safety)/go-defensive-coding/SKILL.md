@@ -18,7 +18,7 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gosec:*)
 metadata:
   author: eduardo-sl
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Go Defensive Coding
@@ -75,7 +75,8 @@ Rules:
   interface. Return `nil` explicitly on the success path.
 - Never store a possibly-nil concrete pointer in an `error`, `io.Reader`, or
   any interface-typed struct field.
-- `go vet`'s `nilness` analyzer catches some of these. It does not catch all.
+- `staticcheck` reports `SA4023` when a comparison with `nil` can never be
+  true because of this trap. No tool catches every case.
 
 ## 2. Nil Map, Slice, and Channel Behaviour
 
@@ -291,15 +292,16 @@ Run these; do not rely on reading alone. Skip and note any tool that is not
 installed.
 
 ```bash
-go vet ./...                                  # includes the nilness analyzer
+go vet ./...                                  # copylocks, lostcancel, printf
 golangci-lint run                             # errcheck, bodyclose, makezero, sqlclosecheck
-gosec -include=G115,G104,G601 ./...           # integer overflow, unhandled errors
+staticcheck ./...                             # SA4023 typed-nil comparisons
+gosec -include=G115,G104 ./...                # integer overflow, unhandled errors
 go test -race ./...                           # aliasing bugs often surface as races
 ```
 
 Relevant golangci-lint linters: `errcheck`, `bodyclose`, `sqlclosecheck`,
 `rowserrcheck`, `makezero`, `nilerr`, `exhaustive`, and `govet` with the
-`nilness` analyzer enabled.
+`nilness` analyzer enabled — `go vet` itself does not run `nilness`.
 
 Go 1.22 and later give each loop iteration its own variable. Do not add the
 old `v := v` shadow line; do not remove one from a module still on `go 1.21`.
