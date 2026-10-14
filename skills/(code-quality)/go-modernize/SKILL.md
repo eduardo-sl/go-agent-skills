@@ -2,8 +2,8 @@
 name: go-modernize
 description: >
   Modernize Go code to use current language features and standard library
-  additions. Covers generics, log/slog, errors.Join, slices/maps packages,
-  range-over-func, and iterators introduced in Go 1.21-1.23+. Use when:
+  additions, Go 1.21 through 1.27: generics and generic methods, log/slog,
+  errors.Join, slices/maps, iterators, encoding/json/v2, stdlib uuid. Use when:
   "modernize", "update to modern Go", "use generics", "replace interface{}",
   "upgrade Go version", "slog", "errors.Join", "range over func",
   "iterators".
@@ -15,13 +15,13 @@ compatibility: Designed for Claude Code or similar AI coding agents working on G
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(gofmt:*) Bash(golangci-lint:*) Bash(gopls:*)
 metadata:
   author: eduardo-sl
-  version: "1.4.2"
+  version: "1.8.0"
 ---
 
 # Go Modernize
 
 Go evolves. Code written for Go 1.16 should not look the same as code targeting
-Go 1.25+. Modernize incrementally — update `go.mod`, then adopt new patterns.
+Go 1.27. Modernize incrementally — update `go.mod`, then adopt new patterns.
 
 Never adopt a feature above the `go` directive in `go.mod`. Raise the
 directive deliberately, in its own commit, and only to a version the project's
@@ -33,12 +33,50 @@ Detailed reference material, loaded on demand:
   constraints, generic containers, when NOT to use generics.
 - `references/stdlib-migrations.md` — before/after examples for slog,
   errors.Join, slices/maps helpers, range-over-int, and iterators.
+- `references/go1.27.md` — generic methods, `CutLast`, URL/Values
+  `Clone`, `big.Int.Divide`, stdlib `uuid`, json/v2 semantics, synctest
+  and httptest additions, tooling changes.
+- `references/version-bump.md` — procedure and per-release checklist
+  (1.25-1.27) for what can break when the `go` directive is raised.
 
 Read a reference file only when the summary below is not enough.
 
+## Operating Modes
+
+- **Inline** (default — the developer is working on something else):
+  modernize only the lines you are already changing. Note other
+  opportunities once, at the end, each with the gain it brings; do not
+  touch unrelated files — an unrequested sweep buries the real change in
+  churn. If a suggestion is declined, do not raise it again in the
+  session; if the developer wants that remembered, add one line to the
+  project's agent-config file (CLAUDE.md, AGENTS.md).
+- **Version bump** (raising the `go` directive): a behavior change even
+  with no source edits. Follow `references/version-bump.md` — prerequisites,
+  then the per-release breakage checklist — before adopting any feature.
+- **Sweep** (asked to modernize a package or the module): run the
+  procedure below and land one commit per category — `go fix` output,
+  deprecated APIs, language features, stdlib helpers, tests — each green
+  on build and tests. The categories are independent; if your environment
+  supports parallel sub-agents, give each one a category and work on a
+  separate branch or worktree.
+
+## Priority Order
+
+Apply in this order when time is limited:
+
+1. **Correctness and security** — `errors.Is`/`As` instead of `==`,
+   `http.NewRequestWithContext`, `os.Root` for user-supplied paths,
+   `crypto/rand` wherever randomness protects something, deprecated
+   `x/crypto` packages replaced by their stdlib versions.
+2. **Readability** — `any`, `min`/`max`, range over int, `slices`/`maps`,
+   `cmp.Or`, `sync.OnceValue`, `wg.Go`, `errors.AsType`.
+3. **Gradual** — iterators, logger migration to `slog`, `go.mod` tool
+   directives, dropping dependencies the stdlib now covers.
+
 ## Modernization Procedure
 
-1. Check the `go` directive in `go.mod` — it caps which features you can use.
+1. Check the `go` directive in `go.mod` — it caps which features you can use. Raising
+   it is the Version bump mode, never a side effect of a feature change.
 2. Run the official modernizers first — they find and fix the mechanical
    migrations automatically:
 
@@ -69,7 +107,12 @@ Read a reference file only when the summary below is not enough.
 | 1.21+ | `log/slog` | Replace `log` for structured logging |
 | 1.21+ | `slices`, `maps` | Replace hand-written slice/map utilities |
 | 1.21+ | `min`, `max` builtins | Replace `math.Min`/`math.Max` (float64-only) |
+| 1.21+ | `sync.OnceValue`, `sync.OnceFunc` | Replace `sync.Once` + package var pairs |
 | 1.22+ | Range over int | Replace `for i := 0; i < n; i++` |
+| 1.22+ | Per-iteration loop variables | Delete `v := v` shadow copies (only once `go.mod` says 1.22+) |
+| 1.22+ | `math/rand/v2` | Replace `math/rand`; drop `rand.Seed` |
+| 1.22+ | `cmp.Or` | Replace "first non-zero value" if-chains |
+| 1.22+ | `ServeMux` method + wildcard patterns | Replace a router dependency used only for `GET /users/{id}` |
 | 1.23+ | Range over func | Replace callback-based iteration |
 | 1.23+ | `unique.Make` | Replace hand-rolled string interning |
 | 1.24+ | `for b.Loop()` | Replace `for range b.N` in benchmarks |
@@ -77,156 +120,35 @@ Read a reference file only when the summary below is not enough.
 | 1.24+ | `os.Root` | Replace manual path-traversal checks |
 | 1.24+ | `go.mod` tool directive | Replace the `tools.go` blank-import file |
 | 1.24+ | `runtime.AddCleanup` | Replace `runtime.SetFinalizer` |
+| 1.24+ | `omitzero` struct tag | Replace `omitempty` where Go zero values (e.g. `time.Time{}`) must be omitted |
+| 1.24+ | `strings.SplitSeq`, `strings.Lines`, `FieldsSeq` | Replace `Split` when the slice is only ranged over |
+| 1.24+ | `crypto/sha3`, `crypto/hkdf`, `crypto/pbkdf2` | Replace the `golang.org/x/crypto` versions |
+| 1.24+ | `crypto/rand.Text` | Replace hand-rolled random token encoders |
 | 1.25+ | `testing/synctest` | Replace `time.Sleep` in concurrency tests |
 | 1.25+ | `sync.WaitGroup.Go` | Replace `wg.Add(1)` + `go func(){defer wg.Done()}` |
+| 1.25+ | `reflect.TypeAssert` | Replace `v.Interface().(T)` (no allocation) |
+| 1.25+ | Container-aware `GOMAXPROCS` | Remove `go.uber.org/automaxprocs` |
 | 1.26+ | `errors.AsType` | Replace `errors.As` with a declared target variable |
 | 1.26+ | `slog.NewMultiHandler` | Replace hand-written fan-out handlers |
 | 1.26+ | `new(expr)` | Replace a temp variable taken by address |
+| 1.26+ | `httputil.ReverseProxy.Rewrite` | Replace the deprecated, unsafe `Director` hook |
+| 1.27+ | Generic methods | Replace package-level generic helpers that belong to one type (not when an interface must expose them) |
+| 1.27+ | Promoted fields as literal keys | Replace `Outer{Inner: Inner{ID: x}}` nesting |
+| 1.27+ | `strings.CutLast`, `bytes.CutLast` | Replace `LastIndex` + slicing |
+| 1.27+ | `url.URL.Clone`, `url.Values.Clone` | Replace hand-written deep copies |
+| 1.27+ | `big.Int.Divide` | Replace `QuoRem` + sign correction |
+| 1.27+ | stdlib `uuid` | Replace `google/uuid` for v4/v7 IDs |
+| 1.27+ | `encoding/json/v2` | Adopt per call site — stricter semantics, see reference |
+| 1.27+ | `synctest.Sleep`, `httptest.NewTestServer` | Replace `time.Sleep`+`Wait` and socket-bound test servers |
+| 1.27+ | `testing/cryptotest.SetGlobalRandom` | Replace `tls.Config.Rand` in tests |
 
-## Key Migrations at a Glance
+## Worked Migrations
 
-### Generics — type-safe utilities (Go 1.18+)
-
-```go
-// ❌ Before — loses type safety
-func Contains(slice []interface{}, target interface{}) bool { /* ... */ }
-
-// ✅ After — type-safe generic
-func Contains[T comparable](slice []T, target T) bool { /* ... */ }
-```
-
-Use generics for container types (`Set[T]`, `Result[T]`) and utility
-functions. Do NOT use them where a single concrete type works, or as a
-substitute for interfaces in runtime polymorphism.
-Details and constraint patterns: `references/generics.md`.
-
-### Structured logging (Go 1.21+)
-
-```go
-// ❌ Before
-log.Printf("processing order %s for user %s", orderID, userID)
-
-// ✅ After
-slog.Info("processing order",
-    slog.String("order_id", orderID),
-    slog.String("user_id", userID),
-)
-```
-
-Keep zap/zerolog only if you need their performance for high-throughput
-logging; for most services slog is sufficient.
-
-### errors.Join (Go 1.20+)
-
-```go
-var errs []error
-for _, item := range items {
-    if err := validate(item); err != nil {
-        errs = append(errs, err)
-    }
-}
-if err := errors.Join(errs...); err != nil {
-    return fmt.Errorf("validation: %w", err)
-}
-```
-
-`errors.Join` preserves the chain — `errors.Is`/`errors.As` work on each
-joined error. Never accumulate error strings manually.
-
-### slices and maps helpers (Go 1.21+)
-
-```go
-found := slices.Contains(items, target)          // not a manual loop
-slices.SortFunc(users, func(a, b User) int {     // not sort.Slice
-    return cmp.Compare(a.Name, b.Name)
-})
-keys := slices.Collect(maps.Keys(m))             // not a manual key loop
-clone := maps.Clone(m)                           // not a manual copy loop
-```
-
-### Range over int (Go 1.22+) and iterators (Go 1.23+)
-
-```go
-for i := range n { process(i) }                  // not for i := 0; i < n; i++
-
-for i, v := range slices.Backward(items) {       // stdlib iterators
-    fmt.Printf("%d: %v\n", i, v)
-}
-```
-
-Custom `iter.Seq`/`iter.Seq2` iterators replace callback-based iteration —
-full worked example in `references/stdlib-migrations.md`.
-
-### Context-aware HTTP requests (Go 1.13+, often missed)
-
-```go
-// ❌ Before — request without context
-req, err := http.NewRequest(http.MethodGet, url, nil)
-
-// ✅ After — context propagated
-req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-```
-
-### Concurrency and tests (Go 1.24-1.25)
-
-```go
-// ❌ Before
-var wg sync.WaitGroup
-for _, job := range jobs {
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
-        process(job)
-    }()
-}
-wg.Wait()
-
-// ✅ After — Go 1.25
-var wg sync.WaitGroup
-for _, job := range jobs {
-    wg.Go(func() { process(job) })
-}
-wg.Wait()
-```
-
-`wg.Go` cannot be called after `wg.Wait` returns, which removes the classic
-"Add after Wait" race that the `waitgroup` vet analyzer (Go 1.25+) reports.
-
-In tests, `context.Background()` becomes `t.Context()`, `for range b.N`
-becomes `for b.Loop()`, and `time.Sleep`-based concurrency tests become
-`synctest.Test`. → See the go-test-quality skill.
-
-### Error inspection (Go 1.26)
-
-```go
-// ❌ Before — needs a declared target, and the pointer indirection is easy to get wrong
-var pathErr *fs.PathError
-if errors.As(err, &pathErr) {
-    log.Println(pathErr.Path)
-}
-
-// ✅ After — Go 1.26
-if pathErr, ok := errors.AsType[*fs.PathError](err); ok {
-    log.Println(pathErr.Path)
-}
-```
-
-`errors.Is` is unchanged. Only the `As` form gains a generic alternative.
-
-### Value interning and cleanup (Go 1.23-1.24)
-
-```go
-// ✅ unique.Make deduplicates repeated values; Value() returns the canonical copy
-h := unique.Make(hostname)          // unique.Handle[string], comparable, cheap
-store[h] = conn                     // one string kept in memory, not one per entry
-
-// ✅ AddCleanup replaces SetFinalizer: multiple cleanups, no resurrection,
-//    and it works on objects that are part of a cycle
-runtime.AddCleanup(obj, func(fd int) { syscall.Close(fd) }, obj.fd)
-```
-
-Reach for `unique` only where profiling shows duplicate values dominating the
-heap — a config parser reading millions of rows, not a request handler.
+Before/after examples for every row above live in
+`references/stdlib-migrations.md` (stdlib and language features) and
+`references/generics.md` (type parameters). Test-specific migrations —
+`t.Context()`, `b.Loop()`, `synctest` — are owned by the go-test-quality
+skill.
 
 ## Verification Checklist
 
