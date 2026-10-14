@@ -1,0 +1,57 @@
+name: Go release watch
+
+# Opens an issue when a new Go release ships that go-modernize does not
+# cover yet. Deterministic: compares go.dev's release list with the skill's
+# feature table, no model call and no API key.
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Mondays 09:00 UTC; Go releases twice a year, patches monthly
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    if: github.repository == 'eduardo-sl/go-agent-skills'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check go-modernize coverage
+        id: check
+        run: |
+          set +e
+          message=$(./scripts/check-go-release.sh)
+          status=$?
+          set -e
+          echo "$message"
+          if [[ $status -eq 2 ]]; then
+            exit 1 # lookup failed: fail the run rather than open a misleading issue
+          fi
+          echo "missing=$([[ $status -eq 1 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          {
+            echo "message<<MSG"
+            echo "$message"
+            echo "MSG"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open an issue (once)
+        if: steps.check.outputs.missing == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MESSAGE: ${{ steps.check.outputs.message }}
+        run: |
+          title="go-modernize: cover the latest Go release"
+          open=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq 'length')
+          if [[ "$open" == "0" ]]; then
+            gh issue create --title "$title" --body "$MESSAGE
+
+          To do:
+          - [ ] Add the release's rows to the go-modernize feature table and a references/go1.N.md
+          - [ ] Extend references/version-bump.md with what can break
+          - [ ] Touch the sibling skills the release affects (testing, concurrency, security, CI matrix)
+          - [ ] Add eval cases for the new APIs"
+          fi
