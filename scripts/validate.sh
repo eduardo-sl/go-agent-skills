@@ -51,6 +51,35 @@ for skill_file in $(find "$SKILLS_DIR" -name "SKILL.md" | sort); do
     # Extract frontmatter
     frontmatter=$(sed -n '/^---$/,/^---$/p' "$skill_file")
 
+    # Check unquoted scalar values across the first frontmatter block.
+    while IFS= read -r colon_error; do
+        error "$colon_error"
+    done < <(awk '
+        NR == 1 { scalar_indent = -1; next }
+        /^---$/ { exit }
+        /^[ \t]*(#|$)/ { next }
+        {
+            match($0, /^ */)
+            indent = RLENGTH
+            if (scalar_indent >= 0 && indent > scalar_indent) next
+            scalar_indent = -1
+            if ($0 !~ /^ *[[:alnum:]_-]+:/) next
+            value = substr($0, index($0, ":") + 1)
+            sub(/^[ \t]*/, "", value)
+            if (value ~ /^[>|"\047]/ || value ~ /^\[/ || value ~ /^\{/) {
+                scalar_indent = indent
+                next
+            }
+            sub(/(^|[ \t]+)#.*/, "", value)
+            if (value ~ /:[ \t]/) {
+                field = $0
+                sub(/^ */, "", field)
+                sub(/:.*/, "", field)
+                printf "Unquoted colon followed by whitespace in %s (line %d); quote the value\n", field, NR
+            }
+        }
+    ' "$skill_file")
+
     # 2. Check name field exists and matches directory
     fm_name=$(echo "$frontmatter" | grep "^name:" | head -1 | sed 's/^name:[[:space:]]*//')
     if [[ -z "$fm_name" ]]; then

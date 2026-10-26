@@ -11,7 +11,7 @@ description: >
   (go-api-design).
 user-invocable: true
 license: MIT
-compatibility: Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Read-only: this skill reports findings, it does not edit code.
+compatibility: "Designed for Claude Code or similar AI coding agents working on Go projects. Requires the Go toolchain. Read-only: this skill reports findings, it does not edit code."
 allowed-tools: Read Glob Grep Bash(go:*) Bash(gofmt:*)
 metadata:
   author: eduardo-sl
